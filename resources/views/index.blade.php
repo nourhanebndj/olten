@@ -26,7 +26,7 @@
             ou mettez vos propres affaires en location pour arrondir vos fins de mois.
             </p>
             <div class="hero-buttons">
-            <a href="#" class="btn-orange">Déposer une annonce</a>
+            <a href="{{ route(name: 'deposer_annonce') }}" class="btn-orange">Déposer une annonce</a>
             <a href="{{ route('creer.site') }}" class="btn-black">Créer un site</a>
             </div>
         </div>

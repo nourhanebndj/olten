@@ -127,8 +127,7 @@
                         <button class="active">1</button>
                         <button>2</button>
                         <button>3</button>
-                        <button>8</button>
-                        <button><i class="fa-solid fa-chevron-right"></i></button>
+                        <button>4</button>
                     </div>
                 </section>
 

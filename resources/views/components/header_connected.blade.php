@@ -25,9 +25,10 @@
                     </ul>
                 </div>
 
-                <button class="btn-add-annonce">
-                    <i class="fa-solid fa-plus"></i> 
+                <a href="{{ route('deposer_annonce') }}" class="btn-add-annonce">
+                    <i class="fa-solid fa-plus"></i>
                     <span>Ajouter une annonce</span>
-                </button>
+                </a>
+
             </div>
         </header>

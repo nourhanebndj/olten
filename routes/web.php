@@ -25,3 +25,27 @@ Route::view('/categories', 'pages.annonces_pages.categories_annonces')
 Route::get('/dashboard-locateur', function () {
     return view('pages.locateur.dashboard');
 });
+
+Route::get('/deposer_annonce', function () {
+    return view('pages.locateur.deposer_annonce');
+})->name('deposer_annonce'); 
+
+Route::get('/favoris', function () {
+    return view('pages.locateur.favoris');
+})->name('favoris');
+
+Route::get('/profile', function () {
+    return view('pages.locateur.profile');
+})->name('profile');
+
+Route::get('/statistiques', function () {
+    return view('pages.locateur.statistiques');
+})->name('statistiques');
+
+Route::get('/mes_annonces', function () {
+    return view('pages.locateur.mes_annonces');
+})->name('mes_annonces');
+
+Route::get('/messages', function () {
+    return view('pages.locateur.messages');
+})->name('messages');
