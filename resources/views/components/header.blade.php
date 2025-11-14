@@ -124,49 +124,70 @@
 
         <!-- Contenu Connexion -->
         <div class="tab-content" id="login">
-            <div class="input-group">
-                <i class="fa-solid fa-user"></i>
-                <input type="text" placeholder="Nom d'utilisateur / Email">
-            </div>
-            <div class="input-group">
-                <i class="fa-solid fa-lock"></i>
-                <input type="password" placeholder="Mot de passe">
-                <i class="fa-solid fa-eye toggle-password"></i>
-            </div>
-            <label>
-                <input type="checkbox"> Se souvenir de moi
-            </label>
-            <button class="submit-btn">Connexion</button>
-            <p><a href="#">Vous avez perdu votre mot de passe ?</a></p>
+            <form id="login-form" method="POST" action="{{ route('login') }}">
+                @csrf
+                <div class="input-group">
+                    <i class="fa-solid fa-user"></i>
+                    <input type="text" name="email" placeholder="Nom d'utilisateur / Email" required>
+                </div>
+                <div class="input-group">
+                    <i class="fa-solid fa-lock"></i>
+                    <input type="password" name="password" placeholder="Mot de passe" required>
+                    <i class="fa-solid fa-eye toggle-password"></i>
+                </div>
+
+                <label>
+                    <input type="checkbox" name="remember"> Se souvenir de moi
+                </label>
+
+                <div id="login-errors"></div>
+
+                <button type="submit" class="submit-btn">Connexion</button>
+                <p><a href="{{ route('password.request') }}">Vous avez perdu votre mot de passe ?</a></p>
+            </form>
         </div>
 
         <!-- Contenu Inscription -->
         <div class="tab-content" id="register" style="display:none;">
+            <form id="registerForm">
+                @csrf
                 <div class="input-group">
-                <i class="fa-solid fa-pen"></i>
-                <input type="text" placeholder="Prénom">
-            </div>
-            <div class="input-group">
-                <i class="fa-solid fa-pen"></i>
-                <input type="text" placeholder="Nom de famille">
-            </div>
-            <div class="input-group">
-                <i class="fa-solid fa-user"></i>
-                <input type="text" placeholder="Nom d'utilisateur">
-            </div>
-            <div class="input-group">
-                <i class="fa-solid fa-envelope"></i>
-                <input type="email" placeholder="Adresse e-mail">
-            </div>
-            <div class="input-group">
-                <i class="fa-solid fa-lock"></i>
-                <input type="password" placeholder="Mot de passe">
-                <i class="fa-solid fa-eye toggle-password"></i>
-            </div>
-            <label>
-                <input type="checkbox"> J'accepte les <a href="#">Conditions de confidentialité</a>
-            </label>
-            <button class="submit-btn">S'inscrire</button>
+                    <i class="fa-solid fa-pen"></i>
+                    <input type="text" name="first_name" placeholder="Prénom" required>
+                </div>
+                <div class="input-group">
+                    <i class="fa-solid fa-pen"></i>
+                    <input type="text" name="last_name" placeholder="Nom de famille" required>
+                </div>
+                <div class="input-group">
+                    <i class="fa-solid fa-envelope"></i>
+                    <input type="email" name="email" placeholder="Adresse e-mail" required>
+                </div>
+                <div class="input-group">
+                    <i class="fa-solid fa-lock"></i>
+                    <input type="password" name="password" placeholder="Mot de passe" required>
+                    <i class="fa-solid fa-eye toggle-password"></i>
+                </div>
+                <div class="input-group">
+                    <i class="fa-solid fa-lock"></i>
+                    <input type="password" name="password_confirmation" placeholder="Confirmer le mot de passe" required>
+                </div>
+                <label>
+                    <input type="checkbox" name="terms" required> J'accepte les <a href="#">Conditions de confidentialité</a>
+                </label>
+
+                <div id="registerErrors"></div>
+
+                <button type="submit" class="submit-btn">S'inscrire</button>
+            </form>
         </div>
     </div>
 </div>
+<script>
+    const REGISTER_URL = "{{ route('register') }}";
+    const LOGIN_URL = "{{ route('login') }}";
+    const LOGIN_REDIRECT = "{{ route('dashboard') }}";
+    const CSRF_TOKEN = "{{ csrf_token() }}";
+</script>
+<script src="{{ asset('assets/js/auth.js') }}"></script>
+
