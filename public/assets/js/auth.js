@@ -1,110 +1,140 @@
 document.addEventListener('DOMContentLoaded', function() {
 
-    const form = document.getElementById('registerForm');
-    const errorsDiv = document.getElementById('registerErrors');
+    const registerForm = document.getElementById('registerForm');
+    const registerErrorsDiv = document.getElementById('registerErrors');
+    const loginForm = document.getElementById('login-form');
+    const loginErrorsDiv = document.getElementById('login-errors');
+    const authModal = document.getElementById('authModal');
+    const togglePasswordIcons = document.querySelectorAll('.toggle-password');
 
-    if (!form) return;
+    function showLoginModalIfNeeded() {
+        if (!authModal || !window.SHOW_LOGIN_MODAL) return;
 
-    form.addEventListener('submit', function(e){
-        e.preventDefault();
-        errorsDiv.innerHTML = '';
+        authModal.style.display = 'block';
 
-        const formData = new FormData(form);
+        document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+        document.querySelector('[data-tab="login"]').classList.add('active');
 
-        fetch(REGISTER_URL, {
-            method: 'POST',
-            headers: {
-                'X-CSRF-TOKEN': CSRF_TOKEN,
-                'Accept': 'application/json'
-            },
-            body: formData
-        })
-        .then(async response => {
-            const data = await response.json();
+        document.querySelectorAll('.tab-content').forEach(tab => tab.style.display = 'none');
+        document.getElementById('login').style.display = 'block';
 
-            if (response.status === 422) {
-                if(data.errors) {
-                    for (let key in data.errors) {
-                        data.errors[key].forEach(msg => {
-                            const p = document.createElement('p');
-                            p.className = "text-danger";
-                            p.textContent = msg;
-                            errorsDiv.appendChild(p);
-                        });
-                    }
-                }
-            } else if (data.status === 'error') {
-                if(data.errors) {
-                    for (let key in data.errors) {
-                        data.errors[key].forEach(msg => {
-                            const p = document.createElement('p');
-                            p.className = "text-danger";
-                            p.textContent = msg;
-                            errorsDiv.appendChild(p);
-                        });
-                    }
-                }
-            } else if (data.status === 'success') {
-                window.location.href = data.redirect;
-            }
-        })
-        .catch(err => {
-            console.error(err);
-            const p = document.createElement('p');
-            p.className = "text-danger";
-            p.textContent = "Une erreur est survenue. Veuillez réessayer.";
-            errorsDiv.appendChild(p);
-        });
-
-    });
-
-});
-
-// connexion
-document.getElementById('login-form').addEventListener('submit', async function (e) {
-    e.preventDefault();
-
-    const form = e.target;
-    const formData = new FormData(form);
-
-    document.getElementById('login-errors').innerHTML = "";
-
-    try {
-        const response = await fetch(LOGIN_URL, {
-            method: "POST",
-            headers: {
-                "X-Requested-With": "XMLHttpRequest",
-                "X-CSRF-TOKEN": CSRF_TOKEN,
-                "Accept": "application/json"
-            },
-            body: formData
-        });
-
-        const data = await response.json();
-
-        if (response.ok && data.status === 'success') {
-            window.location.href = LOGIN_REDIRECT;
-            return;
+        if (window.PASSWORD_RESET_STATUS) {
+            loginErrorsDiv.innerHTML = `<p class="text-success">${window.PASSWORD_RESET_STATUS}</p>`;
         }
-
-        let errorBox = `<div class="errors">`;
-
-        if (data.errors) {
-            Object.keys(data.errors).forEach(field => {
-                data.errors[field].forEach(msg => {
-                    errorBox += `<p class="text-danger">${msg}</p>`;
-                });
-            });
-        } 
-        else if (data.message) {
-            errorBox += `<p class="text-danger">${data.message}</p>`;
-        }
-
-        errorBox += `</div>`;
-        document.getElementById('login-errors').innerHTML = errorBox;
-
-    } catch (err) {
-        console.error(err);
     }
-});
 
+    function setupPasswordToggle() {
+        togglePasswordIcons.forEach(icon => {
+            icon.addEventListener('click', function() {
+                const input = this.previousElementSibling;
+                if (!input) return;
+
+                if (input.type === 'password') {
+                    input.type = 'text';
+                    this.classList.replace('fa-eye', 'fa-eye-slash');
+                } else {
+                    input.type = 'password';
+                    this.classList.replace('fa-eye-slash', 'fa-eye');
+                }
+            });
+        });
+    }
+
+    // inscription
+    function handleRegisterForm() {
+        if (!registerForm) return;
+
+        registerForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            registerErrorsDiv.innerHTML = '';
+
+            const formData = new FormData(registerForm);
+
+            fetch(REGISTER_URL, {
+                method: 'POST',
+                headers: {
+                    'X-CSRF-TOKEN': CSRF_TOKEN,
+                    'Accept': 'application/json'
+                },
+                body: formData
+            })
+            .then(async response => {
+                const data = await response.json();
+
+                if (response.status === 422 || data.status === 'error') {
+                    const errors = data.errors || {};
+                    for (let key in errors) {
+                        errors[key].forEach(msg => {
+                            const p = document.createElement('p');
+                            p.className = 'text-danger';
+                            p.textContent = msg;
+                            registerErrorsDiv.appendChild(p);
+                        });
+                    }
+                } else if (data.status === 'success') {
+                    window.location.href = data.redirect;
+                }
+            })
+            .catch(err => {
+                console.error(err);
+                const p = document.createElement('p');
+                p.className = 'text-danger';
+                p.textContent = 'Une erreur est survenue. Veuillez réessayer.';
+                registerErrorsDiv.appendChild(p);
+            });
+        });
+    }
+
+    // connexion
+    function handleLoginForm() {
+        if (!loginForm) return;
+
+        loginForm.addEventListener('submit', async function(e) {
+            e.preventDefault();
+            loginErrorsDiv.innerHTML = '';
+
+            const formData = new FormData(loginForm);
+
+            try {
+                const response = await fetch(LOGIN_URL, {
+                    method: 'POST',
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'X-CSRF-TOKEN': CSRF_TOKEN,
+                        'Accept': 'application/json'
+                    },
+                    body: formData
+                });
+
+                const data = await response.json();
+
+                if (response.ok && data.status === 'success') {
+                    window.location.href = LOGIN_REDIRECT;
+                    return;
+                }
+
+                let errorBox = '<div class="errors">';
+                if (data.errors) {
+                    Object.keys(data.errors).forEach(field => {
+                        data.errors[field].forEach(msg => {
+                            errorBox += `<p class="text-danger">${msg}</p>`;
+                        });
+                    });
+                } else if (data.message) {
+                    errorBox += `<p class="text-danger">${data.message}</p>`;
+                }
+                errorBox += '</div>';
+                loginErrorsDiv.innerHTML = errorBox;
+
+            } catch (err) {
+                console.error(err);
+            }
+        });
+    }
+
+    showLoginModalIfNeeded();
+    setupPasswordToggle();
+    handleRegisterForm();
+    handleLoginForm();
+
+});

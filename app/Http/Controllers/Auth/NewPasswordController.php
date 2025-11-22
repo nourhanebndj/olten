@@ -34,11 +34,15 @@ class NewPasswordController extends Controller
             'token' => ['required'],
             'email' => ['required', 'email'],
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
+        ], [
+            'password.confirmed' => 'Les mots de passe ne correspondent pas.',
+            'password.required' => 'Le mot de passe est obligatoire.',
+            'password.min' => 'Le mot de passe doit contenir au moins :min caractères.',
+            'email.required' => 'L’adresse e-mail est obligatoire.',
+            'email.email' => 'Veuillez entrer une adresse e-mail valide.',
         ]);
 
-        // Here we will attempt to reset the user's password. If it is successful we
-        // will update the password on an actual user model and persist it to the
-        // database. Otherwise we will parse the error and return the response.
+
         $status = Password::reset(
             $request->only('email', 'password', 'password_confirmation', 'token'),
             function (User $user) use ($request) {
@@ -51,12 +55,18 @@ class NewPasswordController extends Controller
             }
         );
 
-        // If the password was successfully reset, we will redirect the user back to
-        // the application's home authenticated view. If there is an error we can
-        // redirect them back to where they came from with their error message.
-        return $status == Password::PASSWORD_RESET
-                    ? redirect()->route('login')->with('status', __($status))
-                    : back()->withInput($request->only('email'))
-                        ->withErrors(['email' => __($status)]);
+        if ($status === Password::INVALID_TOKEN) {
+            return back()
+                ->withInput($request->only('email'))
+                ->withErrors(['email' => 'Le lien de réinitialisation est invalide ou expiré.']);
+        }
+
+        return $status === Password::PASSWORD_RESET
+            ? redirect('/')->with([
+                'status' => 'Mot de passe réinitialisé avec succès.',
+                'showLoginModal' => true,
+            ])
+            : back()->withInput($request->only('email'))
+                    ->withErrors(['email' => __($status)]);
     }
 }

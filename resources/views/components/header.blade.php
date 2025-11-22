@@ -188,6 +188,8 @@
     const LOGIN_URL = "{{ route('login') }}";
     const LOGIN_REDIRECT = "{{ route('dashboard') }}";
     const CSRF_TOKEN = "{{ csrf_token() }}";
+    window.SHOW_LOGIN_MODAL = @json(session('showLoginModal', false));
+    window.PASSWORD_RESET_STATUS = @json(session('status', null));
 </script>
 <script src="{{ asset('assets/js/auth.js') }}"></script>
 
