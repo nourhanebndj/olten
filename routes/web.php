@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\ProfileController;
 
 Route::get('/', function () {
     return view('index');
@@ -21,10 +22,6 @@ Route::get('/annonce-details', function () {
 
 Route::view('/categories', 'pages.annonces_pages.categories_annonces')
 ->name('categories');
-
-Route::get('/dashboard-locateur', function () {
-    return view('pages.locateur.dashboard');
-});
 
 Route::get('/deposer_annonce', function () {
     return view('pages.locateur.deposer_annonce');
@@ -50,14 +47,12 @@ Route::get('/messages', function () {
     return view('pages.locateur.messages');
 })->name('messages');
 
-Route::get('/dashboard', function () {
-    return view('dashboard');
-})->middleware(['auth', 'verified'])->name('dashboard');
-
 Route::middleware('auth')->group(function () {
-    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
-    Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
-    Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+    Route::get('/dashboard', [ProfileController::class, 'index'])->name('dashboard');
+    Route::get('/profile', [ProfileController::class, 'profile'])->name('profile');
+    Route::get('/profile/modifer', [ProfileController::class, 'edit'])->name('profile.edit');
+    Route::patch('/profile/modifer', [ProfileController::class, 'update'])->name('profile.update');
+    Route::delete('/profile/supprimer', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
 
 require __DIR__.'/auth.php';

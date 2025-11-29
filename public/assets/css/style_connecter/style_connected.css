@@ -270,6 +270,16 @@ body {
     transition: background 0.2s;
 }
 
+.user-dropdown li a {
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    color: var(--color-text);
+    font-size: 14px;
+    gap: 10px;
+    transition: background 0.2s;
+}
 .user-dropdown li i {
     font-size: 14px;
     color: var(--color-primary);

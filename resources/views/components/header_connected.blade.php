@@ -9,8 +9,12 @@
 
             <div class="header-right">
                 <div class="user-menu">
-                    <div class="user-avatar">Y</div>
-                    <span class="username">YACINE</span>
+                    @php
+                        $name = Auth::user()->name;
+                        $initial = strtoupper(substr($name, 0, 1));
+                    @endphp
+                    <div class="user-avatar">{{ $initial }}</div>
+                    <span class="username">{{ $name }}</span>
                     <i class="fa-solid fa-chevron-down"></i>
 
                     <!-- DROPDOWN MENU -->
@@ -21,7 +25,14 @@
                         <li><i class="fa-solid fa-heart"></i> Favoris</li>
                         <li><i class="fa-solid fa-envelope"></i> Messages</li>
                         <li><i class="fa-solid fa-user"></i> Mon profil</li>
-                        <li><i class="fa-solid fa-right-from-bracket"></i> Déconnexion</li>
+                        <li>
+                            <form method="POST" action="{{ route('logout') }}">
+                                @csrf
+                                <x-responsive-nav-link :href="route('logout')" onclick="event.preventDefault(); this.closest('form').submit();">
+                                    <i class="fa-solid fa-right-from-bracket"></i> Déconnexion
+                                </x-responsive-nav-link>
+                            </form>
+                        </li>
                     </ul>
                 </div>
 
