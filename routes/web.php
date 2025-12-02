@@ -2,6 +2,9 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\Admin\AdminAuthController;
+use App\Http\Controllers\Admin\CategoryController;
+use App\Http\Controllers\Admin\AdminDashboardController;
 
 Route::get('/', function () {
     return view('index');
@@ -53,6 +56,27 @@ Route::middleware('auth')->group(function () {
     Route::get('/profile/modifer', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile/modifer', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile/supprimer', [ProfileController::class, 'destroy'])->name('profile.destroy');
+});
+
+
+Route::prefix('admin')->group(function () {
+
+    Route::get('/login', [AdminAuthController::class, 'showLogin'])->name('admin.login');
+    Route::post('/login', [AdminAuthController::class, 'login'])->name('admin.login.submit');
+
+    Route::middleware(['auth'])->group(function () {
+        Route::get('/', [AdminDashboardController::class, 'index'])->name('admin.dashboard');
+        Route::get('/categorie', [CategoryController::class, 'index'])->name('admin.categories.index');
+        Route::get('/categories/create', [CategoryController::class, 'create'])->name('admin.categories.create');
+        Route::post('/categories', [CategoryController::class, 'store'])->name('admin.categories.store');
+
+        Route::get('/categories/{category}/edit', [CategoryController::class, 'edit'])->name('admin.categories.edit');
+        Route::put('/categories/{category}', [CategoryController::class, 'update'])->name('admin.categories.update');
+
+        Route::delete('/categories/{category}', [CategoryController::class, 'destroy'])->name('admin.categories.destroy');
+
+    });
+
 });
 
 require __DIR__.'/auth.php';

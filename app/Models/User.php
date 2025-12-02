@@ -12,6 +12,10 @@ class User extends Authenticatable
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
     use HasFactory, Notifiable;
+    public $timestamps = false;
+ protected $primaryKey = 'user_id';
+public $incrementing = false; // si pas auto-increment
+protected $keyType = 'string'; // ou 'int'
 
     /**
      * The attributes that are mass assignable.
@@ -37,6 +41,7 @@ class User extends Authenticatable
         'whatsapp',
         'identity_verification',
         'profile_photo',
+        'is_admin',
     ];
 
     /**

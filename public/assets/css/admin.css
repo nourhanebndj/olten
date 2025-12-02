@@ -1,0 +1,108 @@
+/* ==============================
+   Admin Layout - Sidebar
+============================== */
+body {
+    font-family: 'Inter', sans-serif;
+    background-color: #f5f8fb;
+    min-height: 100vh;
+}
+#sidebar {
+    width: 16rem;
+    min-width: 250px;
+    height: 100vh;
+    overflow-y: auto;
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 10;
+    transition: transform 0.3s ease-in-out;
+
+    /* Dégradé compatible logo noir + rouge */
+    background: linear-gradient(to bottom, #1c1c1c, #2c2c2c); /* gris très foncé vers un gris un peu plus clair */
+    color: #ffffffcc; /* texte blanc légèrement transparent */
+}
+
+/* Lien actif */
+#sidebar .nav-link.active {
+    background-color: rgba(236, 29, 32, 0.1); /* léger surlignage rouge */
+    border-left: 4px solid #ec1d20; /* accent rouge du logo */
+    font-weight: 600;
+}
+
+/* Icône du lien actif */
+#sidebar .nav-link.active i {
+    color: #ec1d20;
+}
+
+/* Logo en haut */
+#sidebar .sidebar-logo {
+    display: flex;
+    align-items: center;
+    padding: 1.5rem 1rem;
+}
+
+/* Scrollable */
+#sidebar ul {
+    padding-bottom: 2rem;
+}
+
+/* Responsive mobile */
+@media (max-width: 767px) {
+    #sidebar {
+        transform: translateX(-100%);
+        min-width: auto;
+    }
+
+    #sidebar.show {
+        transform: translateX(0);
+    }
+}
+
+/* Content wrapper */
+.content-wrapper {
+    margin-left: 16rem;
+    transition: margin-left 0.3s ease-in-out;
+    min-height: 100vh;
+}
+
+@media (max-width: 767px) {
+    .content-wrapper {
+        margin-left: 0;
+    }
+}
+
+/* Logo en haut de la sidebar */
+#sidebar .sidebar-logo {
+    display: flex;
+    align-items: center;
+    justify-content: center; /* centre le logo horizontalement */
+    padding: 1rem 1rem;
+    background-color: #ffffff; /* bande rouge pour faire ressortir le logo noir et rouge */
+    border-radius: 12px;       /* coins légèrement arrondis */
+    margin-bottom: 1.5rem;     /* espace avec le menu */
+}
+
+#sidebar .sidebar-logo img {
+    max-width: 140px;
+    height: auto;
+    display: block;
+}
+.dropdown-toggle::after{
+    display: none !important;
+}
+.search-button {
+    padding: 7px 12px;
+    background-color: white; /* fond rouge */
+    color: #ec1d20;
+    border: 1px solid white;
+    border-radius: 9999px; /* arrondi complet */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.search-button:hover {
+    background-color: #ffadae; /* rouge un peu plus foncé au hover */
+}
