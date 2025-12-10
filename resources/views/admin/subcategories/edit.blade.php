@@ -1,0 +1,114 @@
+@extends('admin.layouts.app')
+
+@section('title', 'Modifier Sous-Catégorie')
+@section('page_title', 'Gestion des Sous-Catégories')
+
+@section('content')
+
+<div class="page-inner">
+
+    {{-- HEADER --}}
+    <div class="pb-3 mb-6 border-b flex flex-col md:flex-row md:items-center md:justify-between">
+
+        <div>
+            <h1 class="text-xl font-bold text-gray-800">Sous-Catégories</h1>
+
+            <ul class="flex items-center text-sm text-gray-500 mt-1 space-x-2">
+                <li>
+                    <a href="{{ route('admin.dashboard') }}" class="text-red-600 hover:underline">
+                        <i class="bi bi-house"></i>
+                    </a>
+                </li>
+                <li><i class="bi bi-chevron-right text-xs"></i></li>
+                <li>Gestion</li>
+                <li><i class="bi bi-chevron-right text-xs"></i></li>
+                <li>Sous-Catégories</li>
+                <li><i class="bi bi-chevron-right text-xs"></i></li>
+                <li class="text-red-600 font-semibold">Modifier</li>
+            </ul>
+        </div>
+
+    </div>
+
+    {{-- Formulaire --}}
+    <form action="{{ route('admin.subcategories.update', $subcategory) }}" method="POST" enctype="multipart/form-data"
+        class="mb-8 bg-white p-6 rounded-lg shadow">
+        @csrf
+        @method('PUT')
+
+        {{-- Nom --}}
+        <div class="mb-4">
+            <label for="nom" class="block text-gray-700 font-medium mb-1">Nom de la sous-catégorie *</label>
+            <input type="text" name="nom" id="nom"
+                class="w-full border @error('nom') border-red-500 @else border-gray-300 @enderror
+                rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-red-500"
+                value="{{ old('nom', $subcategory->nom) }}">
+            @error('nom')
+                <p class="text-red-600 text-sm mt-1">{{ $message }}</p>
+            @enderror
+        </div>
+
+        {{-- Description --}}
+        <div class="mb-4">
+            <label for="description" class="block text-gray-700 font-medium mb-1">Description</label>
+            <textarea name="description" id="description" rows="3"
+                class="w-full border @error('description') border-red-500 @else border-gray-300 @enderror
+                rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-red-500">{{ old('description', $subcategory->description) }}</textarea>
+            @error('description')
+                <p class="text-red-600 text-sm mt-1">{{ $message }}</p>
+            @enderror
+        </div>
+
+        {{-- Catégorie --}}
+        <div class="mb-4">
+            <label for="category_id" class="block text-gray-700 font-medium mb-2">Catégorie *</label>
+            <select name="category_id" id="category_id"
+                class="w-full border px-3 py-2 rounded @error('category_id') border-red-500 @else border-gray-300 @enderror">
+                <option value="">-- Choisir une catégorie --</option>
+                @foreach ($categories as $cat)
+                    <option value="{{ $cat->id }}" {{ old('category_id', $subcategory->category_id) == $cat->id ? 'selected' : '' }}>
+                        {{ $cat->nom }}
+                    </option>
+                @endforeach
+            </select>
+            @error('category_id')
+                <p class="text-red-600 text-sm mt-1">{{ $message }}</p>
+            @enderror
+        </div>
+
+        {{-- Image --}}
+        <div class="mb-6">
+            <label for="image" class="block text-gray-700 font-medium mb-1">Image</label>
+            <input type="file" name="image" id="image"
+                class="w-full border @error('image') border-red-500 @else border-gray-300 @enderror
+                rounded-lg p-2 focus:outline-none focus:ring-2 focus:ring-red-500">
+            @if ($subcategory->image)
+                <img src="{{ asset('storage/' . $subcategory->image) }}" alt="image"
+                    class="w-24 h-24 object-cover rounded mt-2">
+            @endif
+            @error('image')
+                <p class="text-red-600 text-sm mt-1">{{ $message }}</p>
+            @enderror
+        </div>
+
+        {{-- Boutons --}}
+        <div class="flex items-center justify-between">
+
+            {{-- Annuler (à gauche) --}}
+            <a href="{{ route('admin.subcategories.index') }}" class="text-gray-600 hover:text-gray-800 underline">
+                Annuler
+            </a>
+
+            {{-- Mettre à jour (à droite) --}}
+            <button type="submit" class="ml-auto px-4 py-2 text-white rounded-2xl border transition"
+                style="background-color: #2c2c2c; border: 1px solid #2c2c2c;">
+                Mettre à jour
+            </button>
+
+        </div>
+
+    </form>
+
+</div>
+
+@endsection
