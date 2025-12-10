@@ -3,51 +3,110 @@
 @section('title', 'Ajouter une Catégorie')
 
 @section('content')
-    <!-- Header -->
-    <div class="flex flex-col md:flex-row justify-between items-center mb-6">
-        <h1 class="text-2xl font-bold text-gray-800 mb-4 md:mb-0">Ajouter une Catégorie</h1>
+
+    <div class="page-inner">
+
+        {{-- HEADER --}}
+        <div class="pb-3 mb-6 border-b flex flex-col md:flex-row md:items-center md:justify-between">
+
+            <div>
+                <h1 class="text-xl font-bold text-gray-800">Catégories</h1>
+
+                <ul class="flex items-center text-sm text-gray-500 mt-1 space-x-2">
+                    <li>
+                        <a href="{{ route('admin.dashboard') }}" class="text-red-600 hover:underline">
+                            <i class="bi bi-house"></i>
+                        </a>
+                    </li>
+
+                    <li><i class="bi bi-chevron-right text-xs"></i></li>
+                    <li>Gestion</li>
+
+                    <li><i class="bi bi-chevron-right text-xs"></i></li>
+                    <li>Catégories</li>
+
+                    <li><i class="bi bi-chevron-right text-xs"></i></li>
+                    <li class="text-red-600 font-semibold">Ajouter</li>
+                </ul>
+            </div>
+
+        </div>
+        {{-- Formulaire --}}
+        <form action="{{ route('admin.categories.store') }}" method="POST" enctype="multipart/form-data"
+            class="mb-8 bg-white p-6 rounded-lg shadow">
+
+            @csrf
+
+            {{-- Nom --}}
+            <div class="mb-4">
+                <label for="nom" class="block text-gray-700 font-medium mb-1">Nom de la catégorie *</label>
+
+                <input type="text" name="nom" id="nom"
+                    class="w-full border @error('nom') border-red-500 @else border-gray-300 @enderror
+                       rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-red-500"
+                    value="{{ old('nom') }}">
+
+                @error('nom')
+                    <p class="text-red-600 text-sm mt-1">{{ $message }}</p>
+                @enderror
+            </div>
+
+            {{-- Description --}}
+            <div class="mb-4">
+                <label for="description" class="block text-gray-700 font-medium mb-1">Description</label>
+
+                <textarea name="description" id="description" rows="3"
+                    class="w-full border @error('description') border-red-500 @else border-gray-300 @enderror
+                       rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-red-500">{{ old('description') }}</textarea>
+
+                @error('description')
+                    <p class="text-red-600 text-sm mt-1">{{ $message }}</p>
+                @enderror
+            </div>
+
+            {{-- Image --}}
+            <div class="mb-6">
+                <label for="image" class="block text-gray-700 font-medium mb-1">Image </label>
+
+                <input type="file" name="image" id="image"
+                    class="w-full border @error('image') border-red-500 @else border-gray-300 @enderror
+                       rounded-lg p-2 focus:outline-none focus:ring-2 focus:ring-red-500">
+
+                @error('image')
+                    <p class="text-red-600 text-sm mt-1">{{ $message }}</p>
+                @enderror
+            </div>
+            <div class="mb-4">
+                <label for="service_id" class="block text-gray-700 font-medium mb-2">Service</label>
+                <select name="service_id" id="service_id" class="w-full border px-3 py-2 rounded">
+                    <option value="">-- Choisir un service --</option>
+                    @foreach ($services as $service)
+                        <option value="{{ $service->id }}"
+                            {{ old('service_id', $category->service_id ?? '') == $service->id ? 'selected' : '' }}>
+                            {{ $service->nom }}
+                        </option>
+                    @endforeach
+                </select>
+            </div>
+
+            {{-- Boutons --}}
+            <div class="flex items-center justify-between">
+
+                {{-- Annuler (à gauche) --}}
+                <a href="{{ route('admin.categories.index') }}" class="text-gray-600 hover:text-gray-800 underline">
+                    Annuler
+                </a>
+
+                {{-- Ajouter (à droite) --}}
+                <button type="submit" class="ml-auto px-4 py-2 text-white rounded-2xl border transition"
+                    style="background-color: #2c2c2c; border: 1px solid #2c2c2c;">
+                    Ajouter
+                </button>
+
+            </div>
+
+        </form>
 
     </div>
 
-    <!-- Affichage des erreurs -->
-    @if ($errors->any())
-        <div class="mb-4 p-4 bg-red-100 text-red-700 rounded">
-            <ul class="list-disc pl-5">
-                @foreach ($errors->all() as $error)
-                    <li>{{ $error }}</li>
-                @endforeach
-            </ul>
-        </div>
-    @endif
-
-    <!-- Formulaire création catégorie -->
-    <form action="{{ route('admin.categories.store') }}" method="POST" enctype="multipart/form-data" class="mb-8 bg-white p-6 rounded-lg shadow">
-        @csrf
-
-        <div class="mb-4">
-            <label for="nom" class="block text-gray-700 font-medium mb-2">Nom de la catégorie</label>
-            <input type="text" name="nom" id="nom"
-                   class="w-full border border-gray-300 rounded-full p-3 focus:outline-none focus:ring-2 focus:ring-[#ec1d20]"
-                   value="{{ old('nom') }}" required>
-        </div>
-
-        <div class="mb-4">
-            <label for="description" class="block text-gray-700 font-medium mb-2">Description (optionnel)</label>
-            <textarea name="description" id="description" rows="3"
-                      class="w-full border border-gray-300 rounded-full p-3 focus:outline-none focus:ring-2 focus:ring-[#ec1d20]">{{ old('description') }}</textarea>
-        </div>
-
-        <div class="mb-6">
-            <label for="image" class="block text-gray-700 font-medium mb-2">Image (optionnel)</label>
-            <input type="file" name="image" id="image"
-                   class="w-full border border-gray-300 rounded-full p-2 focus:outline-none focus:ring-2 focus:ring-[#ec1d20]">
-        </div>
-
-        <div class="flex items-center gap-4">
-            <button type="submit" class="bg-[#ec1d20] hover:bg-red-700 text-white font-semibold px-6 py-3 rounded-full transition shadow-sm flex items-center gap-2">
-                <i class="bi bi-plus-lg"></i> Ajouter
-            </button>
-            <a href="{{ route('admin.categories.index') }}" class="text-gray-600 hover:underline">Annuler</a>
-        </div>
-    </form>
 @endsection

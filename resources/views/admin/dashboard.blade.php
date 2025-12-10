@@ -2,7 +2,7 @@
 
 @section('title', 'Tableau de bord')
 
-@section('page-title', 'Tableau de bord')
+@section('page_title', 'Tableau de bord')
 
 @section('content')
 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">

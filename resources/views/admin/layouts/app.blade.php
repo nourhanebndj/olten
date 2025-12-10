@@ -5,55 +5,26 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>@yield('title', 'Olten Admin Dashboard')</title>
-
-    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    fontFamily: {
-                        sans: ['Inter', 'sans-serif']
-                    },
-                    colors: {
-                        'primary-dark': '#000000',
-                        /* Noir, parfait pour le logo */
-                        'primary-light': '#ec1d20',
-                        /* Rouge Olten */
-                        'bg-light': '#f3f4f6',
-                        /* Arrière-plan léger */
-                        'sidebar-bg': '#1a1a1a',
-                        /* Fond sombre pour sidebar */
-                        'sidebar-hover': '#ec1d20',
-                        /* Accent sur hover */
-                    }
-                }
-            }
-        }
-    </script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-
-    <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
-        rel="stylesheet">
-
-    <!-- CSS Admin -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="{{ asset('assets/css/admin.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/app.css') }}">
 
-    <!-- Bootstrap Icons -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+
 
     @stack('styles')
 </head>
 
-<body class="bg-bg-light font-sans flex min-h-screen">
+<body class="light-mode min-h-screen">
 
     <!-- Sidebar -->
     @include('admin.layouts._sidebar')
 
     <!-- Content Wrapper -->
-    <div class="content-wrapper flex-1 flex flex-col">
+    @include('admin.layouts.seting')
+
+    <div id="main-content" class="main-content-area flex-1 md:ml-64 transition-all duration-300 ease-in-out">
         <!-- Navbar -->
         @include('admin.layouts._navbar')
 
@@ -67,9 +38,34 @@
             &copy; 2025 Olten Admin. Tous droits réservés.
         </footer>
     </div>
+
+
+    @if (session('success'))
+        <div id="customToast" class="toast-custom">
+            {{ session('success') }}
+        </div>
+
+
+        <script>
+            document.addEventListener("DOMContentLoaded", () => {
+                const toast = document.getElementById('customToast');
+                if (toast) {
+                    // Affiche le toast
+                    toast.classList.add('show');
+
+                    // Masque après 2 secondes
+                    setTimeout(() => {
+                        toast.classList.remove('show');
+                    }, 2000);
+                }
+            });
+        </script>
+    @endif
+
+
+
     <script src="{{ asset('assets/js/admin/dash.js') }}"></script>
 
-    @stack('scripts')
 </body>
 
 </html>

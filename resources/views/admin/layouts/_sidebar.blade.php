@@ -1,54 +1,116 @@
-<div id="sidebar" class="sidebar flex flex-col bg-primary-dark text-white p-4 fixed md:relative shadow-lg">
+<aside id="sidebar"
+    class="sidebar fixed inset-y-0 left-0 z-30 w-64 shadow-lg transform -translate-x-full md:translate-x-0 transition-transform duration-300 ease-in-out p-4 flex flex-col border-r">
+
     <!-- Logo -->
-    <a href="#" class="sidebar-logo text-white no-underline">
-        <img src="{{ asset('assets/images/logo/olten_location.png') }}" alt="Logo Olten">
-    </a>
+    <div class="flex items-center justify-center h-16 mb-6 border-b" style="border-color: #E5E7EB;">
+        <img src="{{ asset('assets/images/logo/olten_location.png') }}" width="150px" alt="Logo Olten">
+    </div>
 
+    <!-- Navigation -->
+    <nav class="flex-1 space-y-2">
+        <!-- Tableau de bord -->
+        <a href="{{ route('admin.dashboard') }}"
+            class="sidebar-link flex items-center p-3 rounded-xl text-sm font-medium">
+            <i class="bi bi-grid-fill mr-3 w-5 h-5"></i>
+            Tableau de bord
+        </a>
 
-    <!-- Menu principal (scrollable si contenu long) -->
-    <ul class="flex flex-col flex-grow space-y-2">
-        <li class="nav-item">
-            <a href="{{ route('admin.dashboard') }}"
-                class="nav-link {{ request()->routeIs('admin.dashboard') ? 'active' : '' }} flex items-center p-3 rounded-lg hover:bg-white/10 transition duration-150">
-                <i class="bi bi-speedometer2 text-xl mr-3"></i>
-                <span class="font-medium">Tableau de bord</span>
-            </a>
-        </li>
-        <li class="nav-item">
-            <a href="{{ route('admin.categories.index') }}"
-                class="nav-link {{ request()->routeIs('admin.categories.*') ? 'active' : '' }} flex items-center p-3 rounded-lg hover:bg-white/10 transition duration-150">
-                <i class="bi bi-tags text-xl mr-3"></i>
-                <span class="font-medium">Catégories</span>
-            </a>
-        </li>
+        <!-- DROPDOWN GESTION -->
+        <div class="space-y-2">
+            <button id="gestion-dropdown-toggle"
+                class="sidebar-link w-full flex items-center p-3 rounded-xl text-sm font-medium justify-between">
+                <div class="flex items-center">
+                    <i class="bi bi-tools mr-3 w-5 h-5"></i>
+                    Gestion
+                </div>
+                <svg id="gestion-arrow" class="w-4 h-4 transform transition-transform duration-200 text-gray-400"
+                    fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                </svg>
+            </button>
 
-        <li class="nav-item">
-            <a id="usersDropdownToggle"
-                class="nav-link flex items-center p-3 rounded-lg hover:bg-white/10 transition duration-150 cursor-pointer"
-                data-target="#usersSubmenu">
-                <i class="bi bi-people text-xl mr-3"></i>
-                <span class="font-medium">Utilisateurs</span>
-                <i class="bi bi-chevron-down ml-auto transition-transform duration-300 transform" id="usersChevron"></i>
-            </a>
-            <ul class="hidden flex flex-col mt-1 ml-6 space-y-1" id="usersSubmenu">
-                <li><a href="#"
-                        class="nav-link block py-2 px-3 text-sm rounded-lg hover:bg-white/10 transition duration-150">Liste</a>
-                </li>
-                <li><a href="#"
-                        class="nav-link block py-2 px-3 text-sm rounded-lg hover:bg-white/10 transition duration-150">Ajouter</a>
-                </li>
-                <!-- Tu peux rajouter plein d'éléments ici pour tester le scroll -->
-            </ul>
-        </li>
+            <div id="gestion-dropdown-content" class="pl-6 space-y-2 hidden">
+                <a href="{{ route('admin.categories.index') }}"
+                    class="sidebar-link flex items-center p-2 rounded-lg text-xs font-normal hover:text-primary-accent hover:bg-gray-100">
+                    Catégories
+                </a>
+                <a href="{{ route('admin.services.index') }}"
+                    class="sidebar-link flex items-center p-2 rounded-lg text-xs font-normal hover:text-primary-accent hover:bg-gray-100">
+                    Services
+                </a>
+            </div>
+        </div>
 
-        <!-- Ajoute d'autres liens pour tester le scroll -->
-    </ul>
+        <!-- Utilisateurs -->
+        <a href="apaph.hrml" class="sidebar-link flex items-center p-3 rounded-xl text-sm font-medium">
+            <i class="bi bi-person-fill mr-3 w-5 h-5"></i>
+            Utilisateurs
+        </a>
+    </nav>
 
     <!-- Déconnexion -->
-    <div class="mt-auto pt-4 border-t border-white/10">
-        <a href="#" class="nav-link flex items-center   transition duration-150">
-            <i class="bi bi-box-arrow-right text-xl mr-3"></i>
-            <span class="font-medium">Déconnexion</span>
-        </a>
+    <div class="mt-auto pt-4 border-t" style="border-color: #E5E7EB;">
+        <form action="{{ route('admin.admin.logout') }}" method="POST">
+            @csrf
+            <button type="submit"
+                class="w-full text-left sidebar-link flex items-center p-3 rounded-xl text-sm font-medium text-red-600 hover:bg-red-100">
+                <i class="bi bi-box-arrow-right mr-3 w-5 h-5"></i>
+                Déconnexion
+            </button>
+        </form>
     </div>
-</div>
+</aside>
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const currentUrl = window.location.href;
+
+        // Dropdown toggle
+        const gestionToggle = document.getElementById('gestion-dropdown-toggle');
+        const gestionDropdown = document.getElementById('gestion-dropdown-content');
+        const gestionArrow = document.getElementById('gestion-arrow');
+
+        // Tous les liens
+        const allLinks = document.querySelectorAll('#sidebar a');
+
+        let dropdownActive = false;
+
+        allLinks.forEach(link => {
+            if (link.href === currentUrl) {
+                const parentDropdown = link.closest('#gestion-dropdown-content');
+                if (parentDropdown) {
+                    // Lien actif dans le dropdown → gras + souligné
+                    link.classList.add('font-bold');
+                    link.style.textDecoration = 'underline';
+
+                    // Ouvrir le dropdown parent et mettre bouton rouge
+                    parentDropdown.classList.remove('hidden');
+                    gestionToggle.style.backgroundColor = getComputedStyle(document.documentElement)
+                        .getPropertyValue('--color-primary').trim();
+                    gestionToggle.style.color = 'white';
+                    gestionArrow.classList.add('rotate-180');
+                    dropdownActive = true;
+                } else {
+                    // Lien direct → juste sidebar-link-active style (pas de soulignement)
+                    link.classList.add('sidebar-link-active');
+                }
+            }
+        });
+
+        // Toggle dropdown manuellement
+        gestionToggle.addEventListener('click', () => {
+            gestionDropdown.classList.toggle('hidden');
+            gestionArrow.classList.toggle('rotate-180');
+
+            // Si ouvert manuellement, mettre bouton rouge
+            if (!gestionDropdown.classList.contains('hidden')) {
+                gestionToggle.style.backgroundColor = getComputedStyle(document.documentElement)
+                    .getPropertyValue('--color-primary').trim();
+                gestionToggle.style.color = 'white';
+            } else if (!dropdownActive) {
+                // Sinon revenir au style normal
+                gestionToggle.style.backgroundColor = '';
+                gestionToggle.style.color = '';
+            }
+        });
+    });
+</script>

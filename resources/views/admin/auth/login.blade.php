@@ -143,25 +143,28 @@
             color: #1e293b;
         }
 
-        /* Styles 2026 du formulaire (inchangés) */
         .btn-olten-2026 {
-            background-color: var(--olten-primary);
-            border-color: var(--olten-primary);
+            background-color: #e91d28;
+            /* Même rouge que le sidebar actif */
+            border-color: #e91d28;
             color: white;
-            font-weight: 600;
+            font-weight: 700;
+            /* Plus gras comme dans le sidebar */
             padding: 14px;
             border-radius: 10px;
             transition: all 0.2s ease-in-out;
-            box-shadow: 0 4px 10px rgba(255, 59, 0, 0.25);
+            box-shadow: 0 4px 10px rgba(233, 29, 40, 0.25);
         }
 
         .btn-olten-2026:hover {
-            background-color: var(--olten-primary-hover);
-            border-color: var(--olten-primary-hover);
+            background-color: #d11a24;
+            /* Hover légèrement plus foncé */
+            border-color: #d11a24;
             color: white;
             transform: translateY(-1px);
-            box-shadow: 0 6px 15px rgba(255, 59, 0, 0.4);
+            box-shadow: 0 6px 15px rgba(233, 29, 40, 0.4);
         }
+
 
         .form-control-lg {
             padding: 14px 18px;
@@ -205,11 +208,11 @@
                             class="img-fluid" style="max-width: 140px;">
                     </div>
 
-            
+
 
                     <!-- Sous-titre -->
                     <p class="text-center text-muted mb-4" style="font-size: 0.95rem;">
-                        Connectez-vous pour accéder à votre tableau de bord et gérer vos opérations. 
+                        Connectez-vous pour accéder à votre tableau de bord et gérer vos opérations.
                     </p>
 
                     <!-- Formulaire -->
@@ -238,11 +241,11 @@
                             Se connecter
                         </button>
 
-                    
+
                     </form>
 
                     <p class="text-center text-muted mt-5 mb-0" style="font-size: 0.85rem;">
-                        Olten &copy; {{ date('Y') }} - Gérer votre éspace 
+                        Olten &copy; {{ date('Y') }} - Gérer votre éspace
                     </p>
                 </div>
             </div>

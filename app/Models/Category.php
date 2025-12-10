@@ -9,7 +9,13 @@ class Category extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['nom', 'description','image'];
+    protected $fillable = ['nom', 'description', 'image', 'service_id'];
+
+    public function service()
+    {
+        return $this->belongsTo(Service::class);
+    }
+
 
     public function objets()
     {
