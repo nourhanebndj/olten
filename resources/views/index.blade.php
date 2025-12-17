@@ -19,11 +19,13 @@
     </div>
 </section>
 
-<!----CATEGORIES SECTION------>
+<!---- CATEGORIES SECTION ------>
 <section class="categories-section">
     <div class="section-header">
         <h2 class="section-title">Découvrez nos catégories</h2>
-        <p class="section-subtitle">Parcourez notre sélection et explorez ce qui vous intéresse.</p>
+        <p class="section-subtitle">
+            Parcourez notre sélection et explorez ce qui vous intéresse.
+        </p>
     </div>
 
     <div class="categories-carousel">
@@ -34,16 +36,30 @@
         <div class="carousel-container">
             <div class="carousel-track">
 
-                {{-- Exemple d'une carte - répète si nécessaire --}}
-                <div class="category-card">
-                    <img src="https://images.unsplash.com/photo-1461896836934-ffe607ba8211?w=600&h=800&fit=crop" alt="Location sport & loisir" class="category-image">
-                    <div class="category-content">
-                        <h3 class="category-title">Location sport & loisir</h3>
-                        <a href="#" class="category-btn">Parcourir</a>
-                    </div>
-                </div>
+                @forelse($categories as $category)
+                    <div class="category-card">
+                        <img 
+                            src="{{ asset('storage/' . $category->image) }}"
+                            alt="{{ $category->nom }}"
+                            class="category-image"
+                        >
 
-                {{-- ... toutes tes autres cartes ici ... --}}
+                        <div class="category-content">
+                            <h3 class="category-title">{{ $category->nom }}</h3>
+
+                            <a 
+                                href=""
+                                class="category-btn"
+                            >
+                                Parcourir
+                            </a>
+                        </div>
+                    </div>
+                @empty
+                    <p class="text-center">
+                        Aucune catégorie disponible pour le moment.
+                    </p>
+                @endforelse
 
             </div>
         </div>
@@ -55,6 +71,7 @@
 
     <div class="carousel-dots"></div>
 </section>
+
 
 <!----------Plus récent annonce-------------->
 <section class="annonces-section">

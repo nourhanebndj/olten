@@ -42,9 +42,16 @@
         </div>
 
         <!-- Utilisateurs -->
-        <a href="apaph.hrml" class="sidebar-link flex items-center p-3 rounded-xl text-sm font-medium">
+        <a href="{{ route('admin.users.index') }}"
+            class="sidebar-link flex items-center p-3 rounded-xl text-sm font-medium">
             <i class="bi bi-person-fill mr-3 w-5 h-5"></i>
             Utilisateurs
+        </a>
+
+        <a href="{{ route('admin.contact_messages.index') }}"
+            class="sidebar-link flex items-center p-3 rounded-xl text-sm font-medium hover:text-primary-accent hover:bg-gray-100">
+            <i class="bi bi-envelope-fill mr-3 w-5 h-5"></i>
+            Messages Contact
         </a>
     </nav>
 

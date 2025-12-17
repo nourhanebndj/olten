@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use App\Http\Middleware\AdminMiddleware;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\Admin\AdminAuthController;
 use App\Http\Controllers\Admin\CategoryController;
@@ -8,19 +9,24 @@ use App\Http\Controllers\Admin\AdminDashboardController;
 use App\Http\Controllers\Admin\TypeServiceController;
 use App\Http\Controllers\Admin\ServiceController;
 use App\Http\Controllers\Admin\SubCategoryController;
+use App\Http\Controllers\Admin\ContactMessageController;
+use App\Http\Controllers\Admin\UserController;
+use App\Http\Controllers\HomeController;
+use App\Http\Controllers\ContactController;
 
-Route::get('/', function () {
-    return view('index');
-});
-
+Route::get('/', [HomeController::class, 'index'])->name('home');
 
 Route::get('/creer-site', function () {
     return view('pages.creer_site');
 })->name('creer.site');
 
-Route::get('/contact', function () {
-    return view('pages.contact');
-})->name('contact');
+
+Route::get('/contact', [ContactController::class, 'index'])
+    ->name('contact');
+
+Route::post('/contact', [ContactController::class, 'store'])
+    ->name('contact.store');
+
 
 Route::get('/annonce-details', function () {
     return view('pages.annonces_pages.annonces_details');
@@ -62,68 +68,58 @@ Route::middleware('auth')->group(function () {
 });
 
 
-Route::prefix('admin')->group(function () {
 
-    Route::get('/login', [AdminAuthController::class, 'showLogin'])->name('admin.login');
-    Route::post('/login', [AdminAuthController::class, 'login'])->name('admin.login.submit');
-
-    Route::middleware(['auth'])->group(function () {
-        Route::get('/', [AdminDashboardController::class, 'index'])->name('admin.dashboard');
-        Route::get('/categorie', [CategoryController::class, 'index'])->name('admin.categories.index');
-        Route::get('/categories/create', [CategoryController::class, 'create'])->name('admin.categories.create');
-        Route::post('/categories', [CategoryController::class, 'store'])->name('admin.categories.store');
-        Route::get('/categories/{category}/edit', [CategoryController::class, 'edit'])->name('admin.categories.edit');
-        Route::put('/categories/{category}', [CategoryController::class, 'update'])->name('admin.categories.update');
-        Route::delete('/categories/{category}', [CategoryController::class, 'destroy'])->name('admin.categories.destroy');
-
-
-
+// Routes admin protégées
 Route::prefix('admin')->name('admin.')->group(function () {
-        // Sous-catégories
+
+
+    // Login admin public
+    Route::get('/login', [AdminAuthController::class, 'showLogin'])->name('login');
+    Route::post('/login', [AdminAuthController::class, 'login'])->name('login.submit');
+    // Catégories
+    Route::get('/categorie', [CategoryController::class, 'index'])->name('categories.index');
+    Route::get('/categories/create', [CategoryController::class, 'create'])->name('categories.create');
+    Route::post('/categories', [CategoryController::class, 'store'])->name('categories.store');
+    Route::get('/categories/{category}/edit', [CategoryController::class, 'edit'])->name('categories.edit');
+    Route::put('/categories/{category}', [CategoryController::class, 'update'])->name('categories.update');
+    Route::delete('/categories/{category}', [CategoryController::class, 'destroy'])->name('categories.destroy');
+    // Dashboard avec vérification rôle
+    Route::get('/', function () {
+        if (auth()->user()->role !== 'admin') {
+            abort(403, 'Accès refusé');
+        }
+        return app(\App\Http\Controllers\Admin\AdminDashboardController::class)->index();
+    })->name('dashboard');
+    // Sous-catégories
     Route::resource('subcategories', SubCategoryController::class);
 
-    // Filtrer par catégorie (optionnel)
-    Route::get('subcategories', [SubCategoryController::class, 'index'])->name('subcategories.index');
-        // Liste des services
+    // Services
     Route::get('services', [ServiceController::class, 'index'])->name('services.index');
-    Route::post('/admin/logout', [AdminAuthController::class, 'logout'])->name('admin.logout');
-
-    // Formulaire création
     Route::get('services/create', [ServiceController::class, 'create'])->name('services.create');
-
-    // Enregistrer nouveau service
     Route::post('services', [ServiceController::class, 'store'])->name('services.store');
-
-    // Formulaire édition
     Route::get('services/{service}/edit', [ServiceController::class, 'edit'])->name('services.edit');
-
-    // Mettre à jour
     Route::put('services/{service}', [ServiceController::class, 'update'])->name('services.update');
-
-    // Supprimer
     Route::delete('services/{service}', [ServiceController::class, 'destroy'])->name('services.destroy');
-    // Afficher la liste
+
+    // Type de services
     Route::get('type_services', [TypeServiceController::class, 'index'])->name('type_services.index');
-
-    // Formulaire de création
     Route::get('type_services/create', [TypeServiceController::class, 'create'])->name('type_services.create');
-
-    // Enregistrer un nouveau type
     Route::post('type_services', [TypeServiceController::class, 'store'])->name('type_services.store');
-
-    // Formulaire d'édition
     Route::get('type_services/{typeService}/edit', [TypeServiceController::class, 'edit'])->name('type_services.edit');
-
-    // Mettre à jour
     Route::put('type_services/{typeService}', [TypeServiceController::class, 'update'])->name('type_services.update');
-
-    // Supprimer
     Route::delete('type_services/{typeService}', [TypeServiceController::class, 'destroy'])->name('type_services.destroy');
+
+    // Messages de contact
+    Route::get('contact-messages', [ContactMessageController::class, 'index'])->name('contact_messages.index');
+    Route::get('contact-messages/{contactMessage}', [ContactMessageController::class, 'show'])->name('contact_messages.show');
+    Route::delete('contact-messages/{contactMessage}', [ContactMessageController::class, 'destroy'])->name('contact_messages.destroy');
+    // Gestion des utilisateurs
+    Route::get('/users', [UserController::class, 'index'])->name('users.index');
+    Route::get('/users/{user}', [UserController::class, 'show'])->name('users.show');
+    Route::delete('/users/{user}', [UserController::class, 'destroy'])->name('users.destroy');
+    // Logout admin
+    Route::post('/logout', [AdminAuthController::class, 'logout'])->name('admin.logout');
 });
 
 
-    });
-
-});
-
-require __DIR__.'/auth.php';
+    require __DIR__.'/auth.php';
