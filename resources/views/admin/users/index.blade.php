@@ -8,6 +8,9 @@
     {{-- HEADER --}}
     <div class="flex flex-col md:flex-row justify-between items-center mb-8">
         <h1 class="text-3xl font-bold text-gray-800">Liste des utilisateurs</h1>
+        <a href="{{ route('admin.users.create') }}" class="btn-red">
+            Ajouter un utilisateur
+        </a>
     </div>
 
     {{-- BARRE RECHERCHE --}}
@@ -55,6 +58,7 @@
                         <th class="px-6 py-3 text-left">Nom</th>
                         <th class="px-6 py-3 text-left">Email</th>
                         <th class="px-6 py-3 text-left">Rôle</th>
+                        <th class="px-6 py-3 text-left">Etat</th>
                         <th class="px-6 py-3 text-right">Actions</th>
                     </tr>
                 </thead>
@@ -65,23 +69,42 @@
                             <td class="px-6 py-4 font-semibold">{{ $user->firstname }} {{ $user->lastname }}</td>
                             <td class="px-6 py-4 text-gray-600">{{ $user->email }}</td>
                             <td class="px-6 py-4">
-                                @if ($user->role === 'admin')
-                                    <span
-                                        class="inline-block px-3 py-1 text-xs font-semibold text-red-600 bg-red-100 rounded-full">
-                                        Admin
-                                    </span>
-                                @else
-                                    <span
-                                        class="inline-block px-3 py-1 text-xs font-semibold text-gray-800 bg-gray-200 rounded-full">
-                                        Utilisateur
-                                    </span>
-                                @endif
+                                @php
+                                    $roleColors = [
+                                        'admin' => ['text' => 'text-red-600', 'bg' => 'bg-red-100'],
+                                        'particulier' => ['text' => 'text-gray-800', 'bg' => 'bg-gray-200'],
+                                        'livreur' => ['text' => 'text-blue-600', 'bg' => 'bg-blue-100'],
+                                        'conducteur' => ['text' => 'text-green-600', 'bg' => 'bg-green-100'],
+                                    ];
+
+                                    $colors = $roleColors[$user->role] ?? [
+                                        'text' => 'text-gray-800',
+                                        'bg' => 'bg-gray-200',
+                                    ];
+                                @endphp
+
+                                <span
+                                    class="inline-block px-3 py-1 text-xs font-semibold {{ $colors['text'] }} {{ $colors['bg'] }} rounded-full">
+                                    {{ ucfirst($user->role) }}
+                                </span>
                             </td>
 
+<td class="px-6 py-4">
+    @if($user->verifie)
+        <span class="inline-block px-3 py-1 text-xs font-semibold text-green-600 bg-green-100 rounded-full">
+            Approuver
+        </span>
+    @else
+        <span class="inline-block px-3 py-1 text-xs font-semibold text-gray-800 bg-gray-200 rounded-full">
+            Non Approuver
+        </span>
+    @endif
+</td>
 
                             {{-- ACTIONS --}}
                             <td class="px-6 py-4 text-right">
                                 <div class="relative inline-block">
+
                                     <button
                                         class="action-btn px-2 py-2 rounded-full border bg-white hover:bg-gray-100 transition">
                                         <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-gray-700"
@@ -92,6 +115,16 @@
                                     </button>
 
                                     <div class="dropdown-menu-white absolute right-9 w-36 divide-y divide-gray-200">
+                                        @if (!$user->verifie)
+                                            <form action="{{ route('admin.users.verify', $user) }}" method="POST">
+                                                @csrf
+                                                <button type="submit"
+                                                    class="w-full flex items-center text-left px-4 py-3 text-green-600 hover:bg-gray-100">
+                                                    Approuver
+                                                </button>
+                                            </form>
+                                        @endif
+
                                         <a href="{{ route('admin.users.show', $user) }}"
                                             class="flex items-center px-4 py-3 text-sm text-gray-700 hover:bg-gray-100">
                                             Voir

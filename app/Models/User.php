@@ -23,11 +23,11 @@ protected $keyType = 'string'; // ou 'int'
      * @var list<string>
      */
     protected $fillable = [
-        'name',
+        'nom',
         'firstname',
         'lastname',
         'email',
-        'password',
+        'mot_de_passe',
         'about_me',
         'phone',
         'gender',
@@ -42,6 +42,8 @@ protected $keyType = 'string'; // ou 'int'
         'identity_verification',
         'profile_photo',
         'is_admin',
+        'verifie',
+        'role', 
     ];
 
     /**

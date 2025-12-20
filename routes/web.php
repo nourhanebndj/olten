@@ -115,11 +115,16 @@ Route::prefix('admin')->name('admin.')->group(function () {
     Route::delete('contact-messages/{contactMessage}', [ContactMessageController::class, 'destroy'])->name('contact_messages.destroy');
     // Gestion des utilisateurs
     Route::get('/users', [UserController::class, 'index'])->name('users.index');
+    Route::get('/users/create', [UserController::class, 'create'])->name('users.create');
+    Route::post('/users', [UserController::class, 'store'])->name('users.store');
     Route::get('/users/{user}', [UserController::class, 'show'])->name('users.show');
     Route::delete('/users/{user}', [UserController::class, 'destroy'])->name('users.destroy');
+    Route::post('/admin/users/{user}/verify', [UserController::class, 'verify'])->name('users.verify');
+
+
     // Logout admin
     Route::post('/logout', [AdminAuthController::class, 'logout'])->name('admin.logout');
 });
 
 
-    require __DIR__.'/auth.php';
+require __DIR__.'/auth.php';

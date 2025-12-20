@@ -21,7 +21,7 @@ class ContactMessageController extends Controller
             });
         }
 
-        $messages = $query->latest()->paginate(1)->withQueryString();
+        $messages = $query->latest()->paginate(10)->withQueryString();
 
         return view('admin.contact_messages.index', compact('messages'));
     }
