@@ -15,9 +15,14 @@ class AuthenticatedSessionController extends Controller
     /**
      * Display the login view.
      */
-    public function create(): View
+    public function create()
     {
-        return view('auth.login');
+        if (auth()->check()) {
+            return redirect()->route('dashboard');
+        }
+
+        return redirect('/')
+            ->with('showLoginModal', true);
     }
 
     /**
@@ -42,7 +47,6 @@ class AuthenticatedSessionController extends Controller
                 'errors' => $validator->errors(),
             ], 422);
         }
-
         if (!Auth::attempt($request->only('email', 'password'), $request->boolean('remember'))) {
             return response()->json([
                 'status' => 'error',
@@ -53,6 +57,7 @@ class AuthenticatedSessionController extends Controller
         }
 
         $request->session()->regenerate();
+        $request->session()->forget('showLoginModal');
 
         return response()->json([
             'status' => 'success',

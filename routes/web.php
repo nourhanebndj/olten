@@ -1,8 +1,9 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use App\Http\Middleware\AdminMiddleware;
-use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\Owner\ProfileController;
+use App\Http\Controllers\Owner\DashboardController;
+use App\Http\Controllers\Owner\AdController;
 use App\Http\Controllers\Admin\AdminAuthController;
 use App\Http\Controllers\Admin\CategoryController;
 use App\Http\Controllers\Admin\AdminDashboardController;
@@ -13,6 +14,7 @@ use App\Http\Controllers\Admin\ContactMessageController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\ContactController;
+use App\Http\Middleware\AdminMiddleware;
 
 Route::get('/', [HomeController::class, 'index'])->name('home');
 
@@ -35,9 +37,9 @@ Route::get('/annonce-details', function () {
 Route::view('/categories', 'pages.annonces_pages.categories_annonces')
 ->name('categories');
 
-Route::get('/deposer_annonce', function () {
-    return view('pages.locateur.deposer_annonce');
-})->name('deposer_annonce'); 
+// Route::get('/deposer_annonce', function () {
+//     return view('pages.locateur.deposer_annonce');
+// })->name('deposer_annonce'); 
 
 Route::get('/favoris', function () {
     return view('pages.locateur.favoris');
@@ -51,23 +53,28 @@ Route::get('/statistiques', function () {
     return view('pages.locateur.statistiques');
 })->name('statistiques');
 
-Route::get('/mes_annonces', function () {
-    return view('pages.locateur.mes_annonces');
-})->name('mes_annonces');
+// Route::get('/mes_annonces', function () {
+//     return view('pages.locateur.mes_annonces');
+// })->name('mes_annonces');
 
 Route::get('/messages', function () {
     return view('pages.locateur.messages');
 })->name('messages');
 
 Route::middleware('auth')->group(function () {
-    Route::get('/dashboard', [ProfileController::class, 'index'])->name('dashboard');
+    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
     Route::get('/profile', [ProfileController::class, 'profile'])->name('profile');
     Route::get('/profile/modifer', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile/modifer', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile/supprimer', [ProfileController::class, 'destroy'])->name('profile.destroy');
+    Route::get('/annonces/deposer-une-annonce', [AdController::class, 'create'])->name('ads.create');
+    Route::post('/ads', [AdController::class, 'store'])->name('ads.store');
+    Route::get('/ads/reverse-geocode', [AdController::class, 'reverseGeocode'])->name('ads.reverse-geocode');
+    Route::get('/annonces/mes-annonces', [AdController::class, 'index'])->name('ads.index');
+    Route::get('/annonces/{ad}/ical', [AdController::class, 'exportICal'])->name('ads.ical');
+    Route::get('/annonces/{ad}/modifier', [AdController::class, 'edit'])->name('ads.edit');
+    Route::delete('/annonces/{ad}', [AdController::class, 'destroy'])->name('ads.destroy');
 });
-
-
 
 // Routes admin protégées
 Route::prefix('admin')->name('admin.')->group(function () {
@@ -125,6 +132,5 @@ Route::prefix('admin')->name('admin.')->group(function () {
     // Logout admin
     Route::post('/logout', [AdminAuthController::class, 'logout'])->name('admin.logout');
 });
-
 
 require __DIR__.'/auth.php';

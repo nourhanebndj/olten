@@ -2770,3 +2770,30 @@ body {
         font-size: 18px;
     }
 }
+/* page annonce espace locateur */
+.suggestions {
+    list-style: none;
+    border: 1px solid #ccc;
+    background: white;
+    max-height: 150px;
+    overflow-y: auto;
+    padding: 0;
+    margin: 0;
+    z-index: 999;
+    width: 100%;
+}
+.suggestions li {
+    padding: 8px;
+    cursor: pointer;
+}
+.suggestions li:hover {
+    background: #eee;
+}
+.distance-result {
+    background: #f7f7f7;
+    padding: 10px;
+    margin-top: 10px;
+}
+.btn-ical, .btn-edit {
+    text-decoration: none;
+}

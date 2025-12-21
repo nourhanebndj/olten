@@ -3,7 +3,6 @@
 
 @section('content')
 @php
-    // Découpage automatique du champ 'name'
     $fullName = Auth::user()->name;
     $parts = explode(' ', $fullName, 2);
 

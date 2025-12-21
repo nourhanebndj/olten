@@ -40,15 +40,15 @@
 
             <p class="menu-section">ANNONCES</p>
             <ul>
-                <li class="{{ request()->is('deposer_annonce') ? 'active' : '' }}">
-                    <a href="{{ route('deposer_annonce') }}">
+                <li class="{{ request()->is('ads.create') ? 'active' : '' }}">
+                    <a href="{{ route('ads.create') }}">
                         <i class="fa-solid fa-circle-plus"></i>
                         <span>Ajouter une annonce</span>
                     </a>
                 </li>
 
-                <li class="{{ request()->is('mes_annonces') ? 'active' : '' }}">
-                    <a href="{{ route('mes_annonces') }}">
+                <li class="{{ request()->is('ads.index') ? 'active' : '' }}">
+                    <a href="{{ route('ads.index') }}">
                         <i class="fa-solid fa-list"></i>
                         <span>Mes annonces</span>
                     </a>

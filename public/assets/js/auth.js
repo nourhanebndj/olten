@@ -52,6 +52,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
             fetch(REGISTER_URL, {
                 method: 'POST',
+                credentials: 'same-origin',
                 headers: {
                     'X-CSRF-TOKEN': CSRF_TOKEN,
                     'Accept': 'application/json'
@@ -98,6 +99,7 @@ document.addEventListener('DOMContentLoaded', function() {
             try {
                 const response = await fetch(LOGIN_URL, {
                     method: 'POST',
+                    credentials: 'same-origin',
                     headers: {
                         'X-Requested-With': 'XMLHttpRequest',
                         'X-CSRF-TOKEN': CSRF_TOKEN,
@@ -109,10 +111,11 @@ document.addEventListener('DOMContentLoaded', function() {
                 const data = await response.json();
 
                 if (response.ok && data.status === 'success') {
-                    window.location.href = LOGIN_REDIRECT;
+                    window.location.href = data.redirect;
                     return;
                 }
 
+                // Afficher les erreurs dans la modal
                 let errorBox = '<div class="errors">';
                 if (data.errors) {
                     Object.keys(data.errors).forEach(field => {
@@ -128,6 +131,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
             } catch (err) {
                 console.error(err);
+                loginErrorsDiv.innerHTML = '<p class="text-danger">Une erreur est survenue. Veuillez réessayer.</p>';
             }
         });
     }

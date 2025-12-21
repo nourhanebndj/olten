@@ -21,4 +21,9 @@ class Category extends Model
     {
         return $this->hasMany(Objet::class, 'categorie_id');
     }
+
+    public function ads()
+    {
+        return $this->hasMany(Ad::class, 'category_id');
+    }
 }
