@@ -54,22 +54,23 @@ class UserController extends Controller
             'tiktok' => 'nullable|string|max:255',
             'whatsapp' => 'nullable|string|max:255',
         ]);
+
         $profilePhotoPath = null;
         if ($request->hasFile('profile_photo')) {
             $profilePhotoPath = $request->file('profile_photo')->store('users', 'public');
         }
 
-        User::create([
-            'nom' => $request->firstname . ' ' . $request->lastname, 
+        // Création de l'utilisateur
+        $user = User::create([
+            'name' => $request->firstname . ' ' . $request->lastname,
             'firstname' => $request->firstname,
             'lastname' => $request->lastname,
             'email' => $request->email,
-            'mot_de_passe' => Hash::make($request->password), 
+            'password' => Hash::make($request->password),
             'telephone' => $request->phone,
             'gender' => $request->gender,
             'about_me' => $request->about_me,
             'profile_photo' => $profilePhotoPath,
-            'role' => $request->role,
             'x_com' => $request->x_com,
             'facebook' => $request->facebook,
             'linkedin' => $request->linkedin,
@@ -77,10 +78,7 @@ class UserController extends Controller
             'youtube' => $request->youtube,
             'tiktok' => $request->tiktok,
             'whatsapp' => $request->whatsapp,
-
-
         ]);
-
         return redirect()->route('admin.users.index')->with('success', 'Utilisateur ajouté avec succès !');
     }
 
@@ -96,5 +94,49 @@ class UserController extends Controller
 
         return redirect()->back()->with('success', 'Utilisateur Approuver avec succès.');
     }
+    public function edit(User $user)
+    {
+        return view('admin.users.edit', compact('user'));
+    }
+
+    public function update(Request $request, User $user)
+    {
+        $request->validate([
+            'firstname' => 'required|string|max:255',
+            'lastname' => 'required|string|max:255',
+            'email' => 'required|email|unique:users,email,' . $user->id,
+            'password' => 'nullable|string|min:6|confirmed',
+            'phone' => 'nullable|string|max:20',
+            'role' => 'required|in:particulier,livreur,conducteur,admin,locateur',
+            'gender' => 'nullable|in:male,female,other',
+            'about_me' => 'nullable|string|max:500',
+            'profile_photo' => 'nullable|image|max:2048',
+            'x_com' => 'nullable|string|max:255',
+            'facebook' => 'nullable|url|max:255',
+            'linkedin' => 'nullable|url|max:255',
+            'instagram' => 'nullable|url|max:255',
+            'youtube' => 'nullable|url|max:255',
+            'tiktok' => 'nullable|string|max:255',
+            'whatsapp' => 'nullable|string|max:255',
+        ]);
+
+        $data = $request->only([
+            'firstname', 'lastname', 'email', 'telephone', 'role', 'gender', 'about_me',
+            'x_com','facebook','linkedin','instagram','youtube','tiktok','whatsapp'
+        ]);
+
+        if ($request->filled('password')) {
+            $data['password'] = Hash::make($request->password);
+        }
+
+        if ($request->hasFile('profile_photo')) {
+            $data['profile_photo'] = $request->file('profile_photo')->store('users', 'public');
+        }
+
+        $user->update($data);
+
+        return redirect()->route('admin.users.index')->with('success', 'Utilisateur modifié avec succès !');
+    }
+
 
 }

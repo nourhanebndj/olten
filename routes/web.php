@@ -92,9 +92,6 @@ Route::prefix('admin')->name('admin.')->group(function () {
     Route::delete('/categories/{category}', [CategoryController::class, 'destroy'])->name('categories.destroy');
     // Dashboard avec vérification rôle
     Route::get('/', function () {
-        if (auth()->user()->role !== 'admin') {
-            abort(403, 'Accès refusé');
-        }
         return app(\App\Http\Controllers\Admin\AdminDashboardController::class)->index();
     })->name('dashboard');
     // Sous-catégories
@@ -127,6 +124,8 @@ Route::prefix('admin')->name('admin.')->group(function () {
     Route::get('/users/{user}', [UserController::class, 'show'])->name('users.show');
     Route::delete('/users/{user}', [UserController::class, 'destroy'])->name('users.destroy');
     Route::post('/admin/users/{user}/verify', [UserController::class, 'verify'])->name('users.verify');
+    Route::get('users/{user}/edit', [UserController::class, 'edit'])->name('users.edit');
+    Route::patch('users/{user}', [UserController::class, 'update'])->name('users.update');
 
 
     // Logout admin

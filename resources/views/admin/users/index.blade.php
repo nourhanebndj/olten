@@ -89,17 +89,19 @@
                                 </span>
                             </td>
 
-<td class="px-6 py-4">
-    @if($user->verifie)
-        <span class="inline-block px-3 py-1 text-xs font-semibold text-green-600 bg-green-100 rounded-full">
-            Approuver
-        </span>
-    @else
-        <span class="inline-block px-3 py-1 text-xs font-semibold text-gray-800 bg-gray-200 rounded-full">
-            Non Approuver
-        </span>
-    @endif
-</td>
+                            <td class="px-6 py-4">
+                                @if ($user->verifie)
+                                    <span
+                                        class="inline-block px-3 py-1 text-xs font-semibold text-green-600 bg-green-100 rounded-full">
+                                        Approuver
+                                    </span>
+                                @else
+                                    <span
+                                        class="inline-block px-3 py-1 text-xs font-semibold text-gray-800 bg-gray-200 rounded-full">
+                                        Non Approuver
+                                    </span>
+                                @endif
+                            </td>
 
                             {{-- ACTIONS --}}
                             <td class="px-6 py-4 text-right">
@@ -124,6 +126,10 @@
                                                 </button>
                                             </form>
                                         @endif
+                                        <a href="{{ route('admin.users.edit', $user) }}"
+                                            class="flex items-center px-4 py-3 text-sm text-blue-600 hover:bg-gray-100">
+                                            Modifier
+                                        </a>
 
                                         <a href="{{ route('admin.users.show', $user) }}"
                                             class="flex items-center px-4 py-3 text-sm text-gray-700 hover:bg-gray-100">

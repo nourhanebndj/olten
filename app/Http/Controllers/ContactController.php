@@ -1,7 +1,8 @@
 <?php
 
 namespace App\Http\Controllers;
-
+use App\Mail\ContactMessageMail;
+use Illuminate\Support\Facades\Mail;
 use App\Models\ContactMessage;
 use Illuminate\Http\Request;
 
@@ -12,19 +13,23 @@ class ContactController extends Controller
         return view('pages.contact');
     }
 
-    public function store(Request $request)
-    {
-        $validated = $request->validate([
-            'name'    => 'required|string|max:255',
-            'email'   => 'required|email|max:255',
-            'subject' => 'required|string|max:255',
-            'message' => 'nullable|string',
-        ]);
+public function store(Request $request)
+{
+    $validated = $request->validate([
+        'name'    => 'required|string|max:255',
+        'email'   => 'required|email|max:255',
+        'subject' => 'required|string|max:255',
+        'message' => 'nullable|string',
+    ]);
 
-        ContactMessage::create($validated);
+    // Stockage dans la base
+    ContactMessage::create($validated);
 
-        return redirect()
-            ->route('contact')
-            ->with('success', 'Votre message a été envoyé avec succès.');
-    }
+    // Envoi du mail
+    Mail::to('massaidsafia2@gmail.com')->send(new ContactMessageMail($validated));
+
+    return redirect()
+        ->route('contact')
+        ->with('success', 'Votre message a été envoyé avec succès.');
+}
 }
