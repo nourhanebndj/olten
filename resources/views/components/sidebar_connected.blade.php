@@ -22,19 +22,23 @@
                 </li>
 
                 <li>
-                    <i class="fa-solid fa-calendar-check"></i>
-                    <span>Mes réservations</span>
+                    <a href="{{ url('/dashboard') }}">
+                        <i class="fa-solid fa-calendar-check"></i>
+                        <span>Mes réservations</span>
+                    </a>
                 </li>
 
-                <li class="{{ request()->is('messages') ? 'active' : '' }}">
+                <li class="{{ Route::currentRouteName() ? 'active' : '' }}">
                     <a href="{{ route('messages') }}">
                         <i class="fa-solid fa-envelope"></i>
                         <span>Messages</span>
                     </a>
                 </li>
                 <li>
-                    <i class="fa-solid fa-wallet"></i>
-                    <span>Portefeuille</span>
+                    <a href="{{ url('/dashboard') }}">
+                        <i class="fa-solid fa-wallet"></i>
+                        <span>Portefeuille</span>
+                    </a>
                 </li>
             </ul>
 

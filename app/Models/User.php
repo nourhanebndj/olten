@@ -33,6 +33,10 @@ class User extends Authenticatable implements LaratrustUser
             'password' => 'hashed',
         ];
     }
+    public function sendPasswordResetNotification($token)
+    {
+        $this->notify(new ResetPasswordNotification($token));
+    }
     public function documents()
     {
         return $this->hasMany(UserDocument::class);
@@ -46,4 +50,14 @@ class User extends Authenticatable implements LaratrustUser
     public function livraisonsVtc() { return $this->hasMany(LivraisonVtc::class,'chauffeur_id'); }
     public function transactions() { return $this->hasMany(Transaction::class); }
     public function pointsFidelite() { return $this->hasMany(PointsFidelite::class); }
+
+    public function sentMessages()
+    {
+        return $this->hasMany(Message::class, 'sender_id');
+    }
+
+    public function receivedMessages()
+    {
+        return $this->hasMany(Message::class, 'receiver_id');
+    }
 }

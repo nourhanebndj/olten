@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Owner\ProfileController;
 use App\Http\Controllers\Owner\DashboardController;
 use App\Http\Controllers\Owner\AdController;
+use App\Http\Controllers\Owner\MessageController;
 use App\Http\Controllers\Admin\AdminAuthController;
 use App\Http\Controllers\Admin\CategoryController;
 use App\Http\Controllers\Admin\AdminDashboardController;
@@ -59,9 +60,9 @@ Route::get('/statistiques', function () {
 //     return view('pages.locateur.mes_annonces');
 // })->name('mes_annonces');
 
-Route::get('/messages', function () {
-    return view('pages.locateur.messages');
-})->name('messages');
+// Route::get('/messages', function () {
+//     return view('pages.locateur.messages');
+// })->name('messages');
 
 Route::middleware('auth')->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
@@ -77,6 +78,12 @@ Route::middleware('auth')->group(function () {
     Route::get('/annonces/{ad}/modifier', [AdController::class, 'edit'])->name('ads.edit');
     Route::put('/annonces/{ad}', [AdController::class, 'update'])->name('ads.update');
     Route::delete('/annonces/{ad}', [AdController::class, 'destroy'])->name('ads.destroy');
+    Route::get('/mes-messages', function () {
+        return view('pages.locateur.messages');
+    })->name('messages');
+    Route::get('/messages', [MessageController::class, 'index'])->name('messages.index');
+    Route::get('/messages/{user}', [MessageController::class, 'show'])->name('messages.show');
+    Route::post('/messages/{user}', [MessageController::class, 'store'])->name('messages.store');
 });
     // Login admin public
     Route::get('admin/login', [AdminAuthController::class, 'showLogin'])->name('admin.login');
