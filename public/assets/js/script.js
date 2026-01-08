@@ -20,12 +20,14 @@ const registerTab = document.querySelector('.tab-btn[data-tab="register"]');
 const loginContent = document.getElementById('login');
 const registerContent = document.getElementById('register');
 const closeModal = document.getElementById('closeModal');
+const loginIcon = document.querySelector('.header-right .fa-right-to-bracket');
 
-// Ouvrir modal sur clic bouton header
-document.querySelector('.header-right .fa-right-to-bracket').parentElement.addEventListener('click', () => {
-    modal.style.display = 'block';
-});
-
+if (loginIcon && loginIcon.parentElement) {
+  // Ouvrir modal sur clic bouton header
+  document.querySelector('.header-right .fa-right-to-bracket').parentElement.addEventListener('click', () => {
+      modal.style.display = 'block';
+  });
+}
 // Fermer modal
 closeModal.addEventListener('click', () => {
     modal.style.display = 'none';
@@ -214,14 +216,6 @@ document.addEventListener('DOMContentLoaded', function() {
         goToSlide(currentIndex + cardsPerView);
     });
 
-    // Boutons favoris
-    annoncesSection.querySelectorAll('.favorite-btn').forEach(btn => {
-        btn.addEventListener('click', (e) => {
-            e.stopPropagation();
-            btn.classList.toggle('active');
-        });
-    });
-
     // Touch events for mobile
     let startX = 0;
     let isDragging = false;
@@ -258,12 +252,11 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 });
 
-
 //form creer un site
 document.addEventListener('DOMContentLoaded', function() {
   const siteType = document.getElementById('siteType');
   const budget = document.getElementById('budget');
-
+  if (!siteType || !budget) return;
   siteType.addEventListener('change', function() {
     switch (this.value) {
       case 'Blog':
@@ -310,6 +303,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
         function updateGallery() {
             const slidesContainer = document.getElementById('gallerySlides');
+            if (!slidesContainer) return;
             slidesContainer.style.transform = `translateX(-${currentSlide * 100}%)`;
             
             // Mettre à jour les indicateurs
@@ -373,7 +367,6 @@ document.addEventListener('DOMContentLoaded', function() {
 document.addEventListener('DOMContentLoaded', function() {
   initializeFilters();
   initializeViewToggle();
-  initializeFavorites();
   initializePagination();
   initializeMap();
   initializeCategories();
@@ -484,8 +477,6 @@ function initializeViewToggle() {
             const clonedCard = card.cloneNode(true);
             listView.appendChild(clonedCard);
           });
-          // Reinitialize favorites and clicks for cloned cards
-          initializeFavorites();
           initializeCardClicks();
         }
       }
@@ -496,41 +487,62 @@ function initializeViewToggle() {
 // ============================================
 // FAVORITES
 // ============================================
-function initializeFavorites() {
-  const favoriteBtns = document.querySelectorAll('.favorite-btn');
-  
-  favoriteBtns.forEach(btn => {
-    // Remove existing listeners by cloning
-    const newBtn = btn.cloneNode(true);
-    btn.parentNode.replaceChild(newBtn, btn);
-    
-    newBtn.addEventListener('click', function(e) {
-      e.stopPropagation();
-      e.preventDefault();
-      
-      const icon = this.querySelector('i');
-      
-      if (icon.classList.contains('far')) {
-        icon.classList.remove('far');
-        icon.classList.add('fas');
-        this.classList.add('active');
-        
-        // Animation feedback
-        this.style.transform = 'scale(1.2)';
-        setTimeout(() => {
-          this.style.transform = '';
-        }, 200);
-        
-        console.log('Ajouté aux favoris');
-      } else {
-        icon.classList.remove('fas');
-        icon.classList.add('far');
-        this.classList.remove('active');
-        console.log('Retiré des favoris');
-      }
-    });
-  });
-}
+document.addEventListener('click', async function(e) {
+    const btn = e.target.closest('.favorite-btn');
+    if (!btn) return;
+
+    e.stopPropagation();
+    e.preventDefault();
+
+    const icon = btn.querySelector('i');
+    const adId = btn.dataset.adId;
+
+    try {
+        const response = await fetch(`/ads/${adId}/favorite`, {
+            method: 'POST',
+            headers: {
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                'Accept': 'application/json'
+            }
+        });
+
+        const data = await response.json();
+
+        if (response.status === 401) {
+            // Non authentifié -> ouvrir le modal login
+            const modal = document.getElementById('authModal');
+            if (modal) modal.style.display = 'block';
+            // Activer l'onglet login
+            const loginTab = document.querySelector('.tab-btn[data-tab="login"]');
+            const registerTab = document.querySelector('.tab-btn[data-tab="register"]');
+            const loginContent = document.getElementById('login');
+            const registerContent = document.getElementById('register');
+            if (loginTab && registerTab && loginContent && registerContent) {
+                loginTab.classList.add('active');
+                registerTab.classList.remove('active');
+                loginContent.style.display = 'block';
+                registerContent.style.display = 'none';
+            }
+            return;
+        } else if (data.status === 'added') {
+            icon.classList.remove('far');
+            icon.classList.add('fas');
+            btn.classList.add('active');
+        } else {
+            icon.classList.remove('fas');
+            icon.classList.add('far');
+            btn.classList.remove('active');
+        }
+
+        btn.dataset.favorited = data.status === 'added' ? 'true' : 'false';
+
+        btn.style.transform = 'scale(1.2)';
+        setTimeout(() => btn.style.transform = '', 200);
+
+    } catch(err) {
+        console.error('Erreur favoris:', err);
+    }
+});
 
 // ============================================
 // PAGINATION

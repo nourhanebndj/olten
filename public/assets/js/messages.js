@@ -120,7 +120,10 @@ async function showConversation(userId) {
                         </div>
                         <div class="chat-bubble">
                             <div class="chat-name">${msg.sender_id === AUTH_ID ? 'Vous' : userName}</div>
-                            <div class="chat-text">${msg.content}</div>
+                            <div class="chat-text">
+                                ${msg.content || ''}
+                                ${msg.attachment_path ? `<br><a href="/storage/${msg.attachment_path}" target="_blank">📎 ${msg.attachment_name}</a>` : ''}
+                            </div>
                             <div class="chat-time">${new Date(msg.created_at).toLocaleString()}</div>
                         </div>
                     </div>
@@ -166,9 +169,47 @@ async function showConversation(userId) {
                     <button class="btn-send" id="sendMessageBtn">
                         Envoyer un message
                     </button>
+                    <input type="file" id="fileInput" style="display:none;">
                 </div>
             </div>
         `;
+
+        const attachBtn = document.getElementById('attachFileBtn');
+        const fileInput = document.getElementById('fileInput');
+
+        if (attachBtn && fileInput) {
+            attachBtn.addEventListener('click', () => {
+                fileInput.click();
+            });
+
+            fileInput.addEventListener('change', () => {
+                const file = fileInput.files[0];
+                const filePreviewContainer = document.getElementById('filePreview');
+
+                if (!filePreviewContainer) {
+                    const container = document.createElement('div');
+                    container.id = 'filePreview';
+                    container.style.marginTop = '5px';
+                    container.style.fontSize = '0.9em';
+                    container.style.color = '#555';
+                    const inputGroup = document.querySelector('.input-group');
+                    inputGroup.appendChild(container);
+                }
+
+                const container = document.getElementById('filePreview');
+
+                if (file) {
+                    container.innerHTML = `📎 ${file.name} <span style="cursor:pointer;color:red;" id="removeFile">[x]</span>`;
+
+                    document.getElementById('removeFile').addEventListener('click', () => {
+                        fileInput.value = '';
+                        container.innerHTML = '';
+                    });
+                } else {
+                    container.innerHTML = '';
+                }
+            });
+        }
 
         document.getElementById('hideConversationBtn').addEventListener('click', hideConversation);
 
@@ -215,23 +256,30 @@ function hideConversation() {
 // ===================================
 async function sendMessage(userId) {
     const messageInput = document.getElementById('messageInput');
+    const fileInput = document.getElementById('fileInput');
     if (!messageInput) return;
 
     const messageText = messageInput.value.trim();
-    if (!messageText) return;
+    const file = fileInput.files[0];
+
+    if (!messageText && !file) return; // message ou fichier obligatoire
+
+    const formData = new FormData();
+    formData.append('message', messageText);
+    if (file) formData.append('file', file);
 
     try {
         const response = await fetch(`/messages/${userId}`, {
             method: 'POST',
             headers: {
-                'Content-Type': 'application/json',
                 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
             },
-            body: JSON.stringify({ message: messageText })
+            body: formData
         });
 
         if (response.ok) {
             messageInput.value = '';
+            fileInput.value = ''; // reset file
             showConversation(userId);
         }
     } catch (error) {

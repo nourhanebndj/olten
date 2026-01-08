@@ -28,7 +28,7 @@
                     </a>
                 </li>
 
-                <li class="{{ Route::currentRouteName() ? 'active' : '' }}">
+                <li class="{{ request()->routeIs('messages*') ? 'active' : '' }}">
                     <a href="{{ route('messages') }}">
                         <i class="fa-solid fa-envelope"></i>
                         <span>Messages</span>
@@ -44,14 +44,14 @@
 
             <p class="menu-section">ANNONCES</p>
             <ul>
-                <li class="{{ request()->is('ads.create') ? 'active' : '' }}">
+                <li class="{{ Route::is('ads.create') ? 'active' : '' }}">
                     <a href="{{ route('ads.create') }}">
                         <i class="fa-solid fa-circle-plus"></i>
                         <span>Ajouter une annonce</span>
                     </a>
                 </li>
 
-                <li class="{{ request()->is('ads.index') ? 'active' : '' }}">
+                <li class="{{ (Route::is('ads.index') || Route::is('ads.edit')) ? 'active' : '' }}">
                     <a href="{{ route('ads.index') }}">
                         <i class="fa-solid fa-list"></i>
                         <span>Mes annonces</span>

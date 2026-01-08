@@ -86,28 +86,29 @@
 
         <div class="carousel-wrapper">
             <div class="carousel-track">
-
-                {{-- Exemple d'annonce --}}
-                <div class="annonce-card">
-                    <div class="card-image-container">
-                        <img src="https://images.unsplash.com/photo-1581578731548-c64695cc6952?w=600&h=450&fit=crop" alt="Karcher vapeur eau chaude" class="card-image">
-                        <span class="watermark">leboncoin</span>
-                        <span class="category-badge">Outils et matériel de bricolage</span>
-                        <button class="favorite-btn" aria-label="Ajouter aux favoris">
-                            <i class="far fa-heart"></i>
-                        </button>
+                @forelse($ads as $ad)
+                    <div class="annonce-card">
+                        <div class="card-image-container">
+                            <img src="{{ $ad->image ? asset('storage/' . $ad->image) : asset('assets/images/no-image.jpg') }}" alt="{{ $ad->title }}" class="card-image">
+                            <span class="watermark">leboncoin</span>
+                            <span class="category-badge">{{ $ad->category->nom ?? 'Catégorie non définie' }}</span>
+                            <button class="favorite-btn" aria-label="Ajouter aux favoris" data-ad-id="{{ $ad->id }}" data-favorited="{{ auth()->check() && auth()->user()->hasFavorited($ad) ? 'true' : 'false' }}">
+                                <i class="{{ auth()->check() && auth()->user()->hasFavorited($ad) ? 'fas fa-heart' : 'far fa-heart' }}"></i>
+                            </button>
+                        </div>
+                        <div class="card-content">
+                            <h3 class="card-title">
+                                {{ $ad->title }}
+                                <span class="info-icon"><i class="fas fa-question"></i></span>
+                            </h3>
+                            <p class="card-price">Commence à partir de {{ number_format($ad->price_per_day, 2) }} € / jour</p>
+                        </div>
                     </div>
-                    <div class="card-content">
-                        <h3 class="card-title">
-                            Karcher vapeur eau chaude
-                            <span class="info-icon"><i class="fas fa-question"></i></span>
-                        </h3>
-                        <p class="card-price">Commence à partir de €30,00</p>
-                    </div>
-                </div>
-
-                {{-- ... toutes les autres annonces ... --}}
-
+                @empty
+                    <p class="text-center">
+                        Aucune annonce disponible pour le moment.
+                    </p>
+                @endforelse
             </div>
         </div>
 

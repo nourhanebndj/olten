@@ -81,7 +81,7 @@
                 <ul id="adresseSuggestions" class="suggestions"></ul>
             </div>
 
-            <div class="coordinate-fields">
+            <div class="coordinate-fields d-none">
                 <div class="form-group">
                     <label class="form-label">Longitude</label>
                     <input type="text" name="longitude" id="longitude" class="form-input" placeholder="Longitude">

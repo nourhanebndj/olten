@@ -60,4 +60,14 @@ class User extends Authenticatable implements LaratrustUser
     {
         return $this->hasMany(Message::class, 'receiver_id');
     }
+
+    public function favorites()
+    {
+        return $this->belongsToMany(Ad::class, 'favorites', 'user_id', 'ad_id')->withTimestamps();
+    }
+
+    public function hasFavorited(Ad $ad)
+    {
+        return $this->favorites()->where('ad_id', $ad->id)->exists();
+    }
 }

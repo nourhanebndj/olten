@@ -5,6 +5,7 @@ use App\Http\Controllers\Owner\ProfileController;
 use App\Http\Controllers\Owner\DashboardController;
 use App\Http\Controllers\Owner\AdController;
 use App\Http\Controllers\Owner\MessageController;
+use App\Http\Controllers\Owner\FavoriteController;
 use App\Http\Controllers\Admin\AdminAuthController;
 use App\Http\Controllers\Admin\CategoryController;
 use App\Http\Controllers\Admin\AdminDashboardController;
@@ -40,29 +41,10 @@ Route::get('/annonce-details', function () {
 Route::view('/categories', 'pages.annonces_pages.categories_annonces')
 ->name('categories');
 
-// Route::get('/deposer_annonce', function () {
-//     return view('pages.locateur.deposer_annonce');
-// })->name('deposer_annonce'); 
-
-Route::get('/favoris', function () {
-    return view('pages.locateur.favoris');
-})->name('favoris');
-
-Route::get('/profile', function () {
-    return view('pages.locateur.profile');
-})->name('profile');
-
 Route::get('/statistiques', function () {
     return view('pages.locateur.statistiques');
 })->name('statistiques');
 
-// Route::get('/mes_annonces', function () {
-//     return view('pages.locateur.mes_annonces');
-// })->name('mes_annonces');
-
-// Route::get('/messages', function () {
-//     return view('pages.locateur.messages');
-// })->name('messages');
 
 Route::middleware('auth')->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
@@ -84,6 +66,8 @@ Route::middleware('auth')->group(function () {
     Route::get('/messages', [MessageController::class, 'index'])->name('messages.index');
     Route::get('/messages/{user}', [MessageController::class, 'show'])->name('messages.show');
     Route::post('/messages/{user}', [MessageController::class, 'store'])->name('messages.store');
+    Route::post('/ads/{ad}/favorite', [FavoriteController::class, 'toggle'])->name('ads.favorite');
+    Route::get('/favoris', [FavoriteController::class, 'index'])->name('favoris');
 });
     // Login admin public
     Route::get('admin/login', [AdminAuthController::class, 'showLogin'])->name('admin.login');

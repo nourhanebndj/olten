@@ -40,8 +40,7 @@
             @forelse ($ads as $ad)
                 <div class="annonce-card">
                     <div class="annonce-image">
-                        <img src="{{ $ad->image ? asset('storage/' . $ad->image) : asset('assets/images/no-image.jpg') }}" 
-                            alt="{{ $ad->title }}">
+                        <img src="{{ $ad->image ? asset('storage/' . $ad->image) : asset('assets/images/no-image.jpg') }}" alt="{{ $ad->title }}">
                     </div>
                     <div class="annonce-details">
                         <h3 class="annonce-title">{{ $ad->title }}</h3>

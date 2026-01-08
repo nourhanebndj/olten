@@ -59,14 +59,35 @@ class MessageController extends Controller
     public function store(Request $request, User $user)
     {
         $request->validate([
-            'message' => 'required|string'
+            'message' => 'nullable|string',
         ]);
 
+        $attachmentPath = null;
+        $attachmentName = null;
+        $attachmentType = null;
+
+        if ($request->hasFile('file')) {
+            $file = $request->file('file');
+
+            $attachmentPath = $file->store('messages', 'public');
+            $attachmentName = $file->getClientOriginalName();
+            $attachmentType = $file->getMimeType();
+        }
+
+        if (!$request->message && !$attachmentPath) {
+            return response()->json([
+                'error' => 'Message ou fichier requis'
+            ], 422);
+        }
+
         $message = Message::create([
-                                'sender_id' => auth()->id(),
-                                'receiver_id' => $user->id,
-                                'content' => $request->message
-                            ]);
+            'sender_id' => auth()->id(),
+            'receiver_id' => $user->id,
+            'content' => $request->message ?? '',
+            'attachment_path' => $attachmentPath,
+            'attachment_name' => $attachmentName,
+            'attachment_type' => $attachmentType,
+        ]);
 
         return response()->json($message, 201);
     }
