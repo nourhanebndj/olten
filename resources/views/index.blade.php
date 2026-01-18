@@ -87,23 +87,25 @@
         <div class="carousel-wrapper">
             <div class="carousel-track">
                 @forelse($ads as $ad)
-                    <div class="annonce-card">
-                        <div class="card-image-container">
-                            <img src="{{ $ad->image ? asset('storage/' . $ad->image) : asset('assets/images/no-image.jpg') }}" alt="{{ $ad->title }}" class="card-image">
-                            <span class="watermark">leboncoin</span>
-                            <span class="category-badge">{{ $ad->category->nom ?? 'Catégorie non définie' }}</span>
-                            <button class="favorite-btn" aria-label="Ajouter aux favoris" data-ad-id="{{ $ad->id }}" data-favorited="{{ auth()->check() && auth()->user()->hasFavorited($ad) ? 'true' : 'false' }}">
-                                <i class="{{ auth()->check() && auth()->user()->hasFavorited($ad) ? 'fas fa-heart' : 'far fa-heart' }}"></i>
-                            </button>
-                        </div>
-                        <div class="card-content">
-                            <h3 class="card-title">
-                                {{ $ad->title }}
-                                <span class="info-icon"><i class="fas fa-question"></i></span>
-                            </h3>
-                            <p class="card-price">Commence à partir de {{ number_format($ad->price_per_day, 2) }} € / jour</p>
-                        </div>
-                    </div>
+                    @if($ad->is_approved)
+                        <a href="{{ route('ads.show', $ad) }}" class="annonce-card" id="ad-link">
+                            <div class="card-image-container">
+                                <img src="{{ $ad->image ? asset('storage/' . $ad->image) : asset('assets/images/no-image.jpg') }}" alt="{{ $ad->title }}" class="card-image">
+                                <span class="watermark">leboncoin</span>
+                                <span class="category-badge">{{ $ad->category->nom ?? 'Catégorie non définie' }}</span>
+                                <button class="favorite-btn" aria-label="Ajouter aux favoris" data-ad-id="{{ $ad->id }}" data-favorited="{{ auth()->check() && auth()->user()->hasFavorited($ad) ? 'true' : 'false' }}">
+                                    <i class="{{ auth()->check() && auth()->user()->hasFavorited($ad) ? 'fas fa-heart' : 'far fa-heart' }}"></i>
+                                </button>
+                            </div>
+                            <div class="card-content">
+                                <h3 class="card-title">
+                                    {{ $ad->title }}
+                                    <span class="info-icon"><i class="fas fa-question"></i></span>
+                                </h3>
+                                <p class="card-price">Commence à partir de {{ number_format($ad->price_per_day, 2) }} € / jour</p>
+                            </div>
+                        </a>
+                    @endif
                 @empty
                     <p class="text-center">
                         Aucune annonce disponible pour le moment.

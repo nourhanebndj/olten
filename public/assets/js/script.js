@@ -318,25 +318,6 @@ document.addEventListener('DOMContentLoaded', function() {
             changeSlide(1);
         }, 5000);
 
-        // Fonction pour scroller vers une section avec animation
-        function scrollToSection(event, sectionId) {
-            event.preventDefault();
-            
-            // Mettre à jour les onglets actifs
-            const tabs = document.querySelectorAll('.tab-link');
-            tabs.forEach(tab => tab.classList.remove('active'));
-            event.target.classList.add('active');
-            
-            // Scroller vers la section
-            const section = document.getElementById(sectionId);
-            if (section) {
-                section.scrollIntoView({ 
-                    behavior: 'smooth',
-                    block: 'start'
-                });
-            }
-        }
-
         // Observer pour mettre à jour l'onglet actif lors du scroll
         const observer = new IntersectionObserver((entries) => {
             entries.forEach(entry => {
@@ -543,7 +524,63 @@ document.addEventListener('click', async function(e) {
         console.error('Erreur favoris:', err);
     }
 });
+action-btn
+document.addEventListener('click', async function(e) {
+    const btn = e.target.closest('.action-btn');
+    if (!btn) return;
 
+    e.stopPropagation();
+    e.preventDefault();
+
+    const icon = btn.querySelector('i');
+    const adId = btn.dataset.adId;
+
+    try {
+        const response = await fetch(`/ads/${adId}/favorite`, {
+            method: 'POST',
+            headers: {
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                'Accept': 'application/json'
+            }
+        });
+
+        const data = await response.json();
+
+        if (response.status === 401) {
+            // Non authentifié -> ouvrir le modal login
+            const modal = document.getElementById('authModal');
+            if (modal) modal.style.display = 'block';
+            // Activer l'onglet login
+            const loginTab = document.querySelector('.tab-btn[data-tab="login"]');
+            const registerTab = document.querySelector('.tab-btn[data-tab="register"]');
+            const loginContent = document.getElementById('login');
+            const registerContent = document.getElementById('register');
+            if (loginTab && registerTab && loginContent && registerContent) {
+                loginTab.classList.add('active');
+                registerTab.classList.remove('active');
+                loginContent.style.display = 'block';
+                registerContent.style.display = 'none';
+            }
+            return;
+        } else if (data.status === 'added') {
+            icon.classList.remove('far');
+            icon.classList.add('fas');
+            btn.classList.add('active');
+        } else {
+            icon.classList.remove('fas');
+            icon.classList.add('far');
+            btn.classList.remove('active');
+        }
+
+        btn.dataset.favorited = data.status === 'added' ? 'true' : 'false';
+
+        btn.style.transform = 'scale(1.2)';
+        setTimeout(() => btn.style.transform = '', 200);
+
+    } catch(err) {
+        console.error('Erreur favoris:', err);
+    }
+});
 // ============================================
 // PAGINATION
 // ============================================

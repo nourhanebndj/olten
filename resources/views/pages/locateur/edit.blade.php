@@ -59,13 +59,45 @@
                 </select>
             </div>
         </div>
-
+        <div class="form-group">
+            <label class="form-label">Aperçu de l'annonce</label>
+            <textarea name="summary" id="summary">{{ old('summary', $ad->summary) }}</textarea>
+        </div>
+        <div class="form-group">
+            <label class="form-label">Description de l'annonce</label>
+            <textarea name="description" id="description">{{ old('description', $ad->description) }}</textarea>
+        </div>
         <div class="form-group">
             <label class="form-label">Photo de l'annonce</label>
-            <input type="file" name="image" class="form-input" accept="image/*">
-            @if($ad->image)
-                <p>Image actuelle : <img src="{{ asset('storage/' . $ad->image) }}" alt="Image annonce" width="100"></p>
+            <input type="file" name="images[]" class="form-input" accept="image/*" multiple>
+
+            @if($ad->images->count())
+                <br/>
+                <div class="current-images" style="display:flex; gap:10px; flex-wrap:wrap;">
+                    @foreach($ad->images as $img)
+                        <div class="image-wrapper" data-id="{{ $img->id }}" style="position:relative;">
+                            <img src="{{ asset('storage/' . $img->path) }}" alt="Image annonce" width="100">
+                            <button type="button" class="delete-image" style="position:absolute; top:0; right:0; background:red;color:white;border:none;">×</button>
+                        </div>
+                    @endforeach
+                </div>
             @endif
+        </div>
+    </div>
+
+    <div class="form-grid">
+        <div class="form-group">
+            <label class="form-label">
+                Disponible à partir du <span class="required">*</span>
+            </label>
+            <input type="date" name="available_from" class="form-input" value="{{ $ad->available_from }}" required>
+        </div>
+
+        <div class="form-group">
+            <label class="form-label">
+                Disponible jusqu'au <span class="required">*</span>
+            </label>
+            <input type="date" name="available_until" class="form-input" value="{{ $ad->available_until }}" required>
         </div>
     </div>
 
@@ -178,4 +210,5 @@
     <input type="hidden" name="distance_km" id="distanceKm" value="{{ old('distance_km', $ad->distance_km) }}">
     <input type="hidden" name="delivery_cost" id="deliveryCost" value="{{ old('delivery_cost', $ad->delivery_cost) }}">
 </form>
+<script src="{{ asset('assets/js/deleteAdsImgs.js') }}"></script>
 @endsection

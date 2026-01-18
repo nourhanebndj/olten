@@ -21,7 +21,19 @@ class Ad extends Model
         'distance_km',
         'delivery_cost',
         'image',
-        'user_id'
+        'user_id',
+        'summary',
+        'description',
+        'available_from',
+        'available_until',
+        'expires_at',
+        'is_approved'
+    ];
+
+    protected $casts = [
+        'available_from' => 'date',
+        'available_until' => 'date',
+        'expires_at' => 'date',
     ];
 
     public function category()
@@ -32,5 +44,10 @@ class Ad extends Model
     public function user()
     {
         return $this->belongsTo(User::class, 'user_id', 'id');
+    }
+
+    public function images()
+    {
+        return $this->hasMany(AdImage::class);
     }
 }

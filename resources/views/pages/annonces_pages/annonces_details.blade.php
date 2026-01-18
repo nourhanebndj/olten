@@ -9,18 +9,21 @@
     <div class="gallery-container">
         <div class="gallery-slides" id="gallerySlides">
 
-            <div class="gallery-slide">
-                <img src="https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=600&h=450&fit=crop" alt="Image 1">
-            </div>
-            <div class="gallery-slide">
-                <img src="https://images.unsplash.com/photo-1540575467063-178a50c2df87?w=600&h=450&fit=crop" alt="Image 2">
-            </div>
-            <div class="gallery-slide">
-                <img src="https://images.unsplash.com/photo-1532012197267-da84d127e765?w=600&h=450&fit=crop" alt="Image 3">
-            </div>
-            <div class="gallery-slide">
-                <img src="https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=600&h=450&fit=crop" alt="Image 4">
-            </div>
+            @forelse ($ad->images as $image)
+                <div class="gallery-slide">
+                    <img 
+                        src="{{ asset('storage/' . $image->path) }}" 
+                        alt="{{ $ad->title }}"
+                    >
+                </div>
+            @empty
+                <div class="gallery-slide">
+                    <img 
+                        src="{{ asset('assets/images/no-image.jpg') }}" 
+                        alt="Aucune image"
+                    >
+                </div>
+            @endforelse
 
         </div>
 
@@ -39,122 +42,146 @@
         <div class="left-section-annonce">
 
             <div class="breadcrumb">
-                <a href="#">Outils et matériel de bricolage</a>
+                <a href="#">{{ $ad->category->nom ?? 'Catégorie non définie' }}</a>
                 <span>›</span>
-                <span>Saint-Étienne</span>
+                <span>{{ $ad->address }}</span>
             </div>
 
             <div class="status-badge">
                 <i class="fas fa-check-circle"></i>
-                Commence à partir de €30.00
+                Commence à partir de €{{ $ad->price_per_day }}
             </div>
 
-            <h1>Karcher vapeur eau chaude</h1>
+            <h1>{{ $ad->title }}</h1>
 
             <div class="tags-container">
                 <div class="category-tag">
                     <i class="fas fa-tools"></i>
-                    Outils et matériel de bricolage
+                    {{ $ad->category->nom ?? 'Catégorie non définie' }}
                 </div>
                 <div class="location-tag">
                     <i class="fas fa-map-marker-alt"></i>
-                    Saint-Étienne
+                    {{ $ad->address }}
                 </div>
             </div>
 
             <div class="tabs-navigation">
-                <a href="#apercu" class="tab-link active" onclick="scrollToSection(event, 'apercu')">Aperçu</a>
-                <a href="#description" class="tab-link" onclick="scrollToSection(event, 'description')">Description</a>
-                <a href="#emplacement" class="tab-link" onclick="scrollToSection(event, 'emplacement')">Emplacement</a>
+                <a href="#apercu" class="tab-link active" onclick="showSection(event, 'apercu')">Aperçu</a>
+                <a href="#description" class="tab-link" onclick="showSection(event, 'description')">Description</a>
+                <a href="#emplacement" class="tab-link" onclick="showSection(event, 'emplacement')">Emplacement</a>
             </div>
 
-            <!-- Aperçu -->
-            <section id="apercu" class="content-section">
+            <section id="apercu" class="content-section active">
                 <h2 class="section-title">Aperçu</h2>
                 <p class="description">
-                    Trotinette urban glide. Lorem ipsum. m. Tout terrain ! Batterie au lithium.
-                    Reloadie et facile de transport en plus à une main. Elle marche plus que
-                    vous la pour vous faciliter les trajets du quotidien.
+                    {!! $ad->summary !!}
                 </p>
             </section>
 
-            <!-- Description -->
             <section id="description" class="content-section">
                 <h2 class="section-title">Description</h2>
-
                 <p class="description">
-                    Ce Karcher vapeur à eau chaude professionnel est idéal pour un nettoyage en profondeur.
-                    Parfait pour les travaux de bricolage et le nettoyage industriel. Équipement en excellent
-                    état, bien entretenu et prêt à l'emploi.
-                </p>
-
-                <p class="description">
-                    Caractéristiques principales :
-                    <br> • Puissance élevée pour un nettoyage efficace
-                    <br> • Facilité d'utilisation et de transport
-                    <br> • Entretien régulier garanti
-                    <br> • Idéal pour usage professionnel ou domestique intensif
+                    {!! $ad->description !!}
                 </p>
             </section>
 
-            <!-- Emplacement -->
-            <section id="emplacement" class="content-section location-section">
+            <section id="emplacement" class="content-section location-section w-100">
                 <h2 class="section-title">Emplacement</h2>
 
-                <div class="map-container">
-                    <i class="fas fa-map-marker-alt" style="font-size: 48px; color: #999;"></i>
-                    <span style="margin-left: 15px;">Carte de localisation (Saint-Étienne)</span>
-                </div>
+                @if($ad->latitude && $ad->longitude)
+                    <div id="adMap" class="map-container always-visible" style="width:100%; height:500px;"></div>
+                @else
+                    <p>Adresse non disponible pour cette annonce.</p>
+                @endif
             </section>
-
         </div>
 
         <!-- SECTION DROITE -->
         <div class="right-section">
-
-            <div class="alert-box">
-                <i class="fas fa-exclamation-triangle alert-icon"></i>
-                <span>Non vérifié. Revendiquer cette annonce !</span>
-            </div>
-
-            <div class="reservation-box">
-
-                <div class="reservation-title">
-                    <i class="far fa-calendar-alt"></i>
-                    Réservation
+            @if(is_null($ad->user_id))
+                <div class="alert-box">
+                    <i class="fas fa-exclamation-triangle alert-icon"></i>
+                    <span>Non vérifié. Revendiquer cette annonce !</span>
                 </div>
+            @endif
 
-                <div class="date-selector">
-                    <label>Sélectionnez les Dates</label>
-                    <input type="date">
-                </div>
+            @if(auth()->check() && auth()->user()->id != $ad->user_id)
+                <div class="reservation-box">
+                    <div class="reservation-title">
+                        <i class="far fa-calendar-alt"></i>
+                        Réservation
+                    </div>
+                    <form class="w-100" action="{{ route('bookings.store', $ad) }}" method="POST">
+                        @csrf
+                        <div class="date-selector">
+                            <label>Dates de réservation</label>
+                                <div class="d-flex gap-3">
+                                    <input type="date" name="start_date" min="{{ \Carbon\Carbon::parse($ad->available_from)->format('Y-m-d') }}" max="{{ \Carbon\Carbon::parse($ad->available_until)->format('Y-m-d') }}">
+                                    <input type="date" name="end_date" min="{{ \Carbon\Carbon::parse($ad->available_from)->format('Y-m-d') }}" max="{{ \Carbon\Carbon::parse($ad->available_until)->format('Y-m-d') }}">
+                                </div>
+                        </div>
+                        <button class="reserve-button">Réserver Maintenant</button>
+                    </form>
 
-                <button class="reserve-button">Réserver Maintenant</button>
+                    <div class="action-buttons">
+                        <button class="action-btn">
+                            <i class="far fa-comment"></i> Message
+                        </button>
 
-                <div class="action-buttons">
-                    <button class="action-btn">
-                        <i class="far fa-comment"></i> Message
+                        <button class="action-btn">
+                            <i class="fas fa-phone"></i> Appeler
+                        </button>
+
+                        <button class="action-btn btn-favorite {{ auth()->check() && auth()->user()->hasFavorited($ad) ? 'active' : '' }}" data-ad-id="{{ $ad->id }}" data-favorited="{{ auth()->check() && auth()->user()->hasFavorited($ad) ? 'true' : 'false' }}">
+                            <i class="far fa-heart"></i> J'aime
+                        </button>
+
+                    </div>
+                    <button class="signal-btn">
+                        <i class="fas fa-flag"></i>
+                        Signaler cette annonce
                     </button>
 
-                    <button class="action-btn">
-                        <i class="fas fa-phone"></i> Appeler
-                    </button>
-
-                    <button class="action-btn">
-                        <i class="far fa-heart"></i> J'aime
-                    </button>
                 </div>
-
-                <button class="signal-btn">
-                    <i class="fas fa-flag"></i>
-                    Signaler cette annonce
-                </button>
-
-            </div>
-
+            @endif
         </div>
 
     </div>
 </div>
+<script>
+    let mapInitialized = false;
+    let map;
+
+    function showSection(event, sectionId) {
+        event.preventDefault();
+
+        document.querySelectorAll('.tab-link').forEach(tab => tab.classList.remove('active'));
+        document.querySelectorAll('.content-section').forEach(section => section.classList.remove('active'));
+
+        event.target.classList.add('active');
+        document.getElementById(sectionId).classList.add('active');
+
+        if (sectionId === 'emplacement') {
+            if (!mapInitialized) {
+                const lat = {{ $ad->latitude ?? 46.6 }};
+                const lng = {{ $ad->longitude ?? 1.8 }};
+
+                map = L.map('adMap').setView([lat, lng], 14);
+
+                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                    attribution: '&copy; OpenStreetMap contributors'
+                }).addTo(map);
+
+                L.marker([lat, lng]).addTo(map)
+                .bindPopup('{{ $ad->address ?? "Adresse non disponible" }}')
+                .openPopup();
+
+                mapInitialized = true;
+            } else {
+                setTimeout(() => map.invalidateSize(), 100);
+            }
+        }
+    }
+</script>
 
 @endsection

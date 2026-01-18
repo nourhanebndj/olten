@@ -37,8 +37,7 @@
                 <label class="form-label">
                     Titre de l'annonce <span class="required">*</span>
                 </label>
-                <input type="text" name="title" class="form-input" 
-                        placeholder="Titre de l'annonce" required>
+                <input type="text" name="title" class="form-input" placeholder="Titre de l'annonce" required>
             </div>
 
             <div class="form-group">
@@ -56,8 +55,37 @@
             </div>
         </div>
         <div class="form-group">
-            <label class="form-label">Photo de l'annonce</label>
-            <input type="file" name="image" class="form-input" accept="image/*">
+            <label class="form-label">
+                Aperçu de l'annonce
+            </label>
+            <textarea name="summary" placeholder="Aperçu de l'annonce" id="summary"></textarea>
+        </div>
+
+        <div class="form-group">
+            <label class="form-label">
+                Description de l'annonce
+            </label>
+            <textarea name="description" placeholder="Description complète" id="description"></textarea>
+        </div>
+        <div class="form-group">
+            <label class="form-label">Photos de l'annonce</label>
+            <input type="file" name="images[]" class="form-input" accept="image/*" multiple>
+        </div>
+    </div>
+
+    <div class="form-grid">
+        <div class="form-group">
+            <label class="form-label">
+                Disponible à partir du <span class="required">*</span>
+            </label>
+            <input type="date" name="available_from" class="form-input" required>
+        </div>
+
+        <div class="form-group">
+            <label class="form-label">
+                Disponible jusqu'au <span class="required">*</span>
+            </label>
+            <input type="date" name="available_until" class="form-input" required>
         </div>
     </div>
 

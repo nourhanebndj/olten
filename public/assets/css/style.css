@@ -1663,9 +1663,24 @@ body {
         }
 
         .content-section {
+            width: 100%;
             scroll-margin-top: 20px;
+            display: none;
         }
 
+        .always-visible {
+          display: block !important;
+        }
+
+        .content-section.active {
+            display: block;
+            width: 100%;
+        }
+
+        .left-section-annonce {
+            margin: 2rem;
+        }
+        
         .description {
             line-height: 1.6;
             color: #555;
@@ -1786,6 +1801,11 @@ body {
         }
 
         .action-btn:hover {
+            border-color: #ff6b35;
+            color: #ff6b35;
+        }
+
+        .btn-favorite.active {
             border-color: #ff6b35;
             color: #ff6b35;
         }
@@ -2693,4 +2713,8 @@ body {
 
 .user-menu:hover .user-dropdown {
     display: block;
+}
+
+#ad-link {
+  text-decoration: none;
 }

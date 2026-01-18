@@ -6,6 +6,7 @@ use App\Http\Controllers\Owner\DashboardController;
 use App\Http\Controllers\Owner\AdController;
 use App\Http\Controllers\Owner\MessageController;
 use App\Http\Controllers\Owner\FavoriteController;
+use App\Http\Controllers\BookingController;
 use App\Http\Controllers\Admin\AdminAuthController;
 use App\Http\Controllers\Admin\CategoryController;
 use App\Http\Controllers\Admin\AdminDashboardController;
@@ -58,8 +59,9 @@ Route::middleware('auth')->group(function () {
     Route::get('/annonces/mes-annonces', [AdController::class, 'index'])->name('ads.index');
     Route::get('/annonces/{ad}/ical', [AdController::class, 'exportICal'])->name('ads.ical');
     Route::get('/annonces/{ad}/modifier', [AdController::class, 'edit'])->name('ads.edit');
-    Route::put('/annonces/{ad}', [AdController::class, 'update'])->name('ads.update');
-    Route::delete('/annonces/{ad}', [AdController::class, 'destroy'])->name('ads.destroy');
+    Route::put('/annonces/{ad}/modifier', [AdController::class, 'update'])->name('ads.update');
+    Route::delete('/annonces/{ad}/supprimer', [AdController::class, 'destroy'])->name('ads.destroy');
+    Route::delete('/ads/images/{image}', [AdController::class, 'destroyImgs'])->name('ads.images.destroy');
     Route::get('/mes-messages', function () {
         return view('pages.locateur.messages');
     })->name('messages');
@@ -68,7 +70,11 @@ Route::middleware('auth')->group(function () {
     Route::post('/messages/{user}', [MessageController::class, 'store'])->name('messages.store');
     Route::post('/ads/{ad}/favorite', [FavoriteController::class, 'toggle'])->name('ads.favorite');
     Route::get('/favoris', [FavoriteController::class, 'index'])->name('favoris');
+    Route::post('/ads/{ad}/bookings', [BookingController::class, 'store'])->name('bookings.store')->middleware('auth');
 });
+    //visualiser le détails d'une annonce meme pour un utilisateur visteur non connecté 
+    Route::get('/annonces/{ad}/détails', [AdController::class, 'show'])->name('ads.show');
+
     // Login admin public
     Route::get('admin/login', [AdminAuthController::class, 'showLogin'])->name('admin.login');
     Route::post('admin/login', [AdminAuthController::class, 'login'])->name('admin.login.submit');
