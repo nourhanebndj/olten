@@ -59,6 +59,11 @@
             <i class="bi bi-card-checklist mr-3 w-5 h-5"></i>
             Cartes VTC
         </a>
+        <a href="{{ route('admin.admin.ads.index') }}"
+            class="sidebar-link flex items-center p-3 rounded-xl text-sm font-medium">
+            <i class="bi bi-megaphone-fill mr-3 w-5 h-5"></i>
+            Annonces
+        </a>
 
     </nav>
 

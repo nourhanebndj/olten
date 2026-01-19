@@ -51,7 +51,7 @@
                     </a>
                 </li>
 
-                <li class="{{ (Route::is('ads.index') || Route::is('ads.edit')) ? 'active' : '' }}">
+                <li class="{{ Route::is('ads.index') || Route::is('ads.edit') ? 'active' : '' }}">
                     <a href="{{ route('ads.index') }}">
                         <i class="fa-solid fa-list"></i>
                         <span>Mes annonces</span>
@@ -80,9 +80,32 @@
                                 <span>Carte VTC</span>
                             </a>
                         </li>
+
+                        <li class="{{ request()->routeIs('delivery.ads') ? 'active' : '' }}">
+                            <a href="{{ route('delivery.ads') }}">
+                                <i class="fa-solid fa-truck-fast"></i>
+                                <span>Annonces à livrer</span>
+                            </a>
+                        </li>
+
+                        <li class="{{ request()->routeIs('liv_encours') ? 'active' : '' }}">
+                            <a href="{{ route('liv_encours') }}">
+                                <i class="fa-solid fa-clock"></i>
+                                <span>Livraisons en cours</span>
+                            </a>
+                        </li>
+
+                        <li class="{{ request()->routeIs('liv_termine') ? 'active' : '' }}">
+                            <a href="{{ route('liv_termine') }}">
+                                <i class="fa-solid fa-check-circle"></i>
+                                <span>Livraisons terminées</span>
+                            </a>
+                        </li>
                     </ul>
                 @endif
             @endauth
+
+
 
             <p class="menu-section">COMPTE</p>
             <ul>

@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Owner\ProfileController;
 use App\Http\Controllers\Owner\DashboardController;
 use App\Http\Controllers\Owner\AdController;
+use App\Http\Controllers\Admin\AdadController;
 use App\Http\Controllers\Owner\MessageController;
 use App\Http\Controllers\Owner\FavoriteController;
 use App\Http\Controllers\BookingController;
@@ -20,6 +21,8 @@ use App\Http\Controllers\livrer\CarteVtcController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\ContactController;
 use App\Http\Middleware\AdminMiddleware;
+use App\Http\Controllers\livrer\DeliveryAdController;
+
 
 Route::get('/', [HomeController::class, 'index'])->name('home');
 
@@ -70,7 +73,20 @@ Route::middleware('auth')->group(function () {
     Route::post('/messages/{user}', [MessageController::class, 'store'])->name('messages.store');
     Route::post('/ads/{ad}/favorite', [FavoriteController::class, 'toggle'])->name('ads.favorite');
     Route::get('/favoris', [FavoriteController::class, 'index'])->name('favoris');
-    Route::post('/ads/{ad}/bookings', [BookingController::class, 'store'])->name('bookings.store')->middleware('auth');
+    // livreur annonce 
+    Route::prefix('livreur')->group(function () {
+        Route::post('/documents/upload', [CarteVtcController::class, 'store'])->name('documents.upload');
+        Route::get('/livreur/carte-vtc', [CarteVtcController::class, 'index'])->name('livreur.carte.vtc');
+    });
+    Route::get('/espace-livraison', [DeliveryAdController::class, 'index'])->name('delivery.ads');
+    Route::post('/espace-livraison/{ad}/accept', [DeliveryAdController::class, 'accept'])->name('delivery.ads.accept');
+    Route::post('/espace-livraison/{ad}/reject', [DeliveryAdController::class, 'reject'])->name('delivery.ads.reject');
+        Route::get('/livraison.encours', function () {
+        return view('livreur.ads.en_cours'); 
+    })->name('liv_encours');
+            Route::get('/livraison.termine', function () {
+        return view('livreur.ads.termine'); 
+    })->name('liv_termine');
 });
     //visualiser le détails d'une annonce meme pour un utilisateur visteur non connecté 
     Route::get('/annonces/{ad}/détails', [AdController::class, 'show'])->name('ads.show');
@@ -78,8 +94,8 @@ Route::middleware('auth')->group(function () {
     // Login admin public
     Route::get('admin/login', [AdminAuthController::class, 'showLogin'])->name('admin.login');
     Route::post('admin/login', [AdminAuthController::class, 'login'])->name('admin.login.submit');
-// Routes admin protégées
-Route::prefix('admin')->name('admin.')->middleware(['auth', 'role:admin']) ->group(function () {
+    // Routes admin protégées
+    Route::prefix('admin')->name('admin.')->middleware(['auth', 'role:admin']) ->group(function () {
 
     // Catégories
     Route::get('/categorie', [CategoryController::class, 'index'])->name('categories.index');
@@ -126,15 +142,15 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'role:admin']) ->gro
     Route::get('vtc-cards', [VtcAdminController::class, 'index'])->name('vtc_cards.index');
     Route::post('vtc-cards/{document}/approve', [VtcAdminController::class, 'approve'])->name('vtc_cards.approve');
     Route::post('vtc-cards/{document}/reject', [VtcAdminController::class, 'reject'])->name('vtc_cards.reject');
+    // annonce 
+    Route::get('/ads/admin', [AdadController::class, 'index'])->name('admin.ads.index');
+    Route::patch('/ads/{ad}/approve', [AdadController::class, 'approve'])->name('ads.approve');
     // Logout admin
     Route::post('/logout', [AdminAuthController::class, 'logout'])->name('admin.logout');
 });
 
 
-Route::prefix('livreur')->group(function () {
-    Route::post('/documents/upload', [CarteVtcController::class, 'store'])->name('documents.upload');
-    Route::get('/livreur/carte-vtc', [CarteVtcController::class, 'index'])->name('livreur.carte.vtc');
-});
+
 
 require __DIR__.'/auth.php';
 

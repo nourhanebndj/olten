@@ -1,5 +1,5 @@
 @extends('layouts.connected')
-@section('title', 'Tableau de bord | ' . config('app.name'))
+@section('title', 'Carte VTC | ' . config('app.name'))
 
 @section('content')
     <section class="tab-content active animate-fade">
