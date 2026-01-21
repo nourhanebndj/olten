@@ -74,52 +74,68 @@
 
 
 <!----------Plus récent annonce-------------->
-<section class="annonces-section">
-    <h2 class="section-title">
-        Les Annonces qui Font Parler d'elles sur <span class="site-name">Olten-location.fr</span>
-    </h2>
+@php
+    $approvedAds = $ads->where('is_approved', true);
+    use Carbon\Carbon;
+@endphp
 
-    <div class="annonces-carousel">
-        <button class="carousel-btn prev-btn" aria-label="Précédent">
-            <i class="fas fa-chevron-left"></i>
-        </button>
+@if($approvedAds->isNotEmpty())
+    <section class="annonces-section">
+        <h2 class="section-title">
+            Les Annonces qui Font Parler d'elles sur <span class="site-name">Olten-location.fr</span>
+        </h2>
 
-        <div class="carousel-wrapper">
-            <div class="carousel-track">
-                @forelse($ads as $ad)
-                    @if($ad->is_approved)
-                        <a href="{{ route('ads.show', $ad) }}" class="annonce-card" id="ad-link">
-                            <div class="card-image-container">
-                                <img src="{{ $ad->image ? asset('storage/' . $ad->image) : asset('assets/images/no-image.jpg') }}" alt="{{ $ad->title }}" class="card-image">
-                                <span class="watermark">leboncoin</span>
-                                <span class="category-badge">{{ $ad->category->nom ?? 'Catégorie non définie' }}</span>
-                                <button class="favorite-btn" aria-label="Ajouter aux favoris" data-ad-id="{{ $ad->id }}" data-favorited="{{ auth()->check() && auth()->user()->hasFavorited($ad) ? 'true' : 'false' }}">
-                                    <i class="{{ auth()->check() && auth()->user()->hasFavorited($ad) ? 'fas fa-heart' : 'far fa-heart' }}"></i>
-                                </button>
-                            </div>
-                            <div class="card-content">
-                                <h3 class="card-title">
-                                    {{ $ad->title }}
-                                    <span class="info-icon"><i class="fas fa-question"></i></span>
-                                </h3>
-                                <p class="card-price">Commence à partir de {{ number_format($ad->price_per_day, 2) }} € / jour</p>
-                            </div>
-                        </a>
-                    @endif
-                @empty
-                    <p class="text-center">
-                        Aucune annonce disponible pour le moment.
-                    </p>
-                @endforelse
+        <div class="annonces-carousel">
+            <button class="carousel-btn prev-btn" aria-label="Précédent">
+                <i class="fas fa-chevron-left"></i>
+            </button>
+
+            <div class="carousel-wrapper">
+                <div class="carousel-track">
+                    @forelse($ads as $ad)
+                        @if($ad->is_approved)
+                            <a href="{{ route('ads.show', $ad) }}" class="annonce-card" id="ad-link">
+                                <div class="card-image-container">
+                                    <img src="{{ $ad->images->first() ? asset('storage/' . $ad->images->first()->path) : asset('assets/images/no-image.jpg') }}" alt="{{ $ad->title }}" class="card-image">
+                                    <span class="watermark">leboncoin</span>
+                                    <span class="category-badge">{{ $ad->category->nom ?? 'Catégorie non définie' }}</span>
+                                    <button class="favorite-btn" aria-label="Ajouter aux favoris" data-ad-id="{{ $ad->id }}" data-favorited="{{ auth()->check() && auth()->user()->hasFavorited($ad) ? 'true' : 'false' }}">
+                                        <i class="{{ auth()->check() && auth()->user()->hasFavorited($ad) ? 'fas fa-heart' : 'far fa-heart' }}"></i>
+                                    </button>
+                                </div>
+                                <div class="card-content">
+                                    <div class="d-flex justify-content-between">
+                                        <h3 class="card-title">
+                                            {{ $ad->title }}
+                                            <span class="info-icon"><i class="fas fa-question"></i></span>
+                                        </h3>
+                                        @if($ad->expires_at && Carbon::parse($ad->expires_at)->toDateString() < now()->toDateString())
+                                            <span class="expired">Expirée</span>
+                                        @endif
+                                    </div>
+                                    
+                                    <p class="card-price">Commence à partir de {{ number_format($ad->price_per_day, 2) }} € / jour</p>
+                                </div>
+                            </a>
+                        @endif
+                    @empty
+                        <p class="text-center">
+                            Aucune annonce disponible pour le moment.
+                        </p>
+                    @endforelse
+                </div>
             </div>
+
+            <button class="carousel-btn next-btn" aria-label="Suivant">
+                <i class="fas fa-chevron-right"></i>
+            </button>
         </div>
 
-        <button class="carousel-btn next-btn" aria-label="Suivant">
-            <i class="fas fa-chevron-right"></i>
-        </button>
-    </div>
-
-    <div class="carousel-dots"></div>
-</section>
-
+        <div class="carousel-dots"></div>
+    </section>
+@else
+    <p class="text-center">
+        Aucune annonce disponible pour le moment.
+    </p>
+@endif
 @endsection

@@ -8,7 +8,9 @@
     <span>></span>
     <span>Modifier une annonce</span>
 </div>
-
+@php
+    use Carbon\Carbon;
+@endphp
 <h1>Modifier une annonce</h1>
 
 <form action="{{ route('ads.update', $ad) }}" method="POST" enctype="multipart/form-data" id="annonceForm">
@@ -27,12 +29,18 @@
     <!-- SECTION INFORMATIONS -->
     <div class="form-container">
         <div class="form-section-header">
-            <div class="form-section-icon">
-                <i class="fa-solid fa-file-lines"></i>
+            <div class="d-flex justify-content-between flex-wrap w-100">
+                <div class="form-section-icon">
+                    <i class="fa-solid fa-file-lines"></i>
+                </div>
+                <h2 class="form-section-title mt-2">Informations</h2>
+                @if($ad->expires_at && Carbon::parse($ad->expires_at)->toDateString() < now()->toDateString())
+                    <span class="expired">Expirée</span>
+                @endif
             </div>
-            <h2 class="form-section-title">Informations</h2>
-        </div>
 
+        </div>
+                    
         <div class="form-grid">
             <div class="form-group">
                 <label class="form-label">
@@ -90,14 +98,14 @@
             <label class="form-label">
                 Disponible à partir du <span class="required">*</span>
             </label>
-            <input type="date" name="available_from" class="form-input" value="{{ $ad->available_from }}" required>
+            <input type="date" name="available_from" class="form-input" value="{{ optional($ad->available_from)->format('Y-m-d') }}" required>
         </div>
 
         <div class="form-group">
             <label class="form-label">
                 Disponible jusqu'au <span class="required">*</span>
             </label>
-            <input type="date" name="available_until" class="form-input" value="{{ $ad->available_until }}" required>
+            <input type="date" name="available_until" class="form-input" value="{{ optional($ad->available_until)->format('Y-m-d') }}" required>
         </div>
     </div>
 

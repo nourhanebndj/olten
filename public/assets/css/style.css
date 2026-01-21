@@ -1672,6 +1672,21 @@ body {
           display: block !important;
         }
 
+        span.expired {
+          background-color: #dc3545;
+          height: 26px;
+          width: 4rem;
+          padding: 0 5px 0 5px;
+          border-radius: 15px;
+          font-size: 12px;
+          display: flex;
+          align-content: center;
+          flex-wrap: wrap;
+          justify-content: center;
+          color: #fff;
+          font-weight: 600;
+      }
+
         .content-section.active {
             display: block;
             width: 100%;

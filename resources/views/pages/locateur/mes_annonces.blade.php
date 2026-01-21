@@ -10,7 +10,9 @@
     </div>
     
     <h1 class="page-title">Mes annonces</h1>
-    
+    @php
+        use Carbon\Carbon;
+    @endphp
     <!-- SECTION MES ANNONCES -->
     <div class="annonces-container">
         <div class="section-header">
@@ -66,6 +68,9 @@
                             </span>
                         </div>
                     </div>
+                    @if($ad->expires_at && Carbon::parse($ad->expires_at)->toDateString() < now()->toDateString())
+                        <span class="expired">Expirée</span>
+                    @endif
                     <div class="annonce-actions">
                         <a href="{{ route('ads.ical', $ad) }}" class="btn-action btn-ical" title="Exporter en iCal">
                             <i class="fa-solid fa-calendar-plus"></i> iCal

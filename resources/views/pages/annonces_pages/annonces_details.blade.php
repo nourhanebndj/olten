@@ -42,9 +42,14 @@
         <div class="left-section-annonce">
 
             <div class="breadcrumb">
-                <a href="#">{{ $ad->category->nom ?? 'Catégorie non définie' }}</a>
-                <span>›</span>
-                <span>{{ $ad->address }}</span>
+                <div>
+                    <a href="#">{{ $ad->category->nom ?? 'Catégorie non définie' }}</a>
+                    <span>›</span>
+                    <span>{{ $ad->address }}</span>
+                </div>
+                @if($ad->expires_at && \Carbon\Carbon::parse($ad->expires_at)->toDateString() < now()->toDateString())
+                    <span class="expired">Expirée</span>
+                @endif
             </div>
 
             <div class="status-badge">
