@@ -22,33 +22,26 @@ use App\Http\Controllers\HomeController;
 use App\Http\Controllers\ContactController;
 use App\Http\Middleware\AdminMiddleware;
 use App\Http\Controllers\livrer\DeliveryAdController;
+use App\Http\Controllers\livrer\AdsLivreurController;
+use App\Models\LivraisonColis;
 
 
 Route::get('/', [HomeController::class, 'index'])->name('home');
-
 Route::get('/creer-site', function () {
     return view('pages.creer_site');
 })->name('creer.site');
-
-
 Route::get('/contact', [ContactController::class, 'index'])
     ->name('contact');
-
 Route::post('/contact', [ContactController::class, 'store'])
     ->name('contact.store');
-
-
 Route::get('/annonce-details', function () {
     return view('pages.annonces_pages.annonces_details');
 })->name('annonces.details');
-
 Route::view('/categories', 'pages.annonces_pages.categories_annonces')
 ->name('categories');
-
 Route::get('/statistiques', function () {
     return view('pages.locateur.statistiques');
 })->name('statistiques');
-
 
 Route::middleware('auth')->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
@@ -78,24 +71,27 @@ Route::middleware('auth')->group(function () {
         Route::post('/documents/upload', [CarteVtcController::class, 'store'])->name('documents.upload');
         Route::get('/livreur/carte-vtc', [CarteVtcController::class, 'index'])->name('livreur.carte.vtc');
     });
+    Route::get('/livreur/ads', [AdsLivreurController::class, 'index'])->name('livreur.ads.index');
+    // Locataire
+    Route::post('/locataire/demande/{demande}/accept', [AdsLivreurController::class, 'acceptDemande'])->name('locataire.demande.accept');
+    Route::post('/locataire/demande/{demande}/refuse', [AdsLivreurController::class, 'refuseDemande'])->name('locataire.demande.refuse');
+    Route::post('/demande/{demande}/finaliser', [AdsLivreurController::class, 'finaliserMission'])->name('demande.finaliser');
+    Route::post('/demande/{demande}/annuler', [AdsLivreurController::class, 'annulerMission'])->name('demande.annuler');
     Route::get('/espace-livraison', [DeliveryAdController::class, 'index'])->name('delivery.ads');
     Route::post('/espace-livraison/{ad}/accept', [DeliveryAdController::class, 'accept'])->name('delivery.ads.accept');
     Route::post('/espace-livraison/{ad}/reject', [DeliveryAdController::class, 'reject'])->name('delivery.ads.reject');
-        Route::get('/livraison.encours', function () {
-        return view('livreur.ads.en_cours'); 
-    })->name('liv_encours');
-            Route::get('/livraison.termine', function () {
-        return view('livreur.ads.termine'); 
-    })->name('liv_termine');
-});
-    //visualiser le détails d'une annonce meme pour un utilisateur visteur non connecté 
-    Route::get('/annonces/{ad}/détails', [AdController::class, 'show'])->name('ads.show');
+    Route::get('/livraison.termine', [DeliveryAdController::class, 'historiqueTermine'])->name('liv_termine');
+    Route::post('/delivery/ads/{ad}/request', [DeliveryAdController::class, 'sendRequest'])->name('delivery.ads.request');
 
-    // Login admin public
-    Route::get('admin/login', [AdminAuthController::class, 'showLogin'])->name('admin.login');
-    Route::post('admin/login', [AdminAuthController::class, 'login'])->name('admin.login.submit');
-    // Routes admin protégées
-    Route::prefix('admin')->name('admin.')->middleware(['auth', 'role:admin']) ->group(function () {
+});
+//visualiser le détails d'une annonce meme pour un utilisateur visteur non connecté 
+Route::get('/annonces/{ad}/détails', [AdController::class, 'show'])->name('ads.show');
+
+// Login admin public
+Route::get('admin/login', [AdminAuthController::class, 'showLogin'])->name('admin.login');
+Route::post('admin/login', [AdminAuthController::class, 'login'])->name('admin.login.submit');
+// Routes admin protégées
+Route::prefix('admin')->name('admin.')->middleware(['auth', 'role:admin']) ->group(function () {
 
     // Catégories
     Route::get('/categorie', [CategoryController::class, 'index'])->name('categories.index');

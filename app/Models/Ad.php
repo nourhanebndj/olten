@@ -50,4 +50,10 @@ class Ad extends Model
     {
         return $this->hasMany(AdImage::class);
     }
+    public function demandes()
+    {
+        return $this->hasMany(DemandeLivreur::class, 'id_annonce', 'id')
+                    ->with('livreur');
+    }
+
 }

@@ -69,34 +69,34 @@
                         <span>Favoris</span>
                     </a>
                 </li>
+                <li class="{{ request()->routeIs('livreur.ads.index') ? 'active' : '' }}">
+                    <a href="{{ route('livreur.ads.index') }}" class="flex items-center gap-3">
+                        <i class="fa-solid fa-paper-plane"></i>
+                        <span>Demande de livraison</span>
+                    </a>
+                </li>
+
             </ul>
             @auth
                 @if (Auth::user()->role === 'livreur')
                     <p class="menu-section">Livreur</p>
                     <ul>
                         <li class="{{ request()->routeIs('livreur.carte.vtc') ? 'active' : '' }}">
-                            <a href="{{ route('livreur.carte.vtc') }}">
+                            <a href="{{ route('livreur.carte.vtc') }}" class="flex items-center gap-3">
                                 <i class="fa-solid fa-id-card"></i>
                                 <span>Carte VTC</span>
                             </a>
                         </li>
 
                         <li class="{{ request()->routeIs('delivery.ads') ? 'active' : '' }}">
-                            <a href="{{ route('delivery.ads') }}">
-                                <i class="fa-solid fa-truck-fast"></i>
+                            <a href="{{ route('delivery.ads') }}" class="flex items-center gap-3">
+                                <i class="fa-solid fa-truck"></i>
                                 <span>Annonces à livrer</span>
                             </a>
                         </li>
 
-                        <li class="{{ request()->routeIs('liv_encours') ? 'active' : '' }}">
-                            <a href="{{ route('liv_encours') }}">
-                                <i class="fa-solid fa-clock"></i>
-                                <span>Livraisons en cours</span>
-                            </a>
-                        </li>
-
                         <li class="{{ request()->routeIs('liv_termine') ? 'active' : '' }}">
-                            <a href="{{ route('liv_termine') }}">
+                            <a href="{{ route('liv_termine') }}" class="flex items-center gap-3">
                                 <i class="fa-solid fa-check-circle"></i>
                                 <span>Livraisons terminées</span>
                             </a>

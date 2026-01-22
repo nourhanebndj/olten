@@ -21,4 +21,5 @@ class LivraisonColis extends Model
     public function expediteur() {
         return $this->belongsTo(User::class, 'expediteur_id');
     }
+
 }
