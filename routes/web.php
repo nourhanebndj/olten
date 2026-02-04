@@ -49,3 +49,11 @@ Route::get('/mes_annonces', function () {
 Route::get('/messages', function () {
     return view('pages.locateur.messages');
 })->name('messages');
+
+Route::get('/intermediaire-transport', function () {
+    return view('pages.intermediaire_transport');
+})->name('intermediaire.transport');
+
+Route::get('/location-vehicule', function () {
+    return view('pages.location_vehicule');
+})->name('location.vehicule');

@@ -115,6 +115,35 @@ document.addEventListener('DOMContentLoaded', function() {
     nextBtn.addEventListener('click', () => {
         goToSlide(currentIndex + cardsPerView);
     });
+    // ===========================================
+    // Allow clicks on links inside carousel cards
+    // ===========================================
+    cards.forEach(card => {
+        const link = card.querySelector('.category-btn');
+        if (link) {
+            link.addEventListener('click', (e) => {
+                e.stopPropagation();
+                e.preventDefault();
+                setTimeout(() => {
+                    window.location.href = link.href;
+                }, 100);
+            });
+        }
+    });
+
+    // Also allow category card clicks
+    cards.forEach(card => {
+        card.addEventListener('click', (e) => {
+            if (e.target.closest('.category-btn')) {
+                const link = e.target.closest('.category-btn');
+                e.stopPropagation();
+                e.preventDefault();
+                setTimeout(() => {
+                    window.location.href = link.href;
+                }, 100);
+            }
+        });
+    });
 
     // Touch events for mobile
     let startX = 0;

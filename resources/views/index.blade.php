@@ -58,7 +58,7 @@
               <img src="https://images.unsplash.com/photo-1549317661-bd32c8ce0db2?w=600&h=800&fit=crop" alt="Location véhicule" class="category-image">
               <div class="category-content">
                 <h3 class="category-title">Location véhicule</h3>
-                <a href="#" class="category-btn">Parcourir</a>
+                <a href="{{ route('intermediaire.transport') }}" class="category-btn">Parcourir</a>
               </div>
             </div>
 

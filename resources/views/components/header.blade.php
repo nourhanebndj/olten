@@ -87,7 +87,7 @@
         </div>
         <ul class="menu-list">
             <li><a href="{{ url('/') }}">Accueil</a></li>
-            <li><a href="">Location véhicule</a></li>
+            <li><a href="{{ route('intermediaire.transport') }}">Location véhicule</a></li>
             <li><a href="">Location immobilier</a></li>
             <li><a href="">Location mode & famille</a></li>
             <li><a href="">Location sport & loisir</a></li>
