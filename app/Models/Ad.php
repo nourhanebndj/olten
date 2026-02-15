@@ -27,7 +27,8 @@ class Ad extends Model
         'available_from',
         'available_until',
         'expires_at',
-        'is_approved'
+        'is_approved',
+        'views'
     ];
 
     protected $casts = [
@@ -56,4 +57,9 @@ class Ad extends Model
                     ->with('livreur');
     }
 
+
+    public function reports()
+    {
+        return $this->hasMany(AdReport::class);
+    }
 }

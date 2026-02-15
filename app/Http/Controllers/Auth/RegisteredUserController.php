@@ -12,6 +12,8 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rules;
 use Illuminate\View\View;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\DB;
+use Laratrust\Models\Role;
 
 class RegisteredUserController extends Controller
 {
@@ -70,6 +72,11 @@ class RegisteredUserController extends Controller
             'email'    => $request->email,
             'password' => Hash::make($request->password),
         ]);
+        $role = Role::where('name', 'locateur')->first();
+
+        if ($role) {
+            $user->syncRoles([$role]);
+        }
 
         event(new Registered($user));
         Auth::login($user);

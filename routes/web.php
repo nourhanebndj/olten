@@ -7,6 +7,8 @@ use App\Http\Controllers\Owner\AdController;
 use App\Http\Controllers\Admin\AdadController;
 use App\Http\Controllers\Owner\MessageController;
 use App\Http\Controllers\Owner\FavoriteController;
+use App\Http\Controllers\Owner\StatsController;
+use App\Http\Controllers\Owner\AdReportController;
 use App\Http\Controllers\BookingController;
 use App\Http\Controllers\Admin\AdminAuthController;
 use App\Http\Controllers\Admin\CategoryController;
@@ -39,9 +41,6 @@ Route::get('/annonce-details', function () {
 })->name('annonces.details');
 Route::view('/categories', 'pages.annonces_pages.categories_annonces')
 ->name('categories');
-Route::get('/statistiques', function () {
-    return view('pages.locateur.statistiques');
-})->name('statistiques');
 
 Route::middleware('auth')->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
@@ -66,6 +65,17 @@ Route::middleware('auth')->group(function () {
     Route::post('/messages/{user}', [MessageController::class, 'store'])->name('messages.store');
     Route::post('/ads/{ad}/favorite', [FavoriteController::class, 'toggle'])->name('ads.favorite');
     Route::get('/favoris', [FavoriteController::class, 'index'])->name('favoris');
+    Route::post('/ads/{ad}/bookings', [BookingController::class, 'store'])->name('bookings.store');
+    Route::get('/bookings/confirm', [BookingController::class, 'confirm'])->name('bookings.confirm');
+    Route::post('/bookings/pay', [BookingController::class, 'pay'])->name('bookings.pay');
+    Route::get('/stats/ads', [StatsController::class, 'adsStats'])->name('stats.ads');
+    Route::get('/statistiques', function () {
+        return view('pages.locateur.statistiques');
+    })->name('statistiques');
+    Route::post('/ads/{ad}/report', [AdReportController::class, 'store'])->middleware('auth')->name('ads.report');
+    Route::get('/portefeuille', function () {
+    return view('pages.locateur.walt');
+    })->name('walt.index');
     // livreur annonce 
     Route::prefix('livreur')->group(function () {
         Route::post('/documents/upload', [CarteVtcController::class, 'store'])->name('documents.upload');

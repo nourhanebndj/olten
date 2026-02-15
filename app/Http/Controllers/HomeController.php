@@ -4,13 +4,33 @@ namespace App\Http\Controllers;
 
 use App\Models\Category;
 use App\Models\Ad;
+use Illuminate\Http\Request;
 
 class HomeController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
         $categories = Category::latest()->get();
-        $ads = Ad::latest()->get();
+        $query = Ad::query()->where('is_approved', true);
+        if ($request->filled('search')) {
+            $query->where(function ($q) use ($request) {
+                $q->where('title', 'like', '%' . $request->search . '%')
+                  ->orWhere('description', 'like', '%' . $request->search . '%')
+                  ->orWhereHas('category', function ($q2) use ($request) {
+                      $q2->where('nom', 'like', '%' . $request->search . '%');
+                  });
+            });
+        }
+
+        if ($request->filled('location')) {
+            $query->where('address', 'like', '%' . $request->location . '%');
+        }
+
+        if ($request->filled('category')) {
+            $query->where('category_id', $request->category);
+        }
+
+        $ads = $query->latest()->get();
         return view('index', compact('categories','ads'));
     }
 }

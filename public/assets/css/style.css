@@ -2733,3 +2733,24 @@ body {
 #ad-link {
   text-decoration: none;
 }
+
+#card-element {
+    border: 1px solid #ccc;
+    padding: 12px;
+    border-radius: 6px;
+    background-color: white;
+    min-height: 40px;
+}
+
+.StripeElement {
+    width: 100%;
+    padding: 12px 15px;
+}
+
+.StripeElement--focus {
+    border-color: #635bff;
+}
+
+.StripeElement--invalid {
+    border-color: #fa755a;
+}

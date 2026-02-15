@@ -8,6 +8,7 @@ use App\Models\LivraisonColis;
 use App\Models\LivraisonVtc;
 use App\Models\Covoiturage;
 use App\Models\User;
+use App\Models\Ad;
 use App\Models\PointsFidelite;
 use App\Models\Transaction;
 use Illuminate\Http\Request;
@@ -62,11 +63,11 @@ class DashboardController extends Controller
                     ->sum(fn($m) => $m->prix_total_affiche ?? $m->prix_base ?? 0);
             }
         }
-
         if($user->hasRole('locateur')) {
-            $activeAds = 3; 
-            $totalViews = 1240;
-            $favoritesCount = 45;
+            $activeAds = Ad::where('user_id', $user->id)->count();
+            $totalViews = Ad::where('user_id', $user->id)->sum('views');
+            $favoritesCount = Auth::user()->favorites()->count();
+
             $recentActivities = [
                 ['description' => 'Nouvelle réservation reçue', 'time' => 'Il y a 2h'],
                 ['description' => 'Votre annonce "VTT Pro" a été vue 50 fois', 'time' => 'Hier'],

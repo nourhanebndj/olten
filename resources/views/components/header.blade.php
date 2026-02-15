@@ -10,25 +10,47 @@
 
     <!-- Barre de recherche (PC uniquement) -->
     <div class="search-bar">
-        <div class="search-field">
-            <i class="fa-solid fa-magnifying-glass"></i>
-            <input type="text" placeholder="Que recherchez-vous ?" class="search-input">
-        </div>
-        <div class="divider"></div>
-        <div class="search-field">
-            <i class="fa-solid fa-location-dot"></i>
-            <input type="text" placeholder="Emplacement" class="location-input">
-        </div>
-        <div class="divider"></div>
-        <div class="search-field">
-            <select class="category-select">
-                <option>Toutes les catégories</option>
-                <option>Auto</option>
-                <option>Immobilier</option>
-                <option>Emploi</option>
-            </select>
-        </div>
-        <button class="search-btn">Rechercher</button>
+        <form method="GET" action="{{ route('home') }}" class="search-bar w-100">
+
+            <div class="search-field">
+                <i class="fa-solid fa-magnifying-glass"></i>
+                <input type="text"
+                    name="search"
+                    placeholder="Que recherchez-vous ?"
+                    class="search-input"
+                    value="{{ request('search') }}">
+            </div>
+
+            <div class="divider"></div>
+
+            <div class="search-field">
+                <i class="fa-solid fa-location-dot"></i>
+                <input type="text"
+                    name="location"
+                    placeholder="Emplacement"
+                    class="location-input"
+                    value="{{ request('location') }}">
+            </div>
+
+            <div class="divider"></div>
+
+            <div class="search-field">
+                <select name="category" class="category-select">
+                    <option value="">Toutes les catégories</option>
+
+                    @foreach($categories as $category)
+                        <option value="{{ $category->id }}"
+                            {{ request('category') == $category->id ? 'selected' : '' }}>
+                            {{ $category->nom }}
+                        </option>
+                    @endforeach
+
+                </select>
+            </div>
+
+            <button type="submit" class="search-btn">Rechercher</button>
+
+        </form>
     </div>
 
     <!-- Profil / Menu / Icônes Mobile -->
@@ -105,23 +127,47 @@
     <!-- Bloc de recherche mobile -->
     <div class="mobile-search" id="mobileSearch">
         <div class="mobile-search-content">
-            <div class="search-field">
-                <i class="fa-solid fa-magnifying-glass"></i>
-                <input type="text" placeholder="Que recherchez-vous ?" class="search-input">
-            </div>
-            <div class="search-field">
-                <i class="fa-solid fa-location-dot"></i>
-                <input type="text" placeholder="Emplacement" class="location-input">
-            </div>
-            <div class="search-field">
-                <select class="category-select">
-                    <option>Toutes les catégories</option>
-                    <option>Auto</option>
-                    <option>Immobilier</option>
-                    <option>Emploi</option>
-                </select>
-            </div>
-            <button class="search-btn">Rechercher</button>
+
+            <form method="GET" action="{{ route('home') }}">
+
+                <div class="search-field">
+                    <i class="fa-solid fa-magnifying-glass"></i>
+                    <input type="text"
+                        name="search"
+                        placeholder="Que recherchez-vous ?"
+                        class="search-input"
+                        value="{{ request('search') }}">
+                </div>
+
+                <div class="search-field">
+                    <i class="fa-solid fa-location-dot"></i>
+                    <input type="text"
+                        name="location"
+                        placeholder="Emplacement"
+                        class="location-input"
+                        value="{{ request('location') }}">
+                </div>
+
+                <div class="search-field">
+                    <select name="category" class="category-select">
+                        <option value="">Toutes les catégories</option>
+
+                        @foreach($categories as $category)
+                            <option value="{{ $category->id }}"
+                                {{ request('category') == $category->id ? 'selected' : '' }}>
+                                {{ $category->nom }}
+                            </option>
+                        @endforeach
+
+                    </select>
+                </div>
+
+                <button type="submit" class="search-btn w-100">
+                    Rechercher
+                </button>
+
+            </form>
+
         </div>
     </div>
 

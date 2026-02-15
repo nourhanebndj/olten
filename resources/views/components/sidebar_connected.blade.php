@@ -34,8 +34,8 @@
                         <span>Messages</span>
                     </a>
                 </li>
-                <li>
-                    <a href="{{ url('/dashboard') }}">
+                <li class="{{ Route::is('walt.index') ? 'active' : '' }}">
+                    <a href="{{ url('/portefeuille') }}">
                         <i class="fa-solid fa-wallet"></i>
                         <span>Portefeuille</span>
                     </a>

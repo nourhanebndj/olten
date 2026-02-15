@@ -110,7 +110,7 @@
                 </div>
             @endif
 
-            @if(auth()->check() && auth()->user()->id != $ad->user_id)
+            @if(!auth()->check() || (auth()->check() && auth()->user()->id != $ad->user_id && $ad->expires_at && \Carbon\Carbon::parse($ad->expires_at)->toDateString() >= now()->toDateString()))
                 <div class="reservation-box">
                     <div class="reservation-title">
                         <i class="far fa-calendar-alt"></i>
@@ -129,11 +129,11 @@
                     </form>
 
                     <div class="action-buttons">
-                        <button class="action-btn">
+                        <button class="action-btn" onclick="window.location.href='mailto:{{ $ad->user->email }}'">
                             <i class="far fa-comment"></i> Message
                         </button>
 
-                        <button class="action-btn">
+                        <button class="action-btn" onclick="window.location.href='tel:{{ $ad->user->phone }}'">
                             <i class="fas fa-phone"></i> Appeler
                         </button>
 
@@ -142,7 +142,7 @@
                         </button>
 
                     </div>
-                    <button class="signal-btn">
+                    <button class="signal-btn" onclick="signalAd({{ $ad->id }})">
                         <i class="fas fa-flag"></i>
                         Signaler cette annonce
                     </button>
@@ -187,6 +187,24 @@
             }
         }
     }
+
+    function signalAd(adId) {
+        const reason = prompt("Pourquoi voulez-vous signaler cette annonce ?");
+        if (!reason) return;
+
+        fetch(`/ads/${adId}/report`, {
+            method: 'POST',
+            headers: {
+                'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ reason })
+        })
+        .then(res => res.json())
+        .then(data => alert(data.message || 'Annonce signalée !'))
+        .catch(err => console.error(err));
+    }
+
 </script>
 
 @endsection

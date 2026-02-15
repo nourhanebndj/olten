@@ -10,6 +10,8 @@ use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Cache;
+use App\Models\AdVisit;
 
 class AdController extends Controller
 {
@@ -37,7 +39,24 @@ class AdController extends Controller
 
     public function show($id)
     {
-        $ad = Ad::findOrfail($id);
+        if (!request()->isMethod('get')) {
+            return view('pages.annonces_pages.annonces_details', [
+                'ad' => Ad::findOrFail($id)
+            ]);
+        }
+
+        $ad = Ad::findOrFail($id);
+
+        if (Auth::id() !== $ad->user_id) {
+            AdVisit::create([
+                'ad_id' => $ad->id,
+                'user_id' => Auth::id(),
+                'ip' => request()->ip(),
+            ]);
+
+            $ad->increment('views');
+        }
+
         return view('pages.annonces_pages.annonces_details', compact('ad'));
     }
 
