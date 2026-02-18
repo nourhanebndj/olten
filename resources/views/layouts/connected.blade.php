@@ -49,6 +49,8 @@
     <script src="{{ asset('assets/js/script_connected.js') }}"></script>
     <script src="{{ asset('assets/js/ckeditor.js') }}"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
     <script>
         lucide.createIcons();
     </script>

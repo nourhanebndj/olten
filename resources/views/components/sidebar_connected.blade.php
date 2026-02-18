@@ -79,7 +79,7 @@
             </ul>
             @auth
                 @if (Auth::user()->role === 'livreur')
-                    <p class="menu-section">Livreur</p>
+                    <p class="menu-section">Chauffeur VTC</p>
                     <ul>
                         <li class="{{ request()->routeIs('livreur.carte.vtc') ? 'active' : '' }}">
                             <a href="{{ route('livreur.carte.vtc') }}" class="flex items-center gap-3">
@@ -87,6 +87,27 @@
                                 <span>Carte VTC</span>
                             </a>
                         </li>
+
+                        <!-- Covoiturage -->
+                        <li class="{{ request()->routeIs('covoiturage.index') ? 'active' : '' }}">
+                            <a href="{{ route('covoiturage.index') }}" class="flex items-center gap-3">
+                                <i class="fa-solid fa-car-side"></i>
+                                <span>Mes trajet</span>
+                            </a>
+                        </li>
+                        <li class="{{ request()->routeIs('covoiturage.create') ? 'active' : '' }}">
+                            <a href="{{ route('covoiturage.create') }}" class="flex items-center gap-3">
+                                <i class="fa-solid fa-plus-circle"></i>
+                                <span>Ajouter un trajet</span>
+                            </a>
+                        </li>
+                    </ul>
+                @endif
+            @endauth
+            @auth
+                @if (Auth::user()->role === 'livreur')
+                    <p class="menu-section">Livreur</p>
+                    <ul>
 
                         <li class="{{ request()->routeIs('delivery.ads') ? 'active' : '' }}">
                             <a href="{{ route('delivery.ads') }}" class="flex items-center gap-3">
