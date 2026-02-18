@@ -13,7 +13,8 @@
                 <!-- Breadcrumb -->
                 <nav aria-label="Breadcrumb" class="flex-1">
                     <ol class="flex items-center space-x-2 text-sm font-medium">
-                        <li><a href="#" class="text-slate-400 hover:text-slate-600 transition-colors">Espace Driver</a>
+                        <li><a href="#" class="text-slate-400 hover:text-slate-600 transition-colors">Chauffeur
+                                VTC</a>
                         </li>
                         <li><i data-lucide="chevron-right" class="w-4 h-4 text-slate-300"></i></li>
                         <li class="text-slate-900 font-bold">Certification VTC</li>

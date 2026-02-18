@@ -11,6 +11,7 @@ use App\Http\Controllers\BookingController;
 use App\Http\Controllers\Admin\AdminAuthController;
 use App\Http\Controllers\Admin\CategoryController;
 use App\Http\Controllers\Admin\AdminDashboardController;
+use App\Http\Controllers\Admin\CovoiturageAdminController;
 use App\Http\Controllers\Admin\TypeServiceController;
 use App\Http\Controllers\Admin\ServiceController;
 use App\Http\Controllers\Admin\VtcAdminController;
@@ -20,11 +21,11 @@ use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\livrer\CarteVtcController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\ContactController;
+use App\Http\Controllers\CovoiturageController;
 use App\Http\Middleware\AdminMiddleware;
 use App\Http\Controllers\livrer\DeliveryAdController;
 use App\Http\Controllers\livrer\AdsLivreurController;
 use App\Models\LivraisonColis;
-
 
 Route::get('/', [HomeController::class, 'index'])->name('home');
 Route::get('/creer-site', function () {
@@ -66,7 +67,7 @@ Route::middleware('auth')->group(function () {
     Route::post('/messages/{user}', [MessageController::class, 'store'])->name('messages.store');
     Route::post('/ads/{ad}/favorite', [FavoriteController::class, 'toggle'])->name('ads.favorite');
     Route::get('/favoris', [FavoriteController::class, 'index'])->name('favoris');
-    // livreur annonce 
+    // livreur annonce
     Route::prefix('livreur')->group(function () {
         Route::post('/documents/upload', [CarteVtcController::class, 'store'])->name('documents.upload');
         Route::get('/livreur/carte-vtc', [CarteVtcController::class, 'index'])->name('livreur.carte.vtc');
@@ -82,9 +83,16 @@ Route::middleware('auth')->group(function () {
     Route::post('/espace-livraison/{ad}/reject', [DeliveryAdController::class, 'reject'])->name('delivery.ads.reject');
     Route::get('/livraison.termine', [DeliveryAdController::class, 'historiqueTermine'])->name('liv_termine');
     Route::post('/delivery/ads/{ad}/request', [DeliveryAdController::class, 'sendRequest'])->name('delivery.ads.request');
+    Route::get('/covoiturage', [CovoiturageController::class, 'index'])
+        ->name('covoiturage.index');
+    Route::get('/covoiturage/create', [CovoiturageController::class, 'create'])
+        ->name('covoiturage.create');
+    Route::post('/covoiturage/publish', [CovoiturageController::class, 'publish'])->middleware('auth');
+    Route::get('/trajet/{covoiturage}', [CovoiturageController::class, 'show'])
+        ->name('trajet.show');
 
 });
-//visualiser le détails d'une annonce meme pour un utilisateur visteur non connecté 
+//visualiser le détails d'une annonce meme pour un utilisateur visteur non connecté
 Route::get('/annonces/{ad}/détails', [AdController::class, 'show'])->name('ads.show');
 
 // Login admin public
@@ -92,7 +100,9 @@ Route::get('admin/login', [AdminAuthController::class, 'showLogin'])->name('admi
 Route::post('admin/login', [AdminAuthController::class, 'login'])->name('admin.login.submit');
 // Routes admin protégées
 Route::prefix('admin')->name('admin.')->middleware(['auth', 'role:admin']) ->group(function () {
-
+    // covoiturage
+    Route::get('rides', [CovoiturageAdminController::class, 'index'])->name('rides.index');
+    Route::patch('rides/{ride}/toggle-status', [CovoiturageAdminController::class, 'toggleStatus'])->name('rides.toggle-status');
     // Catégories
     Route::get('/categorie', [CategoryController::class, 'index'])->name('categories.index');
     Route::get('/categories/create', [CategoryController::class, 'create'])->name('categories.create');
@@ -101,7 +111,7 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'role:admin']) ->gro
     Route::put('/categories/{category}', [CategoryController::class, 'update'])->name('categories.update');
     Route::delete('/categories/{category}', [CategoryController::class, 'destroy'])->name('categories.destroy');
     // Dashboard
-    Route::get('/', [\App\Http\Controllers\Admin\AdminDashboardController::class, 'index'])->name('dashboard');
+    Route::get('/', [AdminDashboardController::class, 'index'])->name('dashboard');
     // Sous-catégories
     Route::resource('subcategories', SubCategoryController::class);
 
@@ -138,7 +148,7 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'role:admin']) ->gro
     Route::get('vtc-cards', [VtcAdminController::class, 'index'])->name('vtc_cards.index');
     Route::post('vtc-cards/{document}/approve', [VtcAdminController::class, 'approve'])->name('vtc_cards.approve');
     Route::post('vtc-cards/{document}/reject', [VtcAdminController::class, 'reject'])->name('vtc_cards.reject');
-    // annonce 
+    // annonce
     Route::get('/ads/admin', [AdadController::class, 'index'])->name('admin.ads.index');
     Route::patch('/ads/{ad}/approve', [AdadController::class, 'approve'])->name('ads.approve');
     // Logout admin
@@ -149,4 +159,3 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'role:admin']) ->gro
 
 
 require __DIR__.'/auth.php';
-
