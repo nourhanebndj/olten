@@ -57,3 +57,7 @@ Route::get('/intermediaire-transport', function () {
 Route::get('/location-vehicule', function () {
     return view('pages.location_vehicule');
 })->name('location.vehicule');
+
+Route::get('/detail-trajet', function () {
+    return view('pages.locateur.detail-trajet');
+})->name('detail.trajet');

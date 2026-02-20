@@ -21,7 +21,7 @@
         <!-- <p style="font-size: 18px; margin-bottom: 30px;">Trouvez le véhicule parfait pour vos déplacements</p> -->
       </div>
     </section>
-
+    <a href="{{ route('detail.trajet') }}">details trajet bouton provisoire</a>
     <!-- FORMULAIRE DE RECHERCHE -->
     <section class="search-section" style="padding: 60px 20px; background: #f5f5f5;">
       <div class="container" style="max-width: 1200px; margin: 0 auto;">
