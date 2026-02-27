@@ -622,7 +622,6 @@
                         class="w-full py-4 bg-slate-900 text-white rounded-2xl font-black hover:bg-black transition-all">
                         Valider mon choix
                     </button>
-
                 </div>
             </div>
 
@@ -801,6 +800,104 @@
                 </div>
             </div>
         </section>
+
+        <section id="view-return-datetime" class="step-view">
+            <div class="sidebar-panel p-8">
+                <button onclick="changeView('view-final')" class="mb-6 text-slate-400 font-bold">
+                    ← Retour
+                </button>
+
+                <h3 class="text-xl font-black mb-6">Date et heure du retour</h3>
+
+                <div class="space-y-4">
+                    <div>
+                        <label class="text-sm font-bold text-slate-600">Date</label>
+                        <input type="date" id="return-date"
+                            class="w-full mt-1 p-3 rounded-xl border border-slate-200">
+                    </div>
+
+                    <div>
+                        <label class="text-sm font-bold text-slate-600">Heure</label>
+                        <input type="time" id="return-time"
+                            class="w-full mt-1 p-3 rounded-xl border border-slate-200">
+                    </div>
+                </div>
+
+                <button id="btn-go-return-pricing"
+                    class="w-full mt-8 py-4 bg-slate-900 text-white rounded-2xl font-black">
+                    Continuer
+                </button>
+            </div>
+        </section>
+        <section id="view-return-route" class="step-view">
+            <div class="sidebar-panel p-6">
+                <button onclick="changeView('view-return-datetime')"
+                    class="mb-6 text-slate-500 hover:text-slate-800 font-bold flex items-center gap-2 transition-colors">
+                    <i class="fa-solid fa-chevron-left text-xs"></i> Date retour
+                </button>
+
+                <div class="mb-6">
+                    <span
+                        class="inline-block px-3 py-1 rounded-full bg-orange-100 text-[#ff3c00] text-xs font-bold uppercase tracking-wider mb-2">
+                        Retour
+                    </span>
+                    <h2 class="text-2xl font-black text-slate-800">
+                        Choisissez la <span class="text-[#ff3c00]">route retour</span>
+                    </h2>
+                </div>
+
+                <div id="return-routes-list" class="space-y-4 flex-1 overflow-y-auto pr-2"></div>
+
+                <div class="pt-6 border-t border-slate-100">
+                    <button id="btn-validate-return-route"
+                        class="w-full py-4 bg-slate-900 text-white rounded-xl font-bold text-lg">
+                        Confirmer la route retour
+                    </button>
+                </div>
+            </div>
+
+            <div class="map-container-traj">
+                <div id="map-return-route" class="h-full w-full"></div>
+            </div>
+        </section>
+        <section id="view-return-pricing" class="step-view">
+            <div class="sidebar-panel p-8">
+                <button onclick="changeView('view-return-datetime')"
+                    class="mb-6 text-slate-400 font-bold flex items-center gap-2 hover:text-slate-600">
+                    <i class="fa-solid fa-arrow-left"></i> Date retour
+                </button>
+
+                <h2 class="text-3xl font-black text-slate-900 mb-2">
+                    Fixez vos <span class="text-[#ff3c00]">prix retour</span>
+                </h2>
+                <p class="text-slate-500 mb-8 font-medium">
+                    Prix par passager pour chaque étape du trajet retour.
+                </p>
+
+                <div id="return-pricing-steps-container" class="space-y-6 flex-1 overflow-y-auto">
+                </div>
+
+                <div class="pt-8 border-t border-slate-100">
+                    <button id="btn-go-driver-info" class="w-full py-4 bg-slate-900 text-white rounded-2xl font-black">
+                        Dernière étape
+                    </button>
+                </div>
+            </div>
+
+            <div class="flex-1 bg-white flex items-center justify-center">
+                <div class="max-w-md w-full text-center">
+                    <div class="mb-8 p-10 bg-white rounded-[2.5rem] shadow-xl border border-slate-100">
+                        <p class="text-xs font-black text-slate-400 uppercase tracking-widest mb-4">
+                            Prix total retour
+                        </p>
+
+                        <div id="return-total-price" class="text-6xl font-black text-slate-900 mb-2">
+                            0<span class="text-[#ff3c00] ml-1 text-4xl">€</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
         <!-- ÉTAPE DRIVER INFO -->
         <section id="view-driver-info" class="step-view">
             <div class="sidebar-panel p-8">
@@ -956,7 +1053,8 @@
             main: null,
             route: null,
             steps: null,
-            summary: null
+            summary: null,
+            returnRoute: null,
         };
         let markers = {
             start: null,
@@ -1398,13 +1496,18 @@
 
             if (value === true) {
                 btn.innerText = "Continuer";
-                btn.onclick = () => changeView('view-return');
+                btn.onclick = () => changeView('view-return-datetime');
             } else {
                 btn.innerText = "Dernière étape";
                 btn.onclick = () => changeView('view-driver-info');
             }
         }
 
+        function goToReturnRoute() {
+            changeView('view-return-route');
+            initMap('map-return-route', 'returnRoute');
+            loadReturnRoutes();
+        }
 
         function initPricingSegments() {
             const itinerary = JSON.parse(localStorage.getItem('vtc_final_itinerary')) || [];
@@ -1466,79 +1569,35 @@
             container.innerHTML = '';
             if (itinerary.length < 2) return;
 
-            const draft = getTripDraft(); 
+            const draft = getTripDraft();
             draft.pricing = draft.pricing || {
                 steps: []
             };
 
-            if (draft.pricing.steps.length === 0) {
-                for (let i = 0; i < itinerary.length - 1; i++) {
-                    if (!draft.pricing.steps[i]) {
-                        draft.pricing.steps[i] = {
-                            price: 20
-                        }; 
-                    }
+            for (let i = 0; i < itinerary.length - 1; i++) {
 
-                    const from = itinerary[i].name;
-                    const to = itinerary[i + 1].name;
-                    const stepPrice = draft.pricing.steps[i].price;
-
-                    totalPrice += stepPrice;
-
-                    const block = document.createElement('div');
-                    block.className = "p-4 bg-slate-50 rounded-2xl border border-slate-100";
-
-                    block.innerHTML = `
-        <div class="flex justify-between items-center mb-3">
-            <span class="font-bold text-slate-800">${from} → ${to}</span>
-            <span class="text-[#ff3c00] font-black price-value">${stepPrice}€</span>
-        </div>
-        <input type="range" min="5" max="100" value="${stepPrice}" 
-            data-index="${i}"
-            class="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-[#ff3c00]">
-    `;
-
-                    const range = block.querySelector('input');
-                    const priceEl = block.querySelector('.price-value');
-
-                    range.addEventListener('input', () => {
-                        const value = parseFloat(range.value);
-                        priceEl.textContent = value + '€';
-                        savePricingStep(i, value);
-                        updateTotalPrice();
-                    });
-
-                    container.appendChild(block);
+                if (!draft.pricing.steps[i]) {
+                    draft.pricing.steps[i] = {
+                        price: 20
+                    };
                 }
 
-                saveTripDraft({
-                    pricing: draft.pricing
-                });
-                updateTotalPrice();
-
-            }
-
-            let totalPrice = 0;
-
-            for (let i = 0; i < itinerary.length - 1; i++) {
                 const from = itinerary[i].name;
                 const to = itinerary[i + 1].name;
                 const stepPrice = draft.pricing.steps[i].price;
-
-                totalPrice += stepPrice;
 
                 const block = document.createElement('div');
                 block.className = "p-4 bg-slate-50 rounded-2xl border border-slate-100";
 
                 block.innerHTML = `
-                    <div class="flex justify-between items-center mb-3">
+            <div class="flex justify-between items-center mb-3">
                 <span class="font-bold text-slate-800">${from} → ${to}</span>
                 <span class="text-[#ff3c00] font-black price-value">${stepPrice}€</span>
-                   </div>
-                  <input type="range" min="5" max="100" value="${stepPrice}" 
+            </div>
+            <input type="range" min="5" max="100" value="${stepPrice}" 
                 data-index="${i}"
                 class="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-[#ff3c00]">
-                   `;
+        `;
 
                 const range = block.querySelector('input');
                 const priceEl = block.querySelector('.price-value');
@@ -1553,13 +1612,18 @@
                 container.appendChild(block);
             }
 
+            saveTripDraft({
+                pricing: draft.pricing
+            });
             updateTotalPrice();
 
             function updateTotalPrice() {
                 const draft = getTripDraft();
                 const total = draft.pricing.steps.reduce((sum, s) => sum + (s.price || 0), 0);
                 const totalEl = document.querySelector('#view-pricing .text-6xl');
-                if (totalEl) totalEl.innerHTML = `${total}<span class="text-[#ff3c00] ml-1 text-4xl">€</span>`;
+                if (totalEl) {
+                    totalEl.innerHTML = `${total}<span class="text-[#ff3c00] ml-1 text-4xl">€</span>`;
+                }
             }
         }
         document.querySelectorAll('input[name="passengerMode"]').forEach(input => {
@@ -1591,6 +1655,7 @@
                 }
             });
         });
+
         function getTripDraft() {
             return JSON.parse(localStorage.getItem('vtc_trip_draft')) || {};
         }
@@ -1647,7 +1712,16 @@
             }
         });
 
+        document.getElementById('btn-go-return-pricing').onclick = () => {
 
+            if (!returnDateInput.value || !returnTimeInput.value) {
+                alert("Veuillez sélectionner une date et une heure de retour.");
+                return;
+            }
+
+            saveReturnDateTime();
+            goToReturnRoute();
+        };
 
         async function goToPricing() {
             await computeSegmentData();
@@ -1690,7 +1764,7 @@
             for (let i = 0; i < itinerary.length - 1; i++) {
                 const from = itinerary[i].name;
                 const to = itinerary[i + 1].name;
-                const price = pricingSteps[i] ? pricingSteps[i].price : 20; 
+                const price = pricingSteps[i] ? pricingSteps[i].price : 20;
 
                 segments.push({
                     from,
@@ -1765,6 +1839,7 @@
             localStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
             return updated;
         }
+
         function saveTripDraftPartial(partial) {
             try {
                 const current = getTripDraft();
@@ -1779,7 +1854,226 @@
                 return partial;
             }
         }
+        let returnRoutes = [];
+        let selectedReturnRouteIndex = 0;
+        let returnRouteLayer = null;
+        async function loadReturnRoutes() {
 
+            const itinerary = JSON.parse(localStorage.getItem('vtc_final_itinerary')) || [];
+            if (itinerary.length < 2) return;
+
+            const start = itinerary[itinerary.length - 1].latlng;
+            const end = itinerary[0].latlng;
+
+            const url =
+                `https://router.project-osrm.org/route/v1/driving/${start[1]},${start[0]};${end[1]},${end[0]}?overview=full&geometries=geojson&alternatives=true`;
+
+            const res = await fetch(url);
+            const data = await res.json();
+
+            returnRoutes = data.routes;
+
+            renderReturnRouteList();
+            displayReturnRouteOnMap(0);
+        }
+
+        function renderReturnRouteList() {
+
+            const container = document.getElementById('return-routes-list');
+            container.innerHTML = '';
+
+            returnRoutes.forEach((route, i) => {
+
+                const div = document.createElement('div');
+                div.className =
+                    `route-option p-4 rounded-xl bg-white ${i === selectedReturnRouteIndex ? 'selected' : ''}`;
+
+                div.onclick = () => {
+                    selectedReturnRouteIndex = i;
+                    renderReturnRouteList();
+                    displayReturnRouteOnMap(i);
+                };
+
+                const dist = (route.distance / 1000).toFixed(1);
+                const dur = Math.round(route.duration / 60);
+
+                div.innerHTML = `
+            <div class="flex justify-between items-start mb-1">
+                <span class="font-black text-slate-800">Option ${i + 1}</span>
+            </div>
+            <div class="flex gap-3 text-sm font-bold text-slate-500">
+                <span><i class="fa-solid fa-road mr-1"></i> ${dist} km</span>
+                <span><i class="fa-solid fa-clock mr-1"></i> ${dur} min</span>
+            </div>
+           `;
+
+                container.appendChild(div);
+            });
+        }
+
+        function displayReturnRouteOnMap(index) {
+
+            const map = maps.returnRoute;
+
+            if (returnRouteLayer) map.removeLayer(returnRouteLayer);
+
+            returnRouteLayer = L.geoJSON(returnRoutes[index].geometry, {
+                style: {
+                    color: '#ff3c00',
+                    weight: 6,
+                    opacity: 0.8
+                }
+            }).addTo(map);
+
+            map.fitBounds(returnRouteLayer.getBounds(), {
+                padding: [40, 40]
+            });
+
+            saveReturnRoute(index);
+        }
+
+        function saveReturnRoute(index) {
+
+            const route = returnRoutes[index];
+
+            const retourTrajet = {
+                selectedRouteIndex: index,
+                distance: route.distance,
+                duration: route.duration,
+                geometry: route.geometry
+            };
+
+            localStorage.setItem('retour_trajet', JSON.stringify(retourTrajet));
+
+            saveTripDraftPartial({
+                retour_trajet: retourTrajet
+            });
+        }
+        document.getElementById('btn-validate-return-route').onclick = () => {
+
+            const route = returnRoutes[selectedReturnRouteIndex];
+
+            const retourTrajet = {
+                selectedRouteIndex: selectedReturnRouteIndex,
+                distance: route.distance,
+                duration: route.duration,
+                geometry: route.geometry
+            };
+
+            localStorage.setItem('retour_trajet', JSON.stringify(retourTrajet));
+            if (!returnRoutes[selectedReturnRouteIndex]) {
+                alert("Aucune route retour sélectionnée.");
+                return;
+            }
+            changeView('view-return-pricing');
+            generateReturnPricingSteps();
+        };
+
+        function generateReturnPricingSteps() {
+
+            const itinerary = JSON.parse(localStorage.getItem('vtc_final_itinerary')) || [];
+            if (itinerary.length < 2) return;
+
+            const reversed = [...itinerary].reverse();
+
+            const container = document.getElementById('return-pricing-steps-container');
+            container.innerHTML = '';
+
+            let returnPricing = [];
+
+            for (let i = 0; i < reversed.length - 1; i++) {
+
+                const from = reversed[i].name;
+                const to = reversed[i + 1].name;
+
+                const stepId = `return-step-${i}`;
+
+                returnPricing.push({
+                    from,
+                    to,
+                    price: 0
+                });
+
+                const div = document.createElement('div');
+                div.className = "p-4 bg-slate-50 rounded-2xl border border-slate-100";
+
+                div.innerHTML = `
+            <div class="flex justify-between items-center mb-3">
+                <span class="font-bold text-slate-800">${from} → ${to}</span>
+                <span id="price-label-${i}" class="text-[#ff3c00] font-black">0€</span>
+            </div>
+            <input type="range"
+                min="0"
+                max="100"
+                value="0"
+                class="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-[#ff3c00]"
+                oninput="updateReturnPrice(${i}, this.value)">
+             `;
+
+                container.appendChild(div);
+            }
+
+            localStorage.setItem('return_pricing', JSON.stringify(returnPricing));
+        }
+
+        function updateReturnPrice(index, value) {
+
+            let pricing = JSON.parse(localStorage.getItem('return_pricing')) || [];
+
+            pricing[index].price = parseInt(value);
+
+            localStorage.setItem('return_pricing', JSON.stringify(pricing));
+
+            document.getElementById(`price-label-${index}`).innerText = value + "€";
+
+            calculateReturnTotal();
+        }
+
+        function calculateReturnTotal() {
+
+            let pricing = JSON.parse(localStorage.getItem('return_pricing')) || [];
+
+            const total = pricing.reduce((sum, step) => sum + step.price, 0);
+
+            document.getElementById('return-total-price').innerHTML =
+                `${total}<span class="text-[#ff3c00] ml-1 text-4xl">€</span>`;
+
+            localStorage.setItem('return_total_price', total);
+        }
+        document.getElementById('btn-go-driver-info').onclick = () => {
+
+            const retourTrajet = JSON.parse(localStorage.getItem('retour_trajet'));
+            const returnPricing = JSON.parse(localStorage.getItem('return_pricing'));
+            const total = localStorage.getItem('return_total_price');
+
+            const returnData = {
+                trajet: retourTrajet,
+                pricing: returnPricing,
+                total: parseInt(total)
+            };
+
+            localStorage.setItem('return_trip_data', JSON.stringify(returnData));
+
+            changeView('view-driver-info');
+        };
+        const returnDateInput = document.getElementById('return-date');
+        const returnTimeInput = document.getElementById('return-time');
+
+        function saveReturnDateTime() {
+
+            const returnDateTime = {
+                date: returnDateInput.value,
+                time: returnTimeInput.value
+            };
+
+            localStorage.setItem('return_datetime', JSON.stringify(returnDateTime));
+
+            saveTripDraftPartial({
+                return_datetime: returnDateTime
+            });
+        }
+        if (returnDateInput) returnDateInput.addEventListener('change', saveReturnDateTime);
+        if (returnTimeInput) returnTimeInput.addEventListener('change', saveReturnDateTime);
         document.getElementById('btn-publish').addEventListener('click', async () => {
             try {
                 let draft = getTripDraft();
@@ -1799,6 +2093,9 @@
                 const message = document.getElementById('driver-message').value;
 
                 const prixTotal = draft.pricing?.steps?.reduce((sum, s) => sum + (s.price || 0), 0) || 0;
+                const returnTripData = JSON.parse(localStorage.getItem('return_trip_data')) || null;
+                const returnDateTime = JSON.parse(localStorage.getItem('return_datetime')) || null;
+
 
                 const formData = new FormData();
                 formData.append('passenger_mode', draft.passengers?.mode || 'mixed');
@@ -1814,6 +2111,8 @@
                 formData.append('message_conducteur', message);
                 formData.append('selected_route', JSON.stringify(draft.selectedRoute || {}));
                 formData.append('selected_route_index', draft.selectedRouteIndex ?? 0);
+                formData.append('return_trip_data', JSON.stringify(returnTripData));
+                formData.append('return_datetime', JSON.stringify(returnDateTime));
 
 
                 if (fileInput.files[0]) {
@@ -1845,10 +2144,17 @@
                         title: 'Succès',
                         text: 'Trajet publié avec succès !',
                         confirmButtonColor: '#ff3c00',
-                        timer: 2000, 
+                        timer: 2000,
                         timerProgressBar: true
                     });
-
+                    localStorage.removeItem('retour_trajet');
+                    localStorage.removeItem('return_datetime');
+                    localStorage.removeItem('return_pricing');
+                    localStorage.removeItem('return_total_price');
+                    localStorage.removeItem('return_trip_data');
+                    localStorage.removeItem('vtc_final_itinerary');
+                    localStorage.removeItem('vtc_pricing_segments');
+                    localStorage.removeItem('vtc_trip_draft');
                     window.location.href = `/trajet/${data.covoiturage_id}`;
                 } else {
                     console.error(data);

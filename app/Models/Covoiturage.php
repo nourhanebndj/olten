@@ -31,9 +31,12 @@ class Covoiturage extends Model
         'segments',
         'photo_conducteur',
         'message_conducteur',
-            'passenger_mode',
-    'selected_route',
-    'selected_route_index',
+        'passenger_mode',
+        'selected_route',
+        'selected_route_index',
+        'return_trip_data',
+        'return_date',
+        'return_time',
     ];
 
     protected $casts = [
@@ -45,8 +48,11 @@ class Covoiturage extends Model
         'commission_plateforme' => 'float',
         'prix_total_affiche' => 'float',
         'nb_places' => 'integer',
-    'selected_route' => 'array',
-    'retour' => 'boolean',
+        'selected_route' => 'array',
+        'retour' => 'boolean',
+        'return_trip_data' => 'array',
+        'return_date' => 'datetime',
+        'return_time' => 'string', 
     ];
 
     public function conducteur()

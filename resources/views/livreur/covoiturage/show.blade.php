@@ -1,6 +1,15 @@
 @extends('layouts.connected')
 @section('title', 'Détails du Trajet | ' . config('app.name'))
-
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<style>
+    .leaflet-container {
+        border-radius: 12px;
+        height: 350px;
+        width: 100%;
+    }
+</style>
+<script src="https://api.mapbox.com/mapbox-gl-js/v2.15.0/mapbox-gl.js"></script>
 @section('content')
     <div class="min-h-screen bg-[#F8F9FA] pb-12">
         <!-- Header Section -->
@@ -25,7 +34,6 @@
                         {{ $trajet->statut === 'active' ? 'bg-green-50 text-green-600 border border-green-100' : 'bg-gray-50 text-gray-600 border border-gray-100' }}">
                             ● {{ ucfirst($trajet->statut) }}
                         </span>
-                  
                     </div>
                 </div>
             </div>
@@ -37,8 +45,19 @@
                 <!-- Colonne Gauche: Détails et Segments -->
                 <div class="lg:col-span-2 space-y-8">
 
-                    <!-- Card: Itinéraire Visuel -->
+                    <!-- CARD: ALLER -->
                     <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+                        <div class="p-4 border-b border-gray-50 bg-orange-50/30">
+                            <h3 class="text-sm font-bold text-gray-900 uppercase tracking-wider flex items-center">
+                                <i class="fas fa-arrow-right mr-2 text-[#FF4500]"></i>
+                                Trajet Aller
+                                @if ($trajet->retour)
+                                    <span class="ml-3 text-xs font-normal text-gray-500">
+                                        {{ $trajet->date_depart->format('d M Y') }} à {{ $trajet->heure_depart }}
+                                    </span>
+                                @endif
+                            </h3>
+                        </div>
                         <div class="p-8">
                             <div class="flex items-start justify-between mb-8">
                                 <div class="flex-1">
@@ -76,11 +95,29 @@
                                 </div>
                             </div>
 
-                            <!-- Segments d'escales -->
+                            <!-- Informations trajet aller (distance, durée) -->
+                            @if ($route && isset($route['distance']))
+                                <div class="grid grid-cols-2 gap-4 mb-6">
+                                    <div class="bg-gray-50 p-3 rounded-xl">
+                                        <p class="text-xs text-gray-500">Distance aller</p>
+                                        <p class="text-lg font-bold">{{ number_format($route['distance'] / 1000, 1) }} km
+                                        </p>
+                                    </div>
+                                    <div class="bg-gray-50 p-3 rounded-xl">
+                                        <p class="text-xs text-gray-500">Durée aller</p>
+                                        <p class="text-lg font-bold">
+                                            {{ floor($route['duration'] / 3600) }}h
+                                            {{ floor(($route['duration'] % 3600) / 60) }}min
+                                        </p>
+                                    </div>
+                                </div>
+                            @endif
+
+                            <!-- Segments d'escales aller -->
                             @if ($segments && count($segments))
                                 <div class="pt-6 border-t border-gray-50">
                                     <h3 class="text-sm font-bold text-gray-900 mb-4 flex items-center">
-                                        <i class="fas fa-map-signs mr-2 text-gray-400"></i> Escales prévues
+                                        <i class="fas fa-map-signs mr-2 text-gray-400"></i> Escales aller
                                     </h3>
                                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                                         @foreach ($segments as $segment)
@@ -105,25 +142,169 @@
                         </div>
                     </div>
 
-                    <!-- Card: Map -->
-                    @if ($route && isset($route['geometry']['coordinates']) && count($route['geometry']['coordinates']))
-                        <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
-                            <div class="p-4 border-b border-gray-50 flex justify-between items-center">
-                                <h3 class="text-sm font-bold text-gray-900 uppercase tracking-wider">Aperçu du parcours</h3>
-                                <span class="text-xs text-gray-400"><i class="fas fa-expand-alt mr-1"></i> Plein
-                                    écran</span>
-                            </div>
-                            <div id="map" class="h-[450px] w-full bg-gray-100"></div>
+                    <!-- Carte aller -->
+                    <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+                        <div class="p-4 border-b border-gray-50 flex justify-between items-center">
+                            <h3 class="text-sm font-bold text-gray-900 uppercase tracking-wider flex items-center">
+                                <i class="fas fa-map mr-2 text-[#FF4500]"></i>
+                                Parcours aller
+                            </h3>
+                            <span class="text-xs text-gray-400 cursor-pointer" id="openMapFullscreen" data-map-type="aller">
+                                <i class="fas fa-expand-alt mr-1"></i> Plein écran
+                            </span>
                         </div>
+                        <div id="map-aller"></div>
+
+                    </div>
+
+                    <!-- CARD: RETOUR (si retour existe) -->
+                    @if ($trajet->retour && $returnTripData && isset($returnTripData['trajet']))
+                        @php $trajetRetour = $returnTripData['trajet']; @endphp
+
+                        <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden mt-8">
+                            <div class="p-4 border-b border-gray-50 bg-blue-50/30">
+                                <h3 class="text-sm font-bold text-gray-900 uppercase tracking-wider flex items-center">
+                                    <i class="fas fa-rotate-right mr-2 text-blue-500"></i>
+                                    Trajet Retour
+                                    <span class="ml-3 text-xs font-normal text-gray-500">
+                                        {{ \Carbon\Carbon::parse($trajet->return_date)->format('d M Y') }} à
+                                        {{ $trajet->return_time }}
+                                    </span>
+                                </h3>
+                            </div>
+                            <div class="p-8">
+                                <div class="flex items-start justify-between mb-8">
+                                    <div class="flex-1">
+                                        <div class="relative pl-8 border-l-2 border-dashed border-gray-200 space-y-12">
+                                            <!-- Départ retour (qui est la destination aller) -->
+                                            <div class="relative">
+                                                <div
+                                                    class="absolute -left-[41px] top-0 w-4 h-4 rounded-full bg-white border-4 border-blue-500 z-10">
+                                                </div>
+                                                <p class="text-xs font-bold text-gray-400 uppercase tracking-widest mb-1">
+                                                    Point
+                                                    de départ retour</p>
+                                                <p class="text-xl font-semibold text-gray-900">{{ $trajet->destination }}
+                                                </p>
+                                                <p class="text-sm text-gray-500 mt-1">
+                                                    {{ \Carbon\Carbon::parse($trajet->return_date)->format('d M Y') }} à
+                                                    {{ $trajet->return_time }}
+                                                </p>
+                                            </div>
+                                            <!-- Destination retour (qui est le départ aller) -->
+                                            <div class="relative">
+                                                <div
+                                                    class="absolute -left-[41px] top-0 w-4 h-4 rounded-full bg-blue-500 border-4 border-blue-100 z-10">
+                                                </div>
+                                                <p class="text-xs font-bold text-gray-400 uppercase tracking-widest mb-1">
+                                                    Destination retour</p>
+                                                <p class="text-xl font-semibold text-gray-900">{{ $trajet->depart }}</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="text-right hidden sm:block">
+                                        <div class="bg-blue-50 p-4 rounded-2xl inline-block">
+                                            <p class="text-xs font-bold text-blue-600 uppercase mb-1">Prix retour</p>
+                                            <p class="text-3xl font-black text-blue-600">
+                                                {{ number_format($returnTripData['total'] ?? 0, 2) }}€</p>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Informations trajet retour -->
+                                <div class="grid grid-cols-2 gap-4 mb-6">
+                                    <div class="bg-gray-50 p-3 rounded-xl">
+                                        <p class="text-xs text-gray-500">Distance retour</p>
+                                        <p class="text-lg font-bold">
+                                            {{ number_format($trajetRetour['distance'] / 1000, 1) }} km
+                                        </p>
+                                    </div>
+                                    <div class="bg-gray-50 p-3 rounded-xl">
+                                        <p class="text-xs text-gray-500">Durée retour</p>
+                                        <p class="text-lg font-bold">
+                                            {{ floor($trajetRetour['duration'] / 3600) }}h
+                                            {{ floor(($trajetRetour['duration'] % 3600) / 60) }}min
+                                        </p>
+                                    </div>
+                                </div>
+
+                                <!-- Segments d'escales retour -->
+                                @if (isset($returnTripData['pricing']) && count($returnTripData['pricing']))
+                                    <div class="pt-6 border-t border-gray-50">
+                                        <h3 class="text-sm font-bold text-gray-900 mb-4 flex items-center">
+                                            <i class="fas fa-map-signs mr-2 text-gray-400"></i> Escales retour
+                                        </h3>
+                                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                            @foreach ($returnTripData['pricing'] as $segment)
+                                                <div
+                                                    class="flex items-center p-3 bg-gray-50 rounded-xl border border-gray-100">
+                                                    <div
+                                                        class="w-8 h-8 rounded-lg bg-white flex items-center justify-center shadow-sm mr-3">
+                                                        <i class="fas fa-stop text-[10px] text-blue-400"></i>
+                                                    </div>
+                                                    <div class="flex-1">
+                                                        <p class="text-xs font-medium text-gray-500 italic">
+                                                            {{ $segment['from'] ?? 'Escale' }} →
+                                                            {{ $segment['to'] ?? 'Escale' }}
+                                                        </p>
+                                                        <p class="text-sm font-bold text-gray-800">
+                                                            {{ number_format($segment['price'] ?? 0, 2) }}€</p>
+                                                    </div>
+                                                </div>
+                                            @endforeach
+                                        </div>
+                                    </div>
+                                @endif
+                            </div>
+                        </div>
+
+                        <!-- Carte retour -->
+                        @if (isset($trajetRetour['geometry']['coordinates']) && count($trajetRetour['geometry']['coordinates']))
+                            <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+                                <div class="p-4 border-b border-gray-50 flex justify-between items-center">
+                                    <h3 class="text-sm font-bold text-gray-900 uppercase tracking-wider flex items-center">
+                                        <i class="fas fa-map mr-2 text-blue-500"></i>
+                                        Parcours retour
+                                    </h3>
+                                    <span class="text-xs text-gray-400 cursor-pointer" id="openMapFullscreen"
+                                        data-map-type="aller">
+                                        <i class="fas fa-expand-alt mr-1"></i> Plein écran
+                                    </span>
+                                </div>
+                                <div id="map-retour"></div>
+                            </div>
+                        @endif
                     @endif
                 </div>
 
                 <!-- Colonne Droite: Résumé & Actions -->
                 <div class="space-y-6">
 
+                    <!-- Résumé des prix aller-retour -->
+                    @if ($trajet->retour && isset($returnTripData['total']))
+                        <div class="bg-gradient-to-br from-orange-50 to-blue-50 rounded-2xl p-5 border border-orange-100">
+                            <div class="flex items-center justify-between mb-3">
+                                <span class="text-sm font-bold text-gray-700">Aller</span>
+                                <span
+                                    class="font-bold text-[#FF4500]">{{ number_format($trajet->prix_total_affiche, 2) }}€</span>
+                            </div>
+                            <div class="flex items-center justify-between mb-3">
+                                <span class="text-sm font-bold text-gray-700">Retour</span>
+                                <span
+                                    class="font-bold text-blue-600">{{ number_format($returnTripData['total'], 2) }}€</span>
+                            </div>
+                            <div class="border-t border-orange-200 my-2 pt-2 flex items-center justify-between">
+                                <span class="text-base font-extrabold text-gray-900">Total AR</span>
+                                <span
+                                    class="text-xl font-black text-gray-900">{{ number_format($trajet->prix_total_affiche + $returnTripData['total'], 2) }}€</span>
+                            </div>
+                        </div>
+                    @endif
+
                     <!-- Détails Techniques -->
                     <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
-                        <h3 class="text-sm font-bold text-gray-900 uppercase tracking-wider mb-6">Informations véhicule</h3>
+                        <h3 class="text-sm font-bold text-gray-900 uppercase tracking-wider mb-6">Informations véhicule
+                        </h3>
                         <div class="space-y-4">
                             <div class="flex justify-between items-center">
                                 <span class="text-gray-500 text-sm">Places disponibles</span>
@@ -133,8 +314,9 @@
                             </div>
                             <div class="flex justify-between items-center">
                                 <span class="text-gray-500 text-sm">Type de trajet</span>
-                                <span
-                                    class="text-sm font-semibold">{{ $trajet->retour ? 'Aller-Retour' : 'Aller simple' }}</span>
+                                <span class="text-sm font-semibold {{ $trajet->retour ? 'text-blue-600' : '' }}">
+                                    {{ $trajet->retour ? 'Aller-Retour' : 'Aller simple' }}
+                                </span>
                             </div>
                             <div class="flex justify-between items-start">
                                 <span class="text-gray-500 text-sm">Mode passager</span>
@@ -149,11 +331,6 @@
                                             AR)</span>
                                     @endif
                                 </div>
-                            </div>
-                            <div class="pt-4 border-t border-gray-50 flex justify-between items-center">
-                                <span class="text-gray-900 font-bold">Revenu Total Estimé</span>
-                                <span
-                                    class="text-xl font-black text-gray-900">{{ number_format($trajet->prix_total_affiche, 2) }}€</span>
                             </div>
                         </div>
                     </div>
@@ -182,71 +359,113 @@
             </div>
         </div>
     </div>
-
-    @if ($route && isset($route['geometry']['coordinates']) && count($route['geometry']['coordinates']))
-        <script src="https://api.mapbox.com/mapbox-gl-js/v2.15.0/mapbox-gl.js"></script>
-        <link href="https://api.mapbox.com/mapbox-gl-js/v2.15.0/mapbox-gl.css" rel="stylesheet" />
-
+    <!-- Modal plein écran -->
+    <div id="mapFullScreenModal" class="fixed inset-0 z-[10000] hidden bg-black/90 flex items-center justify-center">
+        <div class="relative w-full h-full max-w-full max-h-full p-4">
+            <button id="closeMapModal"
+                class="absolute top-4 right-4 z-[10001] text-white text-3xl font-bold hover:text-gray-300">
+                &times;
+            </button>
+            <div id="map-fullscreen" class="w-full h-full rounded-lg shadow-lg"></div>
+        </div>
+    </div>
+    <!-- Scripts Mapbox -->
+    @if ($route)
         <script>
-            mapboxgl.accessToken = 'YOUR_MAPBOX_TOKEN';
+            @if ($route && isset($route['geometry']['coordinates']))
+                const coordsAller = {!! json_encode($route['geometry']['coordinates']) !!};
+                const validCoordsAller = coordsAller.filter(c => Array.isArray(c) && c.length === 2)
+                    .map(c => [c[1], c[0]]); // Leaflet prend [lat, lng]
 
-            const coords = {!! json_encode(array_values($route['geometry']['coordinates'])) !!};
-            const validCoords = coords.filter(c => Array.isArray(c) && c.length === 2);
+                if (validCoordsAller.length) {
+                    const mapAller = L.map('map-aller').fitBounds(validCoordsAller);
 
-            if (validCoords.length) {
-                const map = new mapboxgl.Map({
-                    container: 'map',
-                    style: 'mapbox://styles/mapbox/light-v11',
-                    center: validCoords[0],
-                    zoom: 5,
-                    padding: 20
+                    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                        attribution: '&copy; OpenStreetMap contributors'
+                    }).addTo(mapAller);
+
+                    L.polyline(validCoordsAller, {
+                        color: '#FF4500',
+                        weight: 5,
+                        opacity: 0.8
+                    }).addTo(mapAller);
+
+                    L.marker(validCoordsAller[0]).bindPopup('Départ Aller').addTo(mapAller);
+                    L.marker(validCoordsAller[validCoordsAller.length - 1]).bindPopup('Arrivée Aller').addTo(mapAller);
+                }
+            @endif
+
+            @if ($trajet->retour && isset($returnTripData['trajet']['geometry']['coordinates']))
+                const coordsRetour = {!! json_encode($returnTripData['trajet']['geometry']['coordinates']) !!};
+                const validCoordsRetour = coordsRetour.filter(c => Array.isArray(c) && c.length === 2)
+                    .map(c => [c[1], c[0]]); // [lat, lng]
+
+                if (validCoordsRetour.length) {
+                    const mapRetour = L.map('map-retour').fitBounds(validCoordsRetour);
+
+                    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                        attribution: '&copy; OpenStreetMap contributors'
+                    }).addTo(mapRetour);
+
+                    L.polyline(validCoordsRetour, {
+                        color: '#3B82F6',
+                        weight: 5,
+                        opacity: 0.8,
+                        dashArray: '5, 5'
+                    }).addTo(mapRetour);
+
+                    L.marker(validCoordsRetour[0]).bindPopup('Départ Retour').addTo(mapRetour);
+                    L.marker(validCoordsRetour[validCoordsRetour.length - 1]).bindPopup('Arrivée Retour').addTo(mapRetour);
+                }
+            @endif
+        </script>
+        <script>
+            const openMapBtns = document.querySelectorAll('#openMapFullscreen');
+            const mapModal = document.getElementById('mapFullScreenModal');
+            const closeMapBtn = document.getElementById('closeMapModal');
+            let mapFull = null;
+
+            openMapBtns.forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const type = btn.dataset.mapType; // "aller" ou "retour"
+                    mapModal.classList.remove('hidden');
+
+                    // Supprime la carte précédente si elle existe
+                    if (mapFull) mapFull.remove();
+
+                    // Sélection des coordonnées
+                    let coords = [];
+                    if (type === 'aller') coords = validCoordsAller;
+                    if (type === 'retour') coords = validCoordsRetour;
+
+                    // Crée la carte plein écran
+                    mapFull = L.map('map-fullscreen').fitBounds(coords);
+
+                    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                        attribution: '&copy; OpenStreetMap contributors'
+                    }).addTo(mapFull);
+
+                    // Tracer la ligne
+                    L.polyline(coords, {
+                        color: type === 'aller' ? '#FF4500' : '#3B82F6',
+                        weight: 5,
+                        opacity: 0.8,
+                        dashArray: type === 'retour' ? '5,5' : null
+                    }).addTo(mapFull);
+
+                    // Marqueurs
+                    L.marker(coords[0]).bindPopup(type === 'aller' ? 'Départ Aller' : 'Départ Retour').addTo(
+                        mapFull);
+                    L.marker(coords[coords.length - 1]).bindPopup(type === 'aller' ? 'Arrivée Aller' :
+                        'Arrivée Retour').addTo(mapFull);
                 });
+            });
 
-                map.on('load', () => {
-                    map.addSource('route', {
-                        type: 'geojson',
-                        data: {
-                            type: 'Feature',
-                            geometry: {
-                                type: 'LineString',
-                                coordinates: validCoords
-                            }
-                        }
-                    });
-
-                    map.addLayer({
-                        id: 'route-line',
-                        type: 'line',
-                        source: 'route',
-                        layout: {
-                            'line-join': 'round',
-                            'line-cap': 'round'
-                        },
-                        paint: {
-                            'line-color': '#FF4500',
-                            'line-width': 5,
-                            'line-opacity': 0.8
-                        }
-                    });
-
-                    const start = validCoords[0];
-                    const end = validCoords[validCoords.length - 1];
-
-                    const elStart = document.createElement('div');
-                    elStart.className = 'w-4 h-4 rounded-full bg-white border-4 border-green-500 shadow-sm';
-                    new mapboxgl.Marker(elStart).setLngLat(start).addTo(map);
-
-                    const elEnd = document.createElement('div');
-                    elEnd.className = 'w-4 h-4 rounded-full bg-white border-4 border-[#FF4500] shadow-sm';
-                    new mapboxgl.Marker(elEnd).setLngLat(end).addTo(map);
-
-                    const bounds = validCoords.reduce((b, c) => b.extend(c), new mapboxgl.LngLatBounds(start, start));
-                    map.fitBounds(bounds, {
-                        padding: 80,
-                        duration: 2000
-                    });
-                });
-            }
+            // Fermer le modal
+            closeMapBtn.addEventListener('click', () => {
+                mapModal.classList.add('hidden');
+                if (mapFull) mapFull.remove();
+            });
         </script>
     @endif
 @endsection

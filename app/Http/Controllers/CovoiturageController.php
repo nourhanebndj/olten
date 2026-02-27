@@ -23,18 +23,23 @@ class CovoiturageController extends Controller
         $trajet = Covoiturage::findOrFail($covoiturage_id);
 
         $segments = $trajet->segments ?? [];
-        $route = $trajet->selected_route ?? null;
+        $itineraire = $trajet->itineraire ?? [];
+        $selectedRoute = $trajet->selected_route ?? [];
+        $returnTripData = $trajet->return_trip_data ?? null;
 
-        $prixTotal = collect($segments)->sum(fn ($segment) => $segment['price'] ?? 0);
+        $prixTotal = collect($segments)
+            ->sum(fn ($segment) => $segment['price'] ?? 0);
 
         return view('livreur.covoiturage.show', [
             'trajet' => $trajet,
             'segments' => $segments,
-            'route' => $route,
-            'prixTotal' => $prixTotal
+            'route' => $selectedRoute,
+            'prixTotal' => $prixTotal,
+            'itineraire' => $itineraire,
+            'selectedRoute' => $selectedRoute,
+            'returnTripData' => $returnTripData,
         ]);
     }
-
 
     public function create()
     {
@@ -44,10 +49,13 @@ class CovoiturageController extends Controller
     public function publish(Request $request)
     {
         $input = $request->all();
+
         $input['itineraire'] = json_decode($request->input('itineraire'), true) ?? [];
         $input['segments'] = json_decode($request->input('segments'), true) ?? [];
         $input['selected_route'] = json_decode($request->input('selected_route'), true) ?? [];
         $input['selected_route_index'] = (int) $request->input('selected_route_index', 0);
+        $input['return_trip_data'] = json_decode($request->input('return_trip_data'), true);
+        $input['return_datetime'] = json_decode($request->input('return_datetime'), true);
 
         $data = Validator::make($input, [
             'depart' => 'required|string|max:255',
@@ -55,7 +63,6 @@ class CovoiturageController extends Controller
             'date_depart' => 'required|date',
             'heure_depart' => 'required|string|max:5',
             'nb_places' => 'required|integer|min:1',
-            'retour' => 'required|boolean',
             'itineraire' => 'required|array|min:2',
             'segments' => 'required|array|min:1',
             'message_conducteur' => 'nullable|string|max:2000',
@@ -63,14 +70,31 @@ class CovoiturageController extends Controller
             'passenger_mode' => 'required|string|in:mixed,womenOnly,maxBackSeats',
             'selected_route' => 'nullable|array',
             'selected_route_index' => 'nullable|integer|min:0',
+            'return_trip_data' => 'nullable|array',
+            'return_datetime' => 'nullable|array',
         ])->validate();
 
+        // 🔹 Calcul prix aller
         $prixTotal = collect($input['segments'])
             ->sum(fn ($segment) => (float)($segment['price'] ?? 0));
 
         $data['prix_place'] = $prixTotal;
         $data['prix_total_affiche'] = $prixTotal;
-        $data['retour'] = (bool) $data['retour'];
+
+        // 🔹 Gestion retour sécurisée
+        $returnTrip = $input['return_trip_data'] ?? null;
+        $returnDate = $input['return_datetime']['date'] ?? null;
+        $returnTime = $input['return_datetime']['time'] ?? null;
+
+        $hasReturn =
+            !empty($returnTrip) &&
+            !empty($returnDate) &&
+            !empty($returnTime);
+
+        $data['retour'] = $hasReturn;
+        $data['return_trip_data'] = $hasReturn ? $returnTrip : null;
+        $data['return_date'] = $hasReturn ? $returnDate : null;
+        $data['return_time'] = $hasReturn ? $returnTime : null;
 
         if ($request->hasFile('photo_conducteur')) {
             $file = $request->file('photo_conducteur');
