@@ -22,16 +22,16 @@ class User extends Authenticatable implements LaratrustUser
         'name','firstname','lastname','email','password','about_me',
         'phone','gender','disable_email_notifications','x_com','facebook',
         'linkedin','instagram','youtube','tiktok','whatsapp',
-        'identity_verification','profile_photo','is_admin','verifie','role'
+        'identity_verification','profile_photo','is_admin','verifie','role','is_vtc_driver'
     ];
 
     protected $hidden = ['password','remember_token'];
-
     protected function casts(): array
     {
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            'is_vtc_driver' => 'boolean',
         ];
     }
     public function sendPasswordResetNotification($token)
