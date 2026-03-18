@@ -20,7 +20,20 @@
                         <span>Tableau de bord</span>
                     </a>
                 </li>
-
+                @if(auth()->user()->hasRole('vendeur'))
+                    <li class="{{ request()->is('vendeur/produits*') ? 'active' : '' }}">
+                        <a href="{{ route('seller.produits.index') }}">
+                            <i class="fa-solid fa-table-columns"></i>
+                            <span>Mes produits</span>
+                        </a>
+                    </li>
+                    <li class="{{ request()->is('vendeur/ventes*') ? 'active' : '' }}">
+                        <a href="{{ route('seller.sales') }}">
+                            <i class="fa-solid fa-table-columns"></i>
+                            <span>Mes ventes</span>
+                        </a>
+                    </li>
+                @endif
                 <li>
                     <a href="{{ url('/dashboard') }}">
                         <i class="fa-solid fa-calendar-check"></i>

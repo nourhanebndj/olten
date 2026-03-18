@@ -265,6 +265,14 @@
                     <i class="fa-solid fa-eye toggle-password"></i>
                 </div>
                 <div class="input-group">
+                    <i class="fa-solid fa-user-tag"></i>
+                    <select name="role" required>
+                        <option value="">Choisir un type de compte</option>
+                        <option value="locateur">Locateur</option>
+                        <option value="vendeur">Vendeur</option>
+                    </select>
+                </div>
+                <div class="input-group">
                     <i class="fa-solid fa-lock"></i>
                     <input type="password" name="password_confirmation" placeholder="Confirmer le mot de passe" required>
                 </div>

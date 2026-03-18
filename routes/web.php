@@ -9,6 +9,8 @@ use App\Http\Controllers\Owner\MessageController;
 use App\Http\Controllers\Owner\FavoriteController;
 use App\Http\Controllers\Owner\StatsController;
 use App\Http\Controllers\Owner\AdReportController;
+use App\Http\Controllers\Seller\ProductController;
+use App\Http\Controllers\Seller\SellerController;
 use App\Http\Controllers\BookingController;
 use App\Http\Controllers\Admin\AdminAuthController;
 use App\Http\Controllers\Admin\CategoryController;
@@ -28,6 +30,9 @@ use App\Http\Middleware\AdminMiddleware;
 use App\Http\Controllers\livrer\DeliveryAdController;
 use App\Http\Controllers\livrer\AdsLivreurController;
 use App\Models\LivraisonColis;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use App\Models\User;
 
 Route::get('/', [HomeController::class, 'index'])->name('home');
 Route::get('/creer-site', function () {
@@ -165,7 +170,33 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'role:admin']) ->gro
     Route::post('/logout', [AdminAuthController::class, 'logout'])->name('admin.logout');
 });
 
+// vendeur
+Route::prefix('vendeur')
+    ->name('seller.')
+    ->middleware(['auth', 'role:vendeur'])
+    ->group(function () {
+        Route::resource('produits', ProductController::class);
+        Route::delete('product-images/{id}', [ProductController::class, 'deleteImage'])->name('seller.product.image.delete');
+        Route::get('ventes', [SellerController::class, 'sales'])->name('sales');
+        Route::get('ventes/{sale}', [SellerController::class, 'showSale'])->name('sales.show');
+        Route::post('ventes/{sale}/delivered', [SellerController::class, 'markAsDelivered'])->name('sales.delivered');
+        Route::get('ventes/{sale}/invoice', [SellerController::class, 'invoice'])->name('sales.invoice');
+        Route::post('ventes/{sale}/paid', [SellerController::class, 'markAsPaid'])->name('sales.paid');
+});
 
+Route::prefix('produits')
+    ->name('products.')
+    ->group(function () {
 
+        Route::get('confirm', [ProductController::class, 'confirm'])->name('confirm')->middleware('auth');
+        Route::post('pay', [ProductController::class, 'pay'])->name('pay')->middleware('auth');
+        Route::get('success', function () {
+            return view('products.success');
+        })->name('success');
+
+        Route::post('{product}/acheter', [ProductController::class, 'purchase'])->name('purchase')->middleware('auth');
+
+        Route::get('{product}', [ProductController::class, 'show'])->name('show');
+    });
 
 require __DIR__.'/auth.php';

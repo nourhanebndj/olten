@@ -80,7 +80,7 @@ body {
   margin: 0 10px;
 }
 
-.search-btn {
+.search-btn , .btn-buy {
   background: var(--color-primary);
   color: var(--color-white);
   border: none;
@@ -387,6 +387,22 @@ body {
     font-size: 16px;
     pointer-events: none;
     z-index: 1;
+}
+
+.input-group select {
+    cursor: pointer;
+    appearance: none;
+    width: 100%;
+    padding: 14px 16px;
+    padding-left: 45px;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    font-size: 15px;
+    transition: all 0.3s ease;
+    box-sizing: border-box;
+    background-color: #fafafa;
+    -webkit-appearance: none;
+    -moz-appearance: none;
 }
 
 .input-group .toggle-password {
@@ -879,7 +895,7 @@ body {
         }
 /*----------Annonce section---------------*/
 
-        .annonces-section {
+        .annonces-section , .produits-section {
             padding: 80px 20px;
             max-width: 1400px;
             margin: 0 auto;
@@ -896,7 +912,7 @@ body {
             color: var(--color-primary);
         }
 
-        .annonces-carousel {
+        .annonces-carousel , .produits-carousel {
             position: relative;
         }
 
@@ -911,7 +927,7 @@ body {
             transition: transform 0.5s ease-in-out;
         }
 
-        .annonce-card {
+        .annonce-card , .product-card {
             flex: 0 0 calc(33.333% - 20px);
             background: white;
             border-radius: 0px;
@@ -921,7 +937,7 @@ body {
             cursor: pointer;
         }
 
-        .annonce-card:hover {
+        .annonce-card:hover , .product-card:hover {
             transform: translateY(-5px);
             box-shadow: 0 8px 20px rgba(0,0,0,0.15);
         }
@@ -944,7 +960,7 @@ body {
             transition: transform 0.3s ease;
         }
 
-        .annonce-card:hover .card-image {
+        .annonce-card:hover .card-image , .product-card:hover .card-image {
             transform: scale(1.05);
         }
 
@@ -1042,6 +1058,12 @@ body {
             border-top: 1px solid #e9ecef;
         }
 
+        .card-qte {
+            font-size: 16px;
+            color: var(--color-black);
+            font-weight: 500;
+        }
+
         .carousel-btn {
             position: absolute;
             top: 50%;
@@ -1109,13 +1131,13 @@ body {
         }
 
         @media (max-width: 1200px) {
-            .annonce-card {
+            .annonce-card , .product-card {
                 flex: 0 0 calc(33.333% - 20px);
             }
         }
 
         @media (max-width: 992px) {
-            .annonce-card {
+            .annonce-card , .product-card {
                 flex: 0 0 calc(50% - 15px);
             }
         }
@@ -1125,7 +1147,7 @@ body {
                 margin: 0 50px;
             }
             
-            .annonce-card {
+            .annonce-card , .product-card {
                 flex: 0 0 calc(50% - 15px);
             }
             
@@ -1141,7 +1163,7 @@ body {
         }
 
         @media (max-width: 576px) {
-            .annonce-card {
+            .annonce-card , .product-card {
                 flex: 0 0 100%;
             }
         }
@@ -1692,10 +1714,17 @@ body {
             width: 100%;
         }
 
-        .left-section-annonce {
+        .left-section-annonce , .left-section-product {
             margin: 2rem;
         }
         
+        .purchase-box {
+            border: 1px solid;
+            width: 50%;
+            padding: 1rem;
+            margin: 2rem;
+        }
+
         .description {
             line-height: 1.6;
             color: #555;
@@ -2151,7 +2180,7 @@ body {
 }
 
 /* ANNONCE CARDS */
-.annonce-card {
+.annonce-card , .product-card {
   background: white;
   border-radius: 8px;
   overflow: hidden;
@@ -2160,7 +2189,7 @@ body {
   cursor: pointer;
 }
 
-.annonce-card:hover {
+.annonce-card:hover , product-card:hover {
   transform: translateY(-5px);
   box-shadow: 0 8px 20px rgba(0,0,0,0.15);
 }
@@ -2183,7 +2212,7 @@ body {
   transition: transform 0.3s ease;
 }
 
-.annonce-card:hover .card-image {
+.annonce-card:hover .card-image , .product-card:hover .card-image {
   transform: scale(1.05);
 }
 
@@ -2299,7 +2328,7 @@ body {
   gap: 20px;
 }
 
-.listings-list .annonce-card {
+.listings-list .annonce-card , .listings-list .card-image {
   display: flex;
   flex-direction: row;
 }
@@ -2730,7 +2759,7 @@ body {
     display: block;
 }
 
-#ad-link {
+#ad-link , #product-link {
   text-decoration: none;
 }
 

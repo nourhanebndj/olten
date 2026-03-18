@@ -138,4 +138,49 @@
         Aucune annonce disponible pour le moment.
     </p>
 @endif
+
+{{-- Produits récents --}}
+@if($products->isNotEmpty())
+<section class="produits-section">
+    <h2 class="section-title">Produits disponibles sur <span class="site-name">Olten-location.fr</span></h2>
+
+    <div class="produits-carousel">
+        <button class="carousel-btn prev-btn" aria-label="Précédent">
+            <i class="fas fa-chevron-left"></i>
+        </button>
+
+        <div class="carousel-wrapper">
+            <div class="carousel-track">
+                @foreach($products as $product)
+                    <a href="{{ route('products.show', $product) }}" class="product-card" id="product-link">
+                        <div class="card-image-container">
+                            <img src="{{ $product->images->first() 
+                                ? asset('storage/' . $product->images->first()->image) 
+                                : asset('assets/images/no-image.jpg') }}" 
+                                alt="{{ $product->name }}" class="card-image">
+                            <span class="category-badge">{{ $product->category->nom ?? 'Catégorie non définie' }}</span>
+                        </div>
+                        <div class="card-content">
+                            <div class="d-flex justify-content-between">
+                                <h3 class="card-title">{{ $product->name }}</h3>
+                                @if($product->stock <= 0)
+                                    <span class="expired">En rupture</span>
+                                @else
+                                    <span class="card-qte">{{ $product->stock }} disponible</span>
+                                @endif
+                            </div>
+                            <p class="card-price">{{ number_format($product->price, 2) }} €</p>
+                        </div>
+                    </a>
+                @endforeach
+            </div>
+        </div>
+
+        <button class="carousel-btn next-btn" aria-label="Suivant">
+            <i class="fas fa-chevron-right"></i>
+        </button>
+    </div>
+    <div class="carousel-dots"></div>
+</section>
+@endif
 @endsection

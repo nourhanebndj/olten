@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Category;
 use App\Models\Ad;
+use App\Models\Product;
 use Illuminate\Http\Request;
 
 class HomeController extends Controller
@@ -31,6 +32,7 @@ class HomeController extends Controller
         }
 
         $ads = $query->latest()->get();
-        return view('index', compact('categories','ads'));
+        $products = Product::active()->inStock()->latest()->get();
+        return view('index', compact('categories', 'ads', 'products'));
     }
 }

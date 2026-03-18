@@ -43,6 +43,7 @@ class RegisteredUserController extends Controller
             'password.min' => 'Le mot de passe doit contenir au moins 8 caractères.',
             'password.regex' => 'Le mot de passe doit contenir au moins une majuscule, une minuscule, un chiffre et un caractère spécial.',
             'terms.accepted' => 'Vous devez accepter les conditions pour continuer.',
+            'role.required' => 'Le role est obligatoire.',
         ];
 
         $validator = Validator::make($request->all(), [
@@ -56,6 +57,7 @@ class RegisteredUserController extends Controller
                 'regex:/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z\d]).+$/'
             ],
             'terms'      => ['accepted'],
+            'role' => ['required'],
         ], $messages);
 
         if ($validator->fails()) {
@@ -72,13 +74,19 @@ class RegisteredUserController extends Controller
             'email'    => $request->email,
             'password' => Hash::make($request->password),
         ]);
-        $role = Role::where('name', 'locateur')->first();
+
+        $role = Role::where('name', $request->role)->first();
+
+        if (!$role) {
+            throw new \Exception('Rôle invalide.');
+        }
 
         if ($role) {
             $user->syncRoles([$role]);
         }
 
         event(new Registered($user));
+
         Auth::login($user);
 
         return response()->json([

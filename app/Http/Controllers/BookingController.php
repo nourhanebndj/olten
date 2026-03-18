@@ -4,6 +4,9 @@ namespace App\Http\Controllers;
 use App\Models\Booking;
 use App\Models\Ad;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Stripe\Stripe;
+use Stripe\PaymentIntent;
 
 class BookingController extends Controller
 {
@@ -38,7 +41,7 @@ class BookingController extends Controller
 
         // return back()->with('success', 'Réservation effectuée avec succès !');
         return redirect()->route('bookings.confirm')->with([
-            'ad' => $ad,
+            'ad_id' => $ad->id,
             'start_date' => $request->start_date,
             'end_date' => $request->end_date,
         ]);
@@ -57,20 +60,42 @@ class BookingController extends Controller
     {
         $user = Auth::user();
 
-        Stripe\Stripe::setApiKey(config('services.stripe.secret'));
+        Stripe::setApiKey(config('services.stripe.secret'));
 
-        $intent = Stripe\PaymentIntent::create([
-            'amount' => 5000,
+        $ad = Ad::findOrFail(session('ad_id'));
+        $start_date = session('start_date');
+        $end_date = session('end_date');
+
+        $days = \Carbon\Carbon::parse($start_date)->diffInDays($end_date) + 1;
+        $total = $days * $ad->price_per_day;
+
+        $intent = PaymentIntent::create([
+            'amount' => $total * 100,
             'currency' => 'eur',
             'payment_method' => $request->payment_method,
             'confirm' => true,
             'automatic_payment_methods' => ['enabled' => true],
         ]);
 
+        if ($intent->status === 'succeeded') {
+
+            $booking = new Booking();
+            $booking->ad_id = $ad->id;
+            $booking->user_id = $user->id;
+            $booking->start_date = $start_date;
+            $booking->end_date = $end_date;
+
+            if ($ad->delivery_active) {
+                $booking->delivery_cost = $ad->delivery_cost ?? 0;
+            }
+
+            $booking->calculateTotalPrice();
+            $booking->save();
+        }
 
         return response()->json([
             'success' => true,
-            'redirect' => route('bookings.success')
+            'redirect' => route('bookings.confirm')
         ]);
     }
 
