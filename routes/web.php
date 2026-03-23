@@ -26,6 +26,7 @@ use App\Http\Controllers\livrer\CarteVtcController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\ContactController;
 use App\Http\Controllers\CovoiturageController;
+use App\Http\Controllers\VehicleController;
 use App\Http\Middleware\AdminMiddleware;
 use App\Http\Controllers\livrer\DeliveryAdController;
 use App\Http\Controllers\livrer\AdsLivreurController;
@@ -105,6 +106,8 @@ Route::middleware('auth')->group(function () {
     Route::post('/covoiturage/publish', [CovoiturageController::class, 'publish'])->middleware('auth');
     Route::get('/trajet/{covoiturage}', [CovoiturageController::class, 'show'])
         ->name('trajet.show');
+    Route::get('/vehicle/edit', [VehicleController::class, 'edit'])->name('vehicle.edit');
+    Route::post('/vehicle/update', [VehicleController::class, 'update'])->name('vehicle.update');
 
 });
 //visualiser le détails d'une annonce meme pour un utilisateur visteur non connecté
