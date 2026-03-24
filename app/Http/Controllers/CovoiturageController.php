@@ -74,14 +74,12 @@ class CovoiturageController extends Controller
             'return_datetime' => 'nullable|array',
         ])->validate();
 
-        // 🔹 Calcul prix aller
         $prixTotal = collect($input['segments'])
             ->sum(fn ($segment) => (float)($segment['price'] ?? 0));
 
         $data['prix_place'] = $prixTotal;
         $data['prix_total_affiche'] = $prixTotal;
 
-        // 🔹 Gestion retour sécurisée
         $returnTrip = $input['return_trip_data'] ?? null;
         $returnDate = $input['return_datetime']['date'] ?? null;
         $returnTime = $input['return_datetime']['time'] ?? null;
@@ -162,5 +160,84 @@ class CovoiturageController extends Controller
         return redirect()
             ->route('covoiturage.index', $trajet->covoiturage_id)
             ->with('success', 'Trajet mis à jour');
+    }
+    public function editOptions($id)
+    {
+        $covoiturage = Covoiturage::findOrFail($id);
+
+        return view('livreur.covoiturage.edit_det.option', compact('covoiturage'));
+    }
+    public function updateOptions(Request $request, $id)
+    {
+        $covoiturage = Covoiturage::findOrFail($id);
+
+        $request->validate([
+            'nb_places' => 'required|integer|min:1|max:10',
+            'booking_mode' => 'required|in:instant,manual',
+            'passenger_mode' => 'required|in:mixed,womenOnly,maxBackSeats',
+            'message_conducteur' => 'nullable|string|max:500',
+        ]);
+
+        $maxArriere = false;
+        $entreFemmes = false;
+
+        switch ($request->passenger_mode) {
+            case 'mixed':
+                $maxArriere = false;
+                $entreFemmes = false;
+                break;
+            case 'womenOnly':
+                $maxArriere = false;
+                $entreFemmes = true;
+                break;
+            case 'maxBackSeats':
+                $maxArriere = true;
+                $entreFemmes = false;
+                break;
+        }
+
+        $covoiturage->update([
+            'nb_places' => $request->nb_places,
+            'booking_mode' => $request->booking_mode,
+            'passenger_mode' => json_encode([
+                'passenger_mode' => $request->passenger_mode,
+                'max_arriere' => $maxArriere,
+                'entre_femmes' => $entreFemmes,
+            ]),
+            'message_conducteur' => $request->message_conducteur,
+        ]);
+
+        return redirect()->back()->with('success', 'Options mises à jour avec succès');
+    }
+    public function editPrice($id)
+    {
+        $covoiturage = Covoiturage::findOrFail($id);
+
+        $segments = $covoiturage->segments ?? [];
+        $returnSegments = [];
+        if (!empty($covoiturage->selected_route) && isset($covoiturage->selected_route['pricing'])) {
+            $returnSegments = $covoiturage->selected_route['pricing'];
+        }
+
+        return view('livreur.covoiturage.edit_det.prix', compact(
+            'covoiturage',
+            'segments',
+            'returnSegments'
+        ));
+    }
+    public function updatePrice(Request $request, $id)
+    {
+        $covoiturage = Covoiturage::findOrFail($id);
+        $segments = $request->input('segments', []);
+        $returnSegments = $request->input('return_segments', []);
+        $covoiturage->segments = $segments;
+        $selectedRoute = $covoiturage->selected_route ?? [];
+        $selectedRoute['pricing'] = $returnSegments;
+        $covoiturage->selected_route = $selectedRoute;
+        $totalAller = array_sum(array_map(fn ($seg) => $seg['price'] ?? 0, $segments));
+        $totalRetour = array_sum(array_map(fn ($seg) => $seg['price'] ?? 0, $returnSegments));
+        $covoiturage->prix_total_affiche = $request->prix_total_affiche;
+        $covoiturage->save();
+        return redirect()->back()->with('success', 'Tarifs mis à jour avec succès !');
     }
 }

@@ -90,7 +90,7 @@
                                     <div class="bg-orange-50 p-4 rounded-2xl inline-block">
                                         <p class="text-xs font-bold text-[#FF4500] uppercase mb-1">Prix par place</p>
                                         <p class="text-3xl font-black text-[#FF4500]">
-                                            {{ number_format($trajet->prix_place, 2) }}€</p>
+                                            {{ number_format($trajet->prix_total_affiche, 2) }}€</p>
                                     </div>
                                 </div>
                             </div>
