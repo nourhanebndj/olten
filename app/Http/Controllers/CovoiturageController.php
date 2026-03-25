@@ -240,4 +240,34 @@ class CovoiturageController extends Controller
         $covoiturage->save();
         return redirect()->back()->with('success', 'Tarifs mis à jour avec succès !');
     }
+    public function edititen($id)
+    {
+        $covoiturage = Covoiturage::findOrFail($id);
+        return view('livreur.covoiturage.edit_det.iten', compact(
+            'covoiturage'
+        ));
+    }
+    public function editDateTime($id)
+    {
+        $covoiturage = Covoiturage::findOrFail($id);
+        return view('livreur.covoiturage.edit_det.edit_date_time', compact('covoiturage'));
+    }
+
+    public function updateDateTime(Request $request, $id)
+    {
+        $covoiturage = Covoiturage::findOrFail($id);
+
+        $request->validate([
+            'date_depart' => 'required|date',
+            'heure_depart' => 'required|date_format:H:i',
+        ]);
+
+        $covoiturage->update([
+            'date_depart' => $request->date_depart,
+            'heure_depart' => $request->heure_depart,
+        ]);
+
+        return redirect()->route('covoiturage.edit-date-time', $id)
+            ->with('success', 'Date et heure mises à jour avec succès !');
+    }
 }

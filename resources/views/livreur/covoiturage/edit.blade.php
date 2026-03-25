@@ -38,7 +38,7 @@
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
 
                 <!-- Block: Itinéraire -->
-                <a href="#"
+                <a href="{{ route('covoiturage.edititen.edit', $trajet->covoiturage_id) }}"
                     class="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm hover:shadow-md hover:border-orange-200 transition-all group text-left relative overflow-hidden block">
                     <div
                         class="absolute top-0 right-0 w-16 h-16 bg-orange-50 rounded-bl-full -mr-4 -mt-4 group-hover:bg-orange-100 transition-colors">

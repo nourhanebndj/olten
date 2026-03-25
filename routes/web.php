@@ -121,9 +121,14 @@ Route::middleware('auth')->group(function () {
     Route::post('/covoiturage/{id}/options', [CovoiturageController::class, 'updateOptions'])->name('covoiturage.options.update');
     Route::get('/covoiturage/{id}/prix', [CovoiturageController::class, 'editPrice'])
     ->name('covoiturage.prix.edit');
-
     Route::post('/covoiturage/{id}/prix', [CovoiturageController::class, 'updatePrice'])
         ->name('covoiturage.prix.update');
+    Route::get('/covoiturage/{id}/edititen', [CovoiturageController::class, 'edititen'])
+    ->name('covoiturage.edititen.edit');
+    Route::get('/covoiturage/{id}/edit-date-time', [CovoiturageController::class, 'editDateTime'])
+        ->name('covoiturage.edit-date-time');
+    Route::post('/covoiturage/{id}/update-date-time', [CovoiturageController::class, 'updateDateTime'])
+        ->name('covoiturage.update-date-time');
 
 });
 //visualiser le détails d'une annonce meme pour un utilisateur visteur non connecté
