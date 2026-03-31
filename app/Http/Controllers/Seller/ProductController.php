@@ -245,6 +245,10 @@ class ProductController extends Controller
                     'seller_id'  => $product->user_id,
                     'quantity'   => $quantity,
                     'total_price'=> $total,
+                    'status'=> 'paid',
+                    'payment_intent_id' => $intent->id,
+                    'address'    => $request->address,
+                    'phone'      => $request->phone,
                 ]);
 
                 return response()->json([

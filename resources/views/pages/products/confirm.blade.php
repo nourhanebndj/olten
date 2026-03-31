@@ -28,6 +28,11 @@
             </div>
 
             <div class="form-group">
+                <label class="form-label">Adresse</label>
+                <input type="text" id="address" name="address" class="w-100" required>
+            </div>
+
+            <div class="form-group">
                 <label class="form-label">Produit</label>
                 <input type="text" value="{{ $product->name }}" readonly>
             </div>
@@ -103,6 +108,7 @@ form.addEventListener("submit", async (e) => {
         body: JSON.stringify({
             payment_method: paymentMethod.id,
             phone: document.getElementById("phone_full").value,
+            address: document.getElementById("address").value,
             product_id: "{{ $product->id }}",
             quantity: "{{ $quantity }}"
         })

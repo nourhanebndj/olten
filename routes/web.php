@@ -11,6 +11,7 @@ use App\Http\Controllers\Owner\StatsController;
 use App\Http\Controllers\Owner\AdReportController;
 use App\Http\Controllers\Seller\ProductController;
 use App\Http\Controllers\Seller\SellerController;
+use App\Http\Controllers\Seller\SellerOrderController;
 use App\Http\Controllers\BookingController;
 use App\Http\Controllers\Admin\AdminAuthController;
 use App\Http\Controllers\Admin\CategoryController;
@@ -206,6 +207,10 @@ Route::prefix('vendeur')
         Route::post('ventes/{sale}/delivered', [SellerController::class, 'markAsDelivered'])->name('sales.delivered');
         Route::get('ventes/{sale}/invoice', [SellerController::class, 'invoice'])->name('sales.invoice');
         Route::post('ventes/{sale}/paid', [SellerController::class, 'markAsPaid'])->name('sales.paid');
+        Route::get('orders/{order}', [SellerOrderController::class, 'showOrder'])->name('orders.show');
+        Route::get('mes-commandes', [SellerOrderController::class, 'orders'])->name('orders');
+        Route::get('commandes-clients', [SellerOrderController::class, 'clientOrders'])->name('clientOrders');
+        Route::post('commandes-clients/{order}/cancel', [SellerOrderController::class, 'cancelOrder'])->name('orders.cancel');
     });
 
 Route::prefix('produits')

@@ -11,12 +11,13 @@ use App\Models\User;
 use App\Models\Ad;
 use App\Models\PointsFidelite;
 use App\Models\Transaction;
+use App\Models\ProductSale;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Carbon\Carbon;
 
 class DashboardController extends Controller
-{ 
+{
     public function index(Request $request)
     {
         $user = Auth::user();
@@ -26,6 +27,7 @@ class DashboardController extends Controller
         $revenusTotal = 0; $totalCourses = 0; $heuresTotales = 0;
         $noteClient = 4.5; $derniereMission = null; $graphData = [];
         $activeAds = 0; $totalViews = 0; $favoritesCount = 0; $recentActivities = [];
+        $ventesTotal = 0; $totalCommandes = 0;
 
         if($user->hasRole('livreur')) {
             $revenusTotal = Transaction::where('user_id', $user->id)
@@ -73,10 +75,19 @@ class DashboardController extends Controller
                 ['description' => 'Votre annonce "VTT Pro" a été vue 50 fois', 'time' => 'Hier'],
             ];
         }
+        if($user->hasRole('vendeur')) {
+            $ventesTotal = ProductSale::whereHas('product', function($q) use ($user) {
+                                            $q->where('user_id', $user->id);
+                                        })->sum('total_price');
+
+            $totalCommandes = ProductSale::whereHas('product', function($q) use ($user) {
+                                            $q->where('user_id', $user->id);
+                                        })->count();
+        }
         return view('pages.locateur.dashboard', compact(
             'user', 'revenusTotal', 'totalCourses', 'heuresTotales', 
             'noteClient', 'derniereMission', 'graphData',
-            'activeAds', 'totalViews', 'favoritesCount', 'recentActivities'
+            'activeAds', 'totalViews', 'favoritesCount', 'recentActivities', 'ventesTotal', 'totalCommandes'
         ));
     }
 }

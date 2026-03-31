@@ -62,11 +62,16 @@
                         </li>
                     </ul>
                 </div>
-
+                @if(auth()->user()->hasRole('locateur'))
                 <a href="{{ route('ads.create') }}" class="btn-add-annonce">
                     <i class="fa-solid fa-plus"></i>
                     <span>Ajouter une annonce</span>
                 </a>
-
+                @elseif(auth()->user()->hasRole('vendeur'))
+                <a href="{{ route('seller.produits.create') }}" class="btn-add-annonce">
+                    <i class="fa-solid fa-plus"></i>
+                    <span>Ajouter un produit</span>
+                </a>
+                @endif
             </div>
         </header>

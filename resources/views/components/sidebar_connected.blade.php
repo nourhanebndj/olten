@@ -33,14 +33,30 @@
                             <span>Mes ventes</span>
                         </a>
                     </li>
+                    <li class="dropdown">
+                        <a href="#" class="dropbtn">
+                            <i class="fa-solid fa-table-columns"></i>
+                            <span>Commandes</span>
+                            <i class="fa-solid fa-chevron-down"></i>
+                        </a>
+                        <ul class="dropdown-content">
+                            <li class="{{ request()->is('vendeur/mes-commandes*') ? 'active' : '' }}">
+                                <a href="{{ route('seller.orders') }}">Mes commandes</a>
+                            </li>
+                            <li class="{{ request()->is('vendeur/commandes-clients*') ? 'active' : '' }}">
+                                <a href="{{ route('seller.clientOrders') }}">Commandes clients</a>
+                            </li>
+                        </ul>
+                    </li>
                 @endif
+                @if(auth()->user()->hasRole('locateur'))
                 <li>
                     <a href="{{ url('/dashboard') }}">
                         <i class="fa-solid fa-calendar-check"></i>
                         <span>Mes réservations</span>
                     </a>
                 </li>
-
+                @endif
                 <li class="{{ request()->routeIs('messages*') ? 'active' : '' }}">
                     <a href="{{ route('messages') }}">
                         <i class="fa-solid fa-envelope"></i>
@@ -54,22 +70,24 @@
                     </a>
                 </li>
             </ul>
-
+            @if(auth()->user()->hasRole('locateur'))
             <p class="menu-section">ANNONCES</p>
+            @endif
             <ul>
+                @if(auth()->user()->hasRole('locateur'))
                 <li class="{{ Route::is('ads.create') ? 'active' : '' }}">
                     <a href="{{ route('ads.create') }}">
                         <i class="fa-solid fa-circle-plus"></i>
                         <span>Ajouter une annonce</span>
                     </a>
                 </li>
-
                 <li class="{{ Route::is('ads.index') || Route::is('ads.edit') ? 'active' : '' }}">
                     <a href="{{ route('ads.index') }}">
                         <i class="fa-solid fa-list"></i>
                         <span>Mes annonces</span>
                     </a>
                 </li>
+                @endif
                 <li class="{{ request()->is('statistiques') ? 'active' : '' }}">
                     <a href="{{ route('statistiques') }}">
                         <i class="fa-solid fa-chart-line"></i>

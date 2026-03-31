@@ -9,10 +9,13 @@ class ProductSale extends Model
     protected $fillable = [
         'product_id',
         'buyer_id',
-        'seller_id',
+        'user_id',
         'quantity',
         'total_price',
-        'status'
+        'status',
+        'address',
+        'phone',
+        'payment_intent_id',
     ];
 
     public function product()
