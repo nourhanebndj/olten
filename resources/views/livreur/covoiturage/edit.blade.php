@@ -132,7 +132,7 @@
             <div class="flex flex-col sm:flex-row items-center justify-between gap-4 pt-4 border-t border-slate-200">
                 <div class="flex items-center space-x-3 w-full sm:w-auto">
                     <!-- Lien Dupliquer -->
-                    <a href="#"
+                    <a href="#" onclick="dupliquerTrajet(event)"
                         class="flex-1 sm:flex-none flex items-center justify-center space-x-2 bg-white px-5 py-2.5 rounded-2xl border border-slate-200 text-slate-600 hover:bg-slate-50 transition-all shadow-sm group font-bold text-xs uppercase tracking-wider">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -170,4 +170,42 @@
             </p>
         </div>
     </div>
+    <script>
+        function dupliquerTrajet(e) {
+            e.preventDefault();
+
+            fetch(`/covoiturage/{{ $trajet->covoiturage_id }}/dupliquer`, {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                        'Accept': 'application/json',
+                    },
+                })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.success) {
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Trajet dupliqué !',
+                            text: 'Votre trajet a été dupliqué avec succès.',
+                            showCancelButton: true,
+                            confirmButtonText: 'Voir le trajet',
+                            cancelButtonText: 'Rester ici',
+                            confirmButtonColor: '#10b981',
+                        }).then((result) => {
+                            if (result.isConfirmed) {
+                                window.location.href = `/trajet/${data.covoiturage_id}`;
+                            }
+                        });
+                    }
+                })
+                .catch(() => {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Erreur',
+                        text: 'Une erreur est survenue lors de la duplication.',
+                    });
+                });
+        }
+    </script>
 @endsection

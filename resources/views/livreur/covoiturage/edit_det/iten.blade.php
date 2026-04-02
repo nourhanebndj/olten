@@ -92,7 +92,9 @@
 
                     <div class="space-y-10">
                         <!-- Point de Départ (Cliquable) -->
-                        <a href="#" class="relative flex flex-col group cursor-pointer">
+
+                        <a
+                            href="{{ route('covoiturage.edit-route', $covoiturage->covoiturage_id) }}"class="relative flex flex-col group cursor-pointer">
                             <div
                                 class="absolute -left-[32px] top-1 w-5 h-5 rounded-full border-[4px] border-white bg-orange-600 shadow-md z-10 group-hover:scale-125 transition-transform">
                             </div>
@@ -124,7 +126,8 @@
                         @endif
 
                         <!-- Point d'Arrivée (Cliquable) -->
-                        <a href="#" class="relative flex flex-col group cursor-pointer">
+                        <a
+                            href="{{ route('covoiturage.edit-route', $covoiturage->covoiturage_id) }}"class="relative flex flex-col group cursor-pointer">
                             <div
                                 class="absolute -left-[32px] top-1 w-5 h-5 rounded-full border-[4px] border-white bg-slate-900 shadow-md z-10 group-hover:scale-125 transition-transform">
                             </div>
