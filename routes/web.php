@@ -115,7 +115,7 @@ Route::middleware('auth')->group(function () {
         ->name('covoiturage.destroy');
     Route::get('/covoiturage/{id}/edit', [CovoiturageController::class, 'edit'])
     ->name('covoiturage.edit');
-
+    Route::post('/covoiturage/{covoiturage}/dupliquer', [CovoiturageController::class, 'dupliquer'])->name('covoiturage.dupliquer');
     Route::put('/covoiturage/{id}', [CovoiturageController::class, 'update'])
         ->name('covoiturage.update');
     Route::get('/covoiturage/{id}/options', [CovoiturageController::class, 'editOptions'])->name('covoiturage.options.edit');
@@ -130,6 +130,13 @@ Route::middleware('auth')->group(function () {
         ->name('covoiturage.edit-date-time');
     Route::post('/covoiturage/{id}/update-date-time', [CovoiturageController::class, 'updateDateTime'])
         ->name('covoiturage.update-date-time');
+
+    Route::get('/covoiturage/{covoiturage}/edit-route', [CovoiturageController::class, 'editRoute'])
+        ->name('covoiturage.edit-route');
+
+    Route::post('/covoiturage/{covoiturage}/update-route', [CovoiturageController::class, 'updateRoute'])
+        ->name('covoiturage.update-route');
+
 
 });
 //visualiser le détails d'une annonce meme pour un utilisateur visteur non connecté

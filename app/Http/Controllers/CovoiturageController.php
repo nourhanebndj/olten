@@ -270,4 +270,70 @@ class CovoiturageController extends Controller
         return redirect()->route('covoiturage.edit-date-time', $id)
             ->with('success', 'Date et heure mises à jour avec succès !');
     }
+    public function dupliquer(Covoiturage $covoiturage)
+    {
+        $newTrip = $covoiturage->replicate();
+        $newTrip->statut = 'pending';
+        $newTrip->save();
+
+        return response()->json([
+            'success' => true,
+            'covoiturage_id' => $newTrip->covoiturage_id
+        ]);
+    }
+
+    public function editRoute(Covoiturage $covoiturage)
+    {
+        if ($covoiturage->conducteur_id !== Auth::id()) {
+            abort(403);
+        }
+
+        return view('livreur.covoiturage.edit_det.edit-route', compact('covoiturage'));
+    }
+
+    public function updateRoute(Request $request, Covoiturage $covoiturage)
+    {
+        if ($covoiturage->conducteur_id !== Auth::id()) {
+            return response()->json(['success' => false, 'message' => 'Non autorisé.'], 403);
+        }
+
+        $validated = $request->validate([
+            'depart'      => 'required|string|max:500',
+            'destination'  => 'required|string|max:500',
+            'itineraire'   => 'required|string',
+            'segments'     => 'required|string',
+        ]);
+
+        $itineraire = json_decode($validated['itineraire'], true);
+        $segments   = json_decode($validated['segments'], true);
+
+        /*
+         * Format attendu pour itineraire :
+         * [
+         *   { "name": "Adresse complète...", "type": "start", "latlng": [47.23, 6.03] },
+         *   { "name": "Moisenay",           "type": "waypoint", "latlng": [48.56, 2.76] },
+         *   { "name": "Adresse complète...", "type": "end",   "latlng": [47.28, -0.53] }
+         * ]
+         *
+         * Format attendu pour segments :
+         * [
+         *   { "from": "Adresse départ...", "to": "Moisenay", "price": 52 },
+         *   { "from": "Moisenay", "to": "Adresse arrivée...", "price": 20 }
+         * ]
+         */
+
+        // Calculer le prix total à partir des segments
+        $prixTotal = collect($segments)->sum(fn ($s) => (float)($s['price'] ?? 0));
+
+        $covoiturage->update([
+            'depart'            => $validated['depart'],
+            'destination'       => $validated['destination'],
+            'itineraire'        => $itineraire,
+            'segments'          => $segments,
+            'prix_place'        => $prixTotal,
+            'prix_total_affiche' => $prixTotal,
+        ]);
+
+        return response()->json(['success' => true]);
+    }
 }
