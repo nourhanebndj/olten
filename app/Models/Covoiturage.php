@@ -37,6 +37,8 @@ class Covoiturage extends Model
         'return_trip_data',
         'return_date',
         'return_time',
+        'return_itinerary',
+        'booking_mode'
     ];
 
     protected $casts = [
@@ -52,7 +54,8 @@ class Covoiturage extends Model
         'retour' => 'boolean',
         'return_trip_data' => 'array',
         'return_date' => 'datetime',
-        'return_time' => 'string', 
+        'return_time' => 'string',
+        'return_itinerary' => 'array',
     ];
 
     public function conducteur()

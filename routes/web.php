@@ -136,8 +136,20 @@ Route::middleware('auth')->group(function () {
 
     Route::post('/covoiturage/{covoiturage}/update-route', [CovoiturageController::class, 'updateRoute'])
         ->name('covoiturage.update-route');
+    Route::get('/covoiturage/{id}/edit-retour', [CovoiturageController::class, 'editRetour'])
+        ->name('covoiturage.edit-retour');
+    Route::put('/covoiturage/{id}/update-retour', [CovoiturageController::class, 'updateRetour'])
+        ->name('covoiturage.update-retour');
+    Route::put('/covoiturage/{id}/toggle-retour', [CovoiturageController::class, 'toggleRetour']);
+    Route::get('/covoiturage/{id}/add-retour', [CovoiturageController::class, 'addRetour'])
+    ->name('covoiturage.add-retour');
+    Route::post('/covoiturage/{id}/store-retour', [CovoiturageController::class, 'storeRetour'])
+        ->name('covoiturage.store-retour');
+    Route::get('/covoiturage/{id}/edit-mode', [CovoiturageController::class, 'editMode'])
+    ->name('covoiturage.editMode');
 
-
+    Route::post('/covoiturage/{id}/update-mode', [CovoiturageController::class, 'updateMode'])
+        ->name('covoiturage.updateMode');
 });
 //visualiser le détails d'une annonce meme pour un utilisateur visteur non connecté
 Route::get('/annonces/{ad}/détails', [AdController::class, 'show'])->name('ads.show');

@@ -146,8 +146,11 @@
 
                 <!-- Action Gérer les étapes -->
                 <div class="pt-8 border-t border-slate-50 flex justify-center">
-                    <a href="#"
-                        class="inline-flex items-center space-x-3 px-8 py-4 bg-slate-900 hover:bg-orange-600 text-white rounded-2xl transition-all duration-300 group shadow-xl shadow-slate-200 hover:shadow-orange-200 hover:-translate-y-1">
+                    <a href="{{ route('covoiturage.edit-route', $covoiturage->covoiturage_id) }}"
+                        class="inline-flex
+                        items-center space-x-3 px-8 py-4 bg-slate-900 hover:bg-orange-600 text-white rounded-2xl
+                        transition-all duration-300 group shadow-xl shadow-slate-200 hover:shadow-orange-200
+                        hover:-translate-y-1">
                         <span class="text-[11px] font-black uppercase tracking-[0.2em]">
                             Gérer les étapes du trajet
                         </span>

@@ -49,14 +49,13 @@ class CovoiturageController extends Controller
     public function publish(Request $request)
     {
         $input = $request->all();
-
         $input['itineraire'] = json_decode($request->input('itineraire'), true) ?? [];
         $input['segments'] = json_decode($request->input('segments'), true) ?? [];
         $input['selected_route'] = json_decode($request->input('selected_route'), true) ?? [];
         $input['selected_route_index'] = (int) $request->input('selected_route_index', 0);
         $input['return_trip_data'] = json_decode($request->input('return_trip_data'), true);
         $input['return_datetime'] = json_decode($request->input('return_datetime'), true);
-
+        $input['return_itinerary'] = json_decode($request->input('return_itinerary'), true);
         $data = Validator::make($input, [
             'depart' => 'required|string|max:255',
             'destination' => 'required|string|max:255',
@@ -72,8 +71,9 @@ class CovoiturageController extends Controller
             'selected_route_index' => 'nullable|integer|min:0',
             'return_trip_data' => 'nullable|array',
             'return_datetime' => 'nullable|array',
-        ])->validate();
+            'booking_mode' => 'required|string|in:instant,manual',
 
+        ])->validate();
         $prixTotal = collect($input['segments'])
             ->sum(fn ($segment) => (float)($segment['price'] ?? 0));
 
@@ -93,7 +93,7 @@ class CovoiturageController extends Controller
         $data['return_trip_data'] = $hasReturn ? $returnTrip : null;
         $data['return_date'] = $hasReturn ? $returnDate : null;
         $data['return_time'] = $hasReturn ? $returnTime : null;
-
+        $data['return_itinerary'] = $hasReturn ? ($input['return_itinerary'] ?? null) : null;
         if ($request->hasFile('photo_conducteur')) {
             $file = $request->file('photo_conducteur');
             $filename = uniqid('driver_') . '.' . $file->getClientOriginalExtension();
@@ -148,7 +148,7 @@ class CovoiturageController extends Controller
         $data = $request->validate([
             'depart' => 'required|string|max:255',
             'destination' => 'required|string|max:255',
-            'date_depart' => 'required|date',
+            'date_depart' => 'required',
             'heure_depart' => 'required',
             'nb_places' => 'required|integer|min:1|max:8',
             'prix_place' => 'required|numeric|min:0',
@@ -296,12 +296,11 @@ class CovoiturageController extends Controller
         if ($covoiturage->conducteur_id !== Auth::id()) {
             return response()->json(['success' => false, 'message' => 'Non autorisé.'], 403);
         }
-
         $validated = $request->validate([
             'depart'      => 'required|string|max:500',
             'destination'  => 'required|string|max:500',
-            'itineraire'   => 'required|string',
-            'segments'     => 'required|string',
+            'itineraire'   => 'required|json',
+            'segments'     => 'required|json',
         ]);
 
         $itineraire = json_decode($validated['itineraire'], true);
@@ -332,8 +331,210 @@ class CovoiturageController extends Controller
             'segments'          => $segments,
             'prix_place'        => $prixTotal,
             'prix_total_affiche' => $prixTotal,
+            'selected_route'      => json_decode($request->input('selected_route'), true),
+    '       selected_route_index' => $request->input('selected_route_index', 0),
         ]);
 
+
         return response()->json(['success' => true]);
+    }
+    public function editRetour($id)
+    {
+        $covoiturage = Covoiturage::findOrFail($id);
+
+        // Vérifier que c'est bien le conducteur qui modifie
+        if ($covoiturage->conducteur_id !== Auth::id()) {
+            abort(403, 'Vous n\'êtes pas autorisé à modifier ce trajet.');
+        }
+
+        // Vérifier que le trajet a un retour
+        if (!$covoiturage->retour) {
+            return redirect()->back()->with('error', 'Ce trajet n\'a pas de retour configuré.');
+        }
+
+        return view('livreur.covoiturage.edit_det.edit-retour', compact('covoiturage'));
+    }
+
+
+    // -------------------------------------------------------
+    // 2. METTRE À JOUR LE RETOUR
+    // -------------------------------------------------------
+
+    /**
+     * PUT /covoiturage/{id}/update-retour
+     */
+    public function updateRetour(Request $request, $id)
+    {
+        $covoiturage = Covoiturage::findOrFail($id);
+
+        // Vérifier propriétaire
+        if ($covoiturage->conducteur_id !== Auth::id()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Non autorisé.'
+            ], 403);
+        }
+
+        // Validation
+        $validated = Validator::make($request->all(), [
+            'return_date'         => 'required|date',
+            'return_time'      => 'required|date_format:H:i:s',
+            'return_itinerary' => 'required|array',
+            'return_trip_data'    => 'required|array',
+        ])->validate();
+
+        // Recalculer le prix total retour
+        $returnTotal = 0;
+        if (isset($validated['return_trip_data']['pricing'])) {
+            $returnTotal = collect($validated['return_trip_data']['pricing'])
+                ->sum(fn ($seg) => (float) ($seg['price'] ?? 0));
+        }
+
+        // Mettre à jour
+        $covoiturage->update([
+            'return_date'       => $validated['return_date'],
+            'return_time'       => $validated['return_time'],
+            'return_itinerary'  => $validated['return_itinerary'],
+            'return_trip_data'  => $validated['return_trip_data'],
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Trajet retour mis à jour avec succès.',
+            'covoiturage_id' => $covoiturage->covoiturage_id,
+            'return_total' => $returnTotal
+        ]);
+    }
+
+
+    // -------------------------------------------------------
+    // 3. ACTIVER/DÉSACTIVER LE RETOUR (bonus)
+    // -------------------------------------------------------
+
+    /**
+     * PUT /covoiturage/{id}/toggle-retour
+     */
+    public function toggleRetour(Request $request, $id)
+    {
+        $covoiturage = Covoiturage::findOrFail($id);
+
+        if ($covoiturage->conducteur_id !== Auth::id()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Non autorisé.'
+            ], 403);
+        }
+
+        $validated = $request->validate([
+            'retour' => 'required|boolean',
+        ]);
+
+        $updateData = ['retour' => $validated['retour']];
+
+        // Si on désactive le retour, on nettoie les données
+        if (!$validated['retour']) {
+            $updateData['return_date'] = null;
+            $updateData['return_time'] = null;
+            $updateData['return_itinerary'] = null;
+            $updateData['return_trip_data'] = null;
+        }
+
+        $covoiturage->update($updateData);
+
+        return response()->json([
+            'success' => true,
+            'message' => $validated['retour']
+                ? 'Retour activé.'
+                : 'Retour désactivé.',
+            'retour' => $covoiturage->retour,
+        ]);
+    }
+
+    public function addRetour($id)
+    {
+        $covoiturage = Covoiturage::findOrFail($id);
+
+        if ($covoiturage->conducteur_id !== Auth::id()) {
+            abort(403, 'Vous n\'êtes pas autorisé à modifier ce trajet.');
+        }
+
+        // Si un retour existe déjà, rediriger vers l'édition
+        if ($covoiturage->retour) {
+            return redirect()->route('covoiturage.edit-retour', $id);
+        }
+
+        return view('livreur.covoiturage.edit_det.add-retour', compact('covoiturage'));
+    }
+
+    /**
+     * POST /covoiturage/{id}/store-retour
+     * Enregistre un nouveau trajet retour
+     */
+    public function storeRetour(Request $request, $id)
+    {
+        $covoiturage = Covoiturage::findOrFail($id);
+
+        if ($covoiturage->conducteur_id !== Auth::id()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Non autorisé.'
+            ], 403);
+        }
+
+        // Si un retour existe déjà
+        if ($covoiturage->retour) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Un trajet retour existe déjà. Utilisez la modification.'
+            ], 422);
+        }
+
+        $validated = Validator::make($request->all(), [
+            'return_date'      => 'required|date',
+            'return_time'      => 'required|string|max:8',
+            'return_itinerary' => 'required|array|min:2',
+            'return_trip_data' => 'required|array',
+        ])->validate();
+
+        $covoiturage->update([
+            'retour'           => true,
+            'return_date'      => $validated['return_date'],
+            'return_time'      => $validated['return_time'],
+            'return_itinerary' => $validated['return_itinerary'],
+            'return_trip_data' => $validated['return_trip_data'],
+        ]);
+
+        return response()->json([
+            'success'        => true,
+            'message'        => 'Trajet retour ajouté avec succès.',
+            'covoiturage_id' => $covoiturage->covoiturage_id,
+        ]);
+    }
+    public function editMode($id)
+    {
+        $covoiturage = Covoiturage::findOrFail($id);
+
+        if ($covoiturage->conducteur_id !== Auth::id()) {
+            abort(403);
+        }
+        return view('livreur.covoiturage.edit_det.mode', compact('covoiturage'));
+    }
+    public function updateMode(Request $request, $id)
+    {
+        $covoiturage = Covoiturage::findOrFail($id);
+
+        if ($covoiturage->conducteur_id !== Auth::id()) {
+            return response()->json(['success' => false], 403);
+        }
+
+        $validated = $request->validate([
+            'booking_type' => 'required|in:instant,manual'
+        ]);
+
+        $covoiturage->update([
+            'booking_mode' => $validated['booking_type']
+        ]);
+
+        return redirect()->back()->with('success', 'Mode mis à jour');
     }
 }

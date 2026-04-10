@@ -59,23 +59,30 @@
                     </div>
                 </a>
 
-                <!-- Block: Route & Étapes -->
-                <a href="#"
-                    class="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm hover:shadow-md hover:border-blue-200 transition-all group text-left relative overflow-hidden block">
+                <!-- Block: Mode de réservation -->
+                <a href="{{ route('covoiturage.editMode', $trajet->covoiturage_id) }}"
+                    class="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm hover:shadow-md hover:border-green-200 transition-all group text-left relative overflow-hidden block">
+
                     <div
-                        class="absolute top-0 right-0 w-16 h-16 bg-blue-50 rounded-bl-full -mr-4 -mt-4 group-hover:bg-blue-100 transition-colors">
+                        class="absolute top-0 right-0 w-16 h-16 bg-green-50 rounded-bl-full -mr-4 -mt-4 group-hover:bg-green-100 transition-colors">
                     </div>
+
                     <div class="relative z-10">
                         <div
-                            class="p-3 bg-blue-50 rounded-2xl text-blue-600 w-fit mb-4 group-hover:bg-blue-600 group-hover:text-white transition-all">
+                            class="p-3 bg-green-50 rounded-2xl text-green-600 w-fit mb-4 group-hover:bg-green-600 group-hover:text-white transition-all">
+
+                            <!-- Icône réservation (check + user) -->
                             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7" />
+                                    d="M5 13l4 4L19 7M12 14v7m-7-7a7 7 0 1114 0H5z" />
                             </svg>
                         </div>
-                        <h3 class="font-bold text-slate-900 mb-1">Route & Étapes</h3>
-                        <p class="text-xs text-slate-400 font-medium leading-relaxed">Ajouter des arrêts intermédiaires et
-                            choisir la route.</p>
+
+                        <h3 class="font-bold text-slate-900 mb-1">Mode de réservation</h3>
+
+                        <p class="text-xs text-slate-400 font-medium leading-relaxed">
+                            Choisir le mode de réservation pour ce trajet.
+                        </p>
                     </div>
                 </a>
 
@@ -141,27 +148,38 @@
                         <span>Dupliquer</span>
                     </a>
 
-                    <!-- Lien Ajouter Retour -->
-                    <a href="#"
+                    <a href="{{ $trajet->retour
+                        ? route('covoiturage.edit-retour', $trajet->covoiturage_id)
+                        : route('covoiturage.add-retour', $trajet->covoiturage_id) }}"
                         class="flex-1 sm:flex-none flex items-center justify-center space-x-2 bg-slate-900 px-6 py-2.5 rounded-2xl text-white hover:bg-orange-600 transition-all shadow-md group font-bold text-xs uppercase tracking-wider">
+
                         <svg class="w-4 h-4 text-orange-400 group-hover:text-white transition-colors" fill="none"
                             stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                 d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
                         </svg>
-                        <span>Ajouter Retour</span>
+
+                        <span>
+                            {{ $trajet->retour ? 'Modifier Retour' : 'Ajouter Retour' }}
+                        </span>
                     </a>
                 </div>
+                <form action="{{ route('covoiturage.destroy', $trajet->covoiturage_id) }}" method="POST"
+                    onsubmit="return confirm('Voulez-vous vraiment supprimer ce trajet ?');" class="flex">
 
-                <!-- Lien Annuler -->
-                <a href="#"
-                    class="w-full sm:w-auto flex items-center justify-center space-x-2 text-red-500 hover:text-red-700 font-black text-[10px] uppercase tracking-[0.2em] transition-colors group">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                    </svg>
-                    <span>Supprimer le trajet</span>
-                </a>
+                    @csrf
+                    @method('DELETE')
+
+                    <button type="submit"
+                        class="w-full sm:w-auto flex items-center justify-center space-x-2 text-red-500 hover:text-red-700 font-black text-[10px] uppercase tracking-[0.2em] transition-colors group">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                        </svg>
+                        <span class="text-xs font-bold uppercase">Supprimer le trajet</span>
+                    </button>
+                </form>
+
             </div>
 
             <!-- Footer ID -->

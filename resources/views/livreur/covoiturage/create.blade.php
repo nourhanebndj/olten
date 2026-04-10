@@ -9,10 +9,8 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
 <style>
-    /* Configuration pour s'adapter à votre layout avec sidebar */
     .app-content-area {
         height: calc(100vh - 64px);
-        /* Ajustez 64px selon la hauteur de votre header si présent */
         display: flex;
         overflow: hidden;
     }
@@ -45,7 +43,6 @@
         flex-direction: column;
     }
 
-    /* Custom Scrollbar */
     .sidebar-panel::-webkit-scrollbar {
         width: 5px;
     }
@@ -57,6 +54,30 @@
     .sidebar-panel::-webkit-scrollbar-thumb {
         background: #cbd5e1;
         border-radius: 10px;
+    }
+
+    /* Panel droit décoratif (pages sans carte) */
+    .right-showcase {
+        flex: 1;
+        background: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 4rem;
+        text-align: center;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .right-showcase::before {
+        content: '';
+        position: absolute;
+        top: -120px;
+        right: -120px;
+        width: 400px;
+        height: 400px;
+        background: radial-gradient(circle, rgba(255, 60, 0, 0.03) 0%, transparent 70%);
+        border-radius: 50%;
     }
 
     .route-option {
@@ -102,7 +123,6 @@
         color: #ff3c00;
     }
 
-    /* Animation pulse pour le point de départ/arrivée */
     .marker-pulse {
         width: 12px;
         height: 12px;
@@ -207,7 +227,7 @@
         backdrop-filter: blur(4px);
         z-index: 100;
         display: none;
-        items-center;
+        align-items: center;
         justify-content: center;
         padding: 20px;
     }
@@ -232,9 +252,6 @@
         border-radius: 1px;
     }
 
-
-
-    /* Masquer le radio par défaut pour le styliser via le parent */
     .radio-custom:checked+.radio-card {
         border-color: #ff3c00;
         background-color: #fffaf9;
@@ -248,17 +265,195 @@
     .radio-custom:checked+.radio-card .label-text {
         color: #0f172a;
     }
+
+    .manual-stop-item {
+        animation: slideIn 0.3s ease-out;
+    }
+
+    @keyframes slideIn {
+        from {
+            opacity: 0;
+            transform: translateY(-10px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .manual-stop-item .delete-btn {
+        opacity: 0;
+        transition: opacity 0.2s;
+    }
+
+    .manual-stop-item:hover .delete-btn {
+        opacity: 1;
+    }
+
+    .popin-autocomplete-results {
+        position: absolute;
+        top: 100%;
+        left: 0;
+        right: 0;
+        background: white;
+        border-radius: 0 0 12px 12px;
+        box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
+        z-index: 200;
+        max-height: 200px;
+        overflow-y: auto;
+        border: 1px solid #e2e8f0;
+    }
+
+    .popin-autocomplete-results .autocomplete-item {
+        padding: 12px 16px;
+        cursor: pointer;
+        font-size: 0.9rem;
+        border-bottom: 1px solid #f1f5f9;
+    }
+
+    .popin-autocomplete-results .autocomplete-item:hover {
+        background: #f8fafc;
+        color: #ff3c00;
+    }
+
+    .drag-handle {
+        cursor: grab;
+    }
+
+    .drag-handle:active {
+        cursor: grabbing;
+    }
+
+    .sortable-ghost {
+        opacity: 0.4;
+        background: #fff7f5;
+    }
+
+    /* Floating animation for testimonial cards */
+    @keyframes floatCard {
+
+        0%,
+        100% {
+            transform: translateY(0);
+        }
+
+        50% {
+            transform: translateY(-8px);
+        }
+    }
+
+    .animate-float {
+        animation: floatCard 4s ease-in-out infinite;
+    }
+
+    .animate-float-delayed {
+        animation: floatCard 4s ease-in-out 1.5s infinite;
+    }
 </style>
 
 @section('content')
     <div class="app-content-area bg-white">
 
-        <!-- ÉTAPE 1: ITINÉRAIRE -->
+        <!-- ========== POPIN AJOUT ESCALE ALLER ========== -->
+        <div id="popin-add-stop" class="popin-overlay">
+            <div class="bg-white rounded-3xl shadow-2xl w-full max-w-md p-8 relative">
+                <button onclick="closeStopPopin('aller')"
+                    class="absolute top-4 right-4 text-slate-400 hover:text-slate-700 transition-colors">
+                    <i class="fa-solid fa-xmark text-xl"></i>
+                </button>
+                <div class="mb-6">
+                    <div
+                        class="w-14 h-14 bg-orange-100 rounded-2xl flex items-center justify-center text-[#ff3c00] text-2xl mb-4">
+                        <i class="fa-solid fa-map-pin"></i>
+                    </div>
+                    <h3 class="text-2xl font-black text-slate-900">Ajouter une escale</h3>
+                    <p class="text-slate-500 text-sm mt-1 font-medium">Recherchez une ville ou une adresse précise.</p>
+                </div>
+                <div class="relative">
+                    <div class="relative">
+                        <span class="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400">
+                            <i class="fa-solid fa-magnifying-glass"></i>
+                        </span>
+                        <input id="popin-stop-input" type="text" placeholder="Ex: Lyon, Marseille, Aix-en-Provence..."
+                            class="w-full pl-11 pr-4 py-4 rounded-xl border border-slate-200 focus:border-[#ff3c00] focus:ring-2 focus:ring-orange-100 transition-all outline-none font-medium"
+                            autocomplete="off">
+                    </div>
+                    <div id="popin-stop-results" class="popin-autocomplete-results hidden"></div>
+                </div>
+                <div id="popin-stop-selected" class="mt-4 hidden">
+                    <div class="flex items-center gap-3 p-4 bg-emerald-50 rounded-xl border border-emerald-200">
+                        <i class="fa-solid fa-circle-check text-emerald-500"></i>
+                        <span id="popin-stop-selected-name" class="font-bold text-slate-800 flex-1"></span>
+                        <button onclick="clearPopinSelection('aller')" class="text-slate-400 hover:text-red-500">
+                            <i class="fa-solid fa-xmark"></i>
+                        </button>
+                    </div>
+                </div>
+                <button id="popin-stop-confirm" onclick="confirmManualStop('aller')" disabled
+                    class="w-full mt-6 py-4 bg-slate-900 text-white rounded-xl font-bold text-lg disabled:opacity-30 disabled:cursor-not-allowed hover:bg-[#ff3c00] transition-all">
+                    Ajouter cette escale
+                </button>
+            </div>
+        </div>
+
+        <!-- ========== POPIN AJOUT ESCALE RETOUR ========== -->
+        <div id="popin-add-return-stop" class="popin-overlay">
+            <div class="bg-white rounded-3xl shadow-2xl w-full max-w-md p-8 relative">
+                <button onclick="closeStopPopin('retour')"
+                    class="absolute top-4 right-4 text-slate-400 hover:text-slate-700 transition-colors">
+                    <i class="fa-solid fa-xmark text-xl"></i>
+                </button>
+                <div class="mb-6">
+                    <div
+                        class="w-14 h-14 bg-orange-100 rounded-2xl flex items-center justify-center text-[#ff3c00] text-2xl mb-4">
+                        <i class="fa-solid fa-map-pin"></i>
+                    </div>
+                    <h3 class="text-2xl font-black text-slate-900">Escale retour</h3>
+                    <p class="text-slate-500 text-sm mt-1 font-medium">Ajoutez un point de passage pour le trajet retour.
+                    </p>
+                </div>
+                <div class="relative">
+                    <div class="relative">
+                        <span class="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400">
+                            <i class="fa-solid fa-magnifying-glass"></i>
+                        </span>
+                        <input id="popin-return-stop-input" type="text"
+                            placeholder="Ex: Lyon, Marseille, Aix-en-Provence..."
+                            class="w-full pl-11 pr-4 py-4 rounded-xl border border-slate-200 focus:border-[#ff3c00] focus:ring-2 focus:ring-orange-100 transition-all outline-none font-medium"
+                            autocomplete="off">
+                    </div>
+                    <div id="popin-return-stop-results" class="popin-autocomplete-results hidden"></div>
+                </div>
+                <div id="popin-return-stop-selected" class="mt-4 hidden">
+                    <div class="flex items-center gap-3 p-4 bg-emerald-50 rounded-xl border border-emerald-200">
+                        <i class="fa-solid fa-circle-check text-emerald-500"></i>
+                        <span id="popin-return-stop-selected-name" class="font-bold text-slate-800 flex-1"></span>
+                        <button onclick="clearPopinSelection('retour')" class="text-slate-400 hover:text-red-500">
+                            <i class="fa-solid fa-xmark"></i>
+                        </button>
+                    </div>
+                </div>
+                <button id="popin-return-stop-confirm" onclick="confirmManualStop('retour')" disabled
+                    class="w-full mt-6 py-4 bg-slate-900 text-white rounded-xl font-bold text-lg disabled:opacity-30 disabled:cursor-not-allowed hover:bg-[#ff3c00] transition-all">
+                    Ajouter cette escale
+                </button>
+            </div>
+        </div>
+
+        <!-- ===================================================== -->
+        <!-- ÉTAPE 1: ITINÉRAIRE                                    -->
+        <!-- ===================================================== -->
         <section id="view-itinerary" class="step-view active">
             <div class="sidebar-panel p-6">
                 <div class="mb-8">
-                    <h1 class="text-2xl font-black text-slate-800">Planifiez votre <span class="text-[#ff3c00]">trajet</span>
-                    </h1>
+                    <span
+                        class="inline-block px-3 py-1 rounded-full bg-orange-100 text-[#ff3c00] text-xs font-bold uppercase tracking-wider mb-2">Déstnation</span>
+                    <h1 class="text-2xl font-black text-slate-800">Planifiez votre <span
+                            class="text-[#ff3c00]">trajet</span></h1>
+                    <p class="text-sm text-slate-500 mt-2 font-medium">Indiquez votre point de départ et votre destination.
+                    </p>
+
                 </div>
 
                 <div class="space-y-6 flex-1">
@@ -266,7 +461,7 @@
                         <label class="block text-xs font-bold text-slate-500 uppercase mb-2 tracking-widest">Lieu de
                             départ</label>
                         <div class="relative">
-                            <span class="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"><i
+                            <span class="absolute left-4 top-1/2 -translate-y-1/2 text-emerald-500"><i
                                     class="fa-solid fa-location-dot"></i></span>
                             <input id="input-start" type="text" placeholder="Entrez une ville ou adresse..."
                                 class="w-full pl-11 pr-4 py-4 rounded-xl border border-slate-200 focus:border-[#ff3c00] focus:ring-2 focus:ring-orange-100 transition-all outline-none font-medium">
@@ -278,7 +473,7 @@
                         <label
                             class="block text-xs font-bold text-slate-500 uppercase mb-2 tracking-widest">Destination</label>
                         <div class="relative">
-                            <span class="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"><i
+                            <span class="absolute left-4 top-1/2 -translate-y-1/2 text-[#ff3c00]"><i
                                     class="fa-solid fa-flag-checkered"></i></span>
                             <input id="input-end" type="text" placeholder="Où allez-vous ?"
                                 class="w-full pl-11 pr-4 py-4 rounded-xl border border-slate-200 focus:border-[#ff3c00] focus:ring-2 focus:ring-orange-100 transition-all outline-none font-medium">
@@ -299,26 +494,22 @@
             </div>
         </section>
 
-        <!-- ÉTAPE 2: CHOIX DE LA ROUTE -->
+        <!-- ===================================================== -->
+        <!-- ÉTAPE 2: CHOIX DE LA ROUTE                             -->
+        <!-- ===================================================== -->
         <section id="view-route" class="step-view">
             <div class="sidebar-panel p-6">
                 <button onclick="changeView('view-itinerary')"
                     class="mb-6 text-slate-500 hover:text-slate-800 font-bold flex items-center gap-2 transition-colors">
                     <i class="fa-solid fa-chevron-left text-xs"></i> Modifier les adresses
                 </button>
-
                 <div class="mb-6">
                     <span
-                        class="inline-block px-3 py-1 rounded-full bg-orange-100 text-[#ff3c00] text-xs font-bold uppercase tracking-wider mb-2">Étape
-                        2/4</span>
+                        class="inline-block px-3 py-1 rounded-full bg-orange-100 text-[#ff3c00] text-xs font-bold uppercase tracking-wider mb-2">Route</span>
                     <h2 class="text-2xl font-black text-slate-800">Choisissez votre <span
                             class="text-[#ff3c00]">route</span></h2>
                 </div>
-
-                <div id="routes-list" class="space-y-4 flex-1 overflow-y-auto pr-2">
-                    <!-- Injecté par JS -->
-                </div>
-
+                <div id="routes-list" class="space-y-4 flex-1 overflow-y-auto pr-2"></div>
                 <div class="pt-6 border-t border-slate-100">
                     <button id="btn-validate-route"
                         class="w-full py-4 bg-slate-900 text-white rounded-xl font-bold text-lg hover:bg-[#ff3c00] transition-all">
@@ -331,29 +522,45 @@
             </div>
         </section>
 
-        <!-- ÉTAPE 3: ÉTAPES INTERMÉDIAIRES -->
+        <!-- ===================================================== -->
+        <!-- ÉTAPE 3: ÉTAPES INTERMÉDIAIRES (ALLER)                 -->
+        <!-- ===================================================== -->
         <section id="view-steps" class="step-view">
             <div class="sidebar-panel p-6">
                 <button onclick="changeView('view-route')"
                     class="mb-6 text-slate-500 hover:text-slate-800 font-bold flex items-center gap-2 transition-colors">
                     <i class="fa-solid fa-chevron-left text-xs"></i> Retour aux routes
                 </button>
-
                 <div class="mb-6">
                     <span
-                        class="inline-block px-3 py-1 rounded-full bg-orange-100 text-[#ff3c00] text-xs font-bold uppercase tracking-wider mb-2">Étape
-                        3/4</span>
+                        class="inline-block px-3 py-1 rounded-full bg-orange-100 text-[#ff3c00] text-xs font-bold uppercase tracking-wider mb-2">Éscales</span>
                     <h2 class="text-2xl font-black text-slate-800">Points de <span class="text-[#ff3c00]">passage</span>
                     </h2>
-                    <p class="text-sm text-slate-500 mt-2 font-medium">Sélectionnez les villes où vous souhaitez faire une
-                        halte.</p>
+                    <p class="text-sm text-slate-500 mt-2 font-medium">Sélectionnez les villes détectées ou ajoutez vos
+                        propres escales.</p>
                 </div>
 
-                <div id="intermediate-cities" class="flex-1 overflow-y-auto space-y-3 pr-2">
-                    <!-- Injecté par JS -->
+                <div class="mb-4">
+                    <p class="text-[10px] font-black uppercase text-slate-400 tracking-widest mb-3">
+                        <i class="fa-solid fa-wand-magic-sparkles mr-1 text-[#ff3c00]"></i> Détectées sur la route
+                    </p>
+                    <div id="intermediate-cities" class="space-y-3"></div>
                 </div>
 
-                <div class="pt-6 border-t border-slate-100">
+                <div class="flex items-center gap-3 my-5">
+                    <div class="flex-1 h-px bg-slate-200"></div>
+                    <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Escales manuelles</span>
+                    <div class="flex-1 h-px bg-slate-200"></div>
+                </div>
+
+                <div id="manual-stops-list" class="space-y-3 mb-4"></div>
+
+                <button onclick="openStopPopin('aller')"
+                    class="w-full py-3 border-2 border-dashed border-slate-200 rounded-xl text-slate-500 font-bold hover:border-[#ff3c00] hover:text-[#ff3c00] transition-all flex items-center justify-center gap-2">
+                    <i class="fa-solid fa-plus"></i> Ajouter une escale
+                </button>
+
+                <div class="pt-6 border-t border-slate-100 mt-6">
                     <button id="btn-confirm-steps"
                         class="w-full py-4 bg-slate-900 text-white rounded-xl font-bold text-lg hover:bg-[#ff3c00] transition-all">
                         Générer le récapitulatif
@@ -365,10 +572,14 @@
             </div>
         </section>
 
-        <!-- ÉTAPE 4: RÉCAPITULATIF -->
+        <!-- ===================================================== -->
+        <!-- ÉTAPE 4: RÉCAPITULATIF                                 -->
+        <!-- ===================================================== -->
         <section id="view-summary" class="step-view">
             <div class="sidebar-panel p-6">
                 <div class="mb-8">
+                    <span
+                        class="inline-block px-3 py-1 rounded-full bg-orange-100 text-[#ff3c00] text-xs font-bold uppercase tracking-wider mb-3">Récapitulatif</span>
                     <h2 class="text-2xl font-black text-slate-800">Finalisez votre <span
                             class="text-[#ff3c00]">mission</span></h2>
                     <p class="text-sm text-slate-500 mt-2 font-medium">Vérifiez les détails de votre itinéraire avant de
@@ -381,7 +592,6 @@
                         </p>
                         <ul id="selected-steps"
                             class="space-y-4 relative before:content-[''] before:absolute before:left-[11px] before:top-2 before:bottom-2 before:w-[2px] before:bg-slate-200">
-                            <!-- Injecté par JS -->
                         </ul>
                     </div>
                 </div>
@@ -389,14 +599,12 @@
                 <div class="pt-6 border-t border-slate-100 space-y-3">
                     <button onclick="changeView('view-steps')"
                         class="w-full py-3 bg-slate-100 text-slate-600 rounded-xl font-bold hover:bg-slate-200 transition-all">
-                        Modifier
+                        <i class="fa-solid fa-pen mr-2 text-xs"></i> Modifier
                     </button>
                     <button id="btn-final" onclick="changeView('view-datetime')"
                         class="w-full py-4 bg-[#ff3c00] text-white rounded-xl font-bold text-lg">
                         Continuer
                     </button>
-
-
                 </div>
             </div>
             <div class="map-container-traj">
@@ -404,18 +612,25 @@
             </div>
         </section>
 
-
+        <!-- ===================================================== -->
+        <!-- DATE & HEURE DE DÉPART                                 -->
+        <!-- ===================================================== -->
         <section id="view-datetime" class="step-view">
-            <div class="w-full md:w-[450px] p-8 border-r border-slate-100 flex flex-col">
-                <button class="mb-6 text-slate-400 font-bold flex items-center gap-2 hover:text-slate-600">
+            <div class="sidebar-panel p-8">
+                <button onclick="changeView('view-summary')"
+                    class="mb-6 text-slate-400 font-bold flex items-center gap-2 hover:text-slate-600 transition-colors">
                     <i class="fa-solid fa-arrow-left"></i> Itinéraire
                 </button>
+
+                <div class="mb-2">
+                    <span
+                        class="inline-block px-3 py-1 rounded-full bg-orange-100 text-[#ff3c00] text-xs font-bold uppercase tracking-wider mb-3">Horaires</span>
+                </div>
                 <h2 class="text-3xl font-black text-slate-900 mb-2">Quand <span class="text-[#ff3c00]">partez-vous</span>
                     ?</h2>
                 <p class="text-slate-500 mb-10 font-medium">Indiquez simplement la date et l'heure de votre départ.</p>
 
                 <div class="space-y-8 flex-1">
-                    <!-- CHAMP DATE NORMAL -->
                     <div class="space-y-3">
                         <label class="block text-[11px] font-black text-slate-400 uppercase tracking-widest">Date de
                             départ</label>
@@ -423,11 +638,10 @@
                             class="flex items-center gap-4 p-5 bg-slate-50 rounded-2xl border border-slate-100 focus-within:border-[#ff3c00] transition-colors">
                             <i class="fa-solid fa-calendar text-[#ff3c00] text-xl"></i>
                             <input type="date" id="input-date"
-                                class="bg-transparent text-xl font-bold text-slate-900 w-full" value="2026-04-01">
+                                class="bg-transparent text-xl font-bold text-slate-900 w-full outline-none"
+                                value="2026-04-01">
                         </div>
                     </div>
-
-                    <!-- CHAMP HEURE NORMAL -->
                     <div class="space-y-3">
                         <label class="block text-[11px] font-black text-slate-400 uppercase tracking-widest">Heure de
                             rendez-vous</label>
@@ -435,7 +649,8 @@
                             class="flex items-center gap-4 p-5 bg-slate-50 rounded-2xl border border-slate-100 focus-within:border-[#ff3c00] transition-colors">
                             <i class="fa-solid fa-clock text-[#ff3c00] text-xl"></i>
                             <input type="time" id="input-time"
-                                class="bg-transparent text-xl font-bold text-slate-900 w-full" value="08:30">
+                                class="bg-transparent text-xl font-bold text-slate-900 w-full outline-none"
+                                value="08:30">
                         </div>
                     </div>
                 </div>
@@ -446,27 +661,19 @@
                 </div>
             </div>
 
-            <div
-                class="hidden md:flex flex-1 bg-white items-center justify-center p-16 text-center border-l border-slate-100 min-h-screen">
-                <div class="max-w-md">
-                    <!-- Icône minimaliste sans conteneur arrondi -->
+            <div class="right-showcase hidden md:flex">
+                <div class="max-w-md relative z-10">
                     <div class="text-[#ff3c00] text-6xl mb-8">
                         <i class="fa-solid fa-clock-rotate-left"></i>
                     </div>
-
-                    <!-- Texte avec typographie premium -->
                     <h3 class="text-4xl font-black text-slate-900 mb-6 uppercase tracking-tighter">
                         Rapide et <span class="text-[#ff3c00]">efficace</span>.
                     </h3>
-
-                    <!-- Ligne de séparation minimaliste -->
                     <div class="w-16 h-1 bg-[#ff3c00] mx-auto mb-8"></div>
-
                     <p class="text-slate-500 text-lg font-medium leading-relaxed">
                         Pas de fioritures, allez droit à l'essentiel pour publier votre
                         <span class="text-slate-900 font-black">annonce en moins de 2 minutes</span>.
                     </p>
-
                     <div class="mt-12 text-[10px] font-black text-slate-300 uppercase tracking-[0.3em]">
                         Simple • Direct • Instantané
                     </div>
@@ -474,14 +681,20 @@
             </div>
         </section>
 
-
-        <!-- PAGE 5.1 : PASSAGERS ET OPTIONS (Remplace votre step-summary ou s'insère après) -->
+        <!-- ===================================================== -->
+        <!-- PASSAGERS ET OPTIONS                                   -->
+        <!-- ===================================================== -->
         <section id="view-datetimeed" class="step-view">
             <div class="sidebar-panel p-8">
                 <button onclick="changeView('view-summary')"
-                    class="mb-6 text-slate-400 font-bold flex items-center gap-2 hover:text-slate-600">
+                    class="mb-6 text-slate-400 font-bold flex items-center gap-2 hover:text-slate-600 transition-colors">
                     <i class="fa-solid fa-arrow-left"></i> Résumé
                 </button>
+
+                <div class="mb-2">
+                    <span
+                        class="inline-block px-3 py-1 rounded-full bg-orange-100 text-[#ff3c00] text-xs font-bold uppercase tracking-wider mb-3">Passagers</span>
+                </div>
                 <h2 class="text-3xl font-black text-slate-900 mb-2">Qui <span class="text-[#ff3c00]">voyage</span> ?</h2>
                 <p class="text-slate-500 mb-8 font-medium">Configurez le confort et la sécurité de votre trajet.</p>
 
@@ -493,12 +706,14 @@
                             <span class="font-bold text-slate-700">Nombre de passagers</span>
                             <div class="flex items-center gap-6">
                                 <button onclick="updateQty('passengers', -1)"
-                                    class="w-10 h-10 rounded-full bg-white border border-slate-200 flex items-center justify-center hover:bg-slate-100 transition-all shadow-sm"><i
-                                        class="fa-solid fa-minus"></i></button>
+                                    class="w-10 h-10 rounded-full bg-white border border-slate-200 flex items-center justify-center hover:bg-slate-100 transition-all shadow-sm">
+                                    <i class="fa-solid fa-minus text-sm"></i>
+                                </button>
                                 <span id="qty-passengers" class="text-2xl font-black text-slate-900">3</span>
                                 <button onclick="updateQty('passengers', 1)"
-                                    class="w-10 h-10 rounded-full bg-white border border-slate-200 flex items-center justify-center hover:bg-slate-100 transition-all shadow-sm"><i
-                                        class="fa-solid fa-plus"></i></button>
+                                    class="w-10 h-10 rounded-full bg-white border border-slate-200 flex items-center justify-center hover:bg-slate-100 transition-all shadow-sm">
+                                    <i class="fa-solid fa-plus text-sm"></i>
+                                </button>
                             </div>
                         </div>
                     </div>
@@ -507,46 +722,39 @@
                         <label class="block text-[11px] font-black text-slate-400 uppercase tracking-[0.2em]">Préférences
                             de trajet</label>
                         <div class="space-y-3">
-
-                            <!-- Option 1 -->
                             <label class="relative cursor-pointer block">
                                 <input type="radio" name="passengerMode" value="mixed" checked
                                     class="radio-custom hidden">
                                 <div
-                                    class="radio-card flex items-center justify-between p-5 border border-slate-100 bg-white transition-all duration-200">
+                                    class="radio-card flex items-center justify-between p-5 rounded-xl border border-slate-100 bg-white transition-all duration-200">
                                     <span class="label-text font-bold text-slate-500 transition-colors">Mixte (Tout le
                                         monde)</span>
                                     <i
                                         class="fa-solid fa-circle-check check-icon text-[#ff3c00] opacity-0 scale-75 transition-all duration-200"></i>
                                 </div>
                             </label>
-
-                            <!-- Option 2 -->
                             <label class="relative cursor-pointer block">
                                 <input type="radio" name="passengerMode" value="womenOnly"
                                     class="radio-custom hidden">
                                 <div
-                                    class="radio-card flex items-center justify-between p-5 border border-slate-100 bg-white transition-all duration-200">
+                                    class="radio-card flex items-center justify-between p-5 rounded-xl border border-slate-100 bg-white transition-all duration-200">
                                     <span class="label-text font-bold text-slate-500 transition-colors">Entre femmes
                                         uniquement</span>
                                     <i
                                         class="fa-solid fa-circle-check check-icon text-[#ff3c00] opacity-0 scale-75 transition-all duration-200"></i>
                                 </div>
                             </label>
-
-                            <!-- Option 3 -->
                             <label class="relative cursor-pointer block">
                                 <input type="radio" name="passengerMode" value="maxBackSeats"
                                     class="radio-custom hidden">
                                 <div
-                                    class="radio-card flex items-center justify-between p-5 border border-slate-100 bg-white transition-all duration-200">
+                                    class="radio-card flex items-center justify-between p-5 rounded-xl border border-slate-100 bg-white transition-all duration-200">
                                     <span class="label-text font-bold text-slate-500 transition-colors">Maximum 2 places à
                                         l'arrière</span>
                                     <i
                                         class="fa-solid fa-circle-check check-icon text-[#ff3c00] opacity-0 scale-75 transition-all duration-200"></i>
                                 </div>
                             </label>
-
                         </div>
                     </div>
                 </div>
@@ -556,10 +764,9 @@
                         class="w-full py-4 bg-slate-900 text-white rounded-2xl font-black hover:bg-black transition-all shadow-xl">Continuer</button>
                 </div>
             </div>
-            <!-- Bloc de Droite : Design Pro Minimaliste -->
-            <div
-                class="hidden md:flex flex-1 bg-white items-center justify-center p-16 text-center border-l border-slate-50">
-                <div class="max-w-md">
+
+            <div class="right-showcase hidden md:flex">
+                <div class="max-w-md relative z-10">
                     <div class="text-[#ff3c00] text-6xl mb-8">
                         <i class="fa-solid fa-car-side"></i>
                     </div>
@@ -578,17 +785,24 @@
             </div>
         </section>
 
-        <!-- PAGE 5.2 : RÉSERVATION -->
+        <!-- ===================================================== -->
+        <!-- RÉSERVATION                                            -->
+        <!-- ===================================================== -->
         <section id="view-booking" class="step-view">
             <div class="sidebar-panel p-8">
-                <button onclick="nextSubStep('step-5-passengers')"
-                    class="mb-6 text-slate-400 font-bold flex items-center gap-2 hover:text-slate-600"><i
-                        class="fa-solid fa-arrow-left"></i> Passagers</button>
-                <h2 class="text-3xl font-black text-slate-900 mb-6">Mode de <span
-                        class="text-[#ff3c00]">réservation</span>
-                </h2>
+                <button onclick="changeView('view-datetimeed')"
+                    class="mb-6 text-slate-400 font-bold flex items-center gap-2 hover:text-slate-600 transition-colors">
+                    <i class="fa-solid fa-arrow-left"></i> Passagers
+                </button>
 
-                <div class="space-y-4">
+                <div class="mb-2">
+                    <span
+                        class="inline-block px-3 py-1 rounded-full bg-orange-100 text-[#ff3c00] text-xs font-bold uppercase tracking-wider mb-3">Réservation</span>
+                </div>
+                <h2 class="text-3xl font-black text-slate-900 mb-6">Mode de <span
+                        class="text-[#ff3c00]">réservation</span></h2>
+
+                <div class="space-y-4 flex-1">
                     <div onclick="selectBooking(this)" data-mode="instant" class="card-option selected">
                         <div class="flex items-center justify-between mb-4">
                             <div
@@ -617,7 +831,7 @@
                     </div>
                 </div>
 
-                <div class="mt-auto pt-8 border-t border-slate-100">
+                <div class="pt-8 border-t border-slate-100">
                     <button onclick="goToPricing()"
                         class="w-full py-4 bg-slate-900 text-white rounded-2xl font-black hover:bg-black transition-all">
                         Valider mon choix
@@ -625,11 +839,8 @@
                 </div>
             </div>
 
-            <div class="hidden md:flex flex-1 bg-white items-center justify-center p-8 lg:p-16 relative overflow-hidden">
-                <!-- Décoration de fond subtile -->
+            <div class="right-showcase hidden md:flex relative overflow-hidden">
                 <div class="absolute top-0 right-0 w-1/2 h-full bg-slate-50/30 -skew-x-12 translate-x-20"></div>
-
-                <!-- Container limité à 90vh et plus compact -->
                 <div class="max-w-xl w-full max-h-[90vh] relative z-10 flex flex-col justify-center">
                     <header class="mb-8">
                         <div
@@ -640,9 +851,7 @@
                             Pourquoi l'<span class="text-[#ff3c00]">instantané</span> ?
                         </h2>
                     </header>
-
                     <div class="grid grid-cols-1 gap-8">
-                        <!-- Point 1 -->
                         <div class="group border-l-4 border-[#ff3c00] pl-6 py-1">
                             <span class="text-[#ff3c00] font-black text-[10px] uppercase tracking-[0.3em] mb-1 block">01.
                                 Visibilité</span>
@@ -653,8 +862,6 @@
                                     class="text-slate-900 font-bold underline decoration-[#ff3c00] decoration-2">priorisées</span>.
                             </p>
                         </div>
-
-                        <!-- Point 2 -->
                         <div
                             class="group border-l-4 border-slate-100 hover:border-[#ff3c00] pl-6 py-1 transition-colors duration-500">
                             <span
@@ -668,14 +875,12 @@
                             </p>
                         </div>
                     </div>
-
-                    <!-- Footer de l'argumentaire -->
                     <div class="mt-10 pt-6 border-t border-slate-50 flex items-center gap-4">
                         <div class="flex -space-x-2">
-                            <div class="w-8 h-8 border-2 border-white bg-slate-200"></div>
-                            <div class="w-8 h-8 border-2 border-white bg-slate-300"></div>
+                            <div class="w-8 h-8 border-2 border-white bg-slate-200 rounded-full"></div>
+                            <div class="w-8 h-8 border-2 border-white bg-slate-300 rounded-full"></div>
                             <div
-                                class="w-8 h-8 border-2 border-white bg-[#ff3c00] flex items-center justify-center text-white text-[9px] font-black">
+                                class="w-8 h-8 border-2 border-white bg-[#ff3c00] rounded-full flex items-center justify-center text-white text-[9px] font-black">
                                 +5k</div>
                         </div>
                         <p
@@ -686,36 +891,33 @@
             </div>
         </section>
 
-        <!-- PAGE 5.3 : PRIX -->
+        <!-- ===================================================== -->
+        <!-- PRIX ALLER                                             -->
+        <!-- ===================================================== -->
         <section id="view-pricing" class="step-view">
             <div class="sidebar-panel p-8">
                 <button onclick="changeView('view-booking')"
-                    class="mb-6 text-slate-400 font-bold flex items-center gap-2 hover:text-slate-600">
+                    class="mb-6 text-slate-400 font-bold flex items-center gap-2 hover:text-slate-600 transition-colors">
                     <i class="fa-solid fa-arrow-left"></i> Réservation
                 </button>
+                <div class="mb-2">
+                    <span
+                        class="inline-block px-3 py-1 rounded-full bg-orange-100 text-[#ff3c00] text-xs font-bold uppercase tracking-wider mb-3">Tarification</span>
+                </div>
                 <h2 class="text-3xl font-black text-slate-900 mb-2">Fixez vos <span class="text-[#ff3c00]">prix</span>
                 </h2>
                 <p class="text-slate-500 mb-8 font-medium">Prix par passager pour chaque étape.</p>
 
-                <div id="pricing-steps-container" class="space-y-6 flex-1 overflow-y-auto">
-                    <!-- Dynamique -->
-                    <div class="p-4 bg-slate-50 rounded-2xl border border-slate-100">
-                        <div class="flex justify-between items-center mb-3">
-                            <span class="font-bold text-slate-800">Paris → Lyon</span>
-                            <span class="text-[#ff3c00] font-black">25€</span>
-                        </div>
-                        <input type="range"
-                            class="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-[#ff3c00]">
-                    </div>
-                </div>
+                <div id="pricing-steps-container" class="space-y-6 flex-1 overflow-y-auto"></div>
 
                 <div class="pt-8 border-t border-slate-100">
                     <button onclick="changeView('view-final')"
                         class="w-full py-4 bg-slate-900 text-white rounded-2xl font-black">Continuer</button>
                 </div>
             </div>
-            <div class="flex-1 bg-white flex items-center justify-center">
-                <div class="max-w-md w-full text-center">
+
+            <div class="right-showcase hidden md:flex">
+                <div class="max-w-md w-full relative z-10">
                     <div class="mb-8 p-10 bg-white rounded-[2.5rem] shadow-xl border border-slate-100">
                         <p class="text-xs font-black text-slate-400 uppercase tracking-widest mb-4">Prix total suggéré</p>
                         <div class="text-6xl font-black text-slate-900 mb-2">45<span
@@ -729,17 +931,25 @@
             </div>
         </section>
 
-        <!-- PAGE FINAL : RETOUR ET PUBLICATION -->
+        <!-- ===================================================== -->
+        <!-- RETOUR ET PUBLICATION                                  -->
+        <!-- ===================================================== -->
         <section id="view-final" class="step-view">
             <div class="sidebar-panel p-8">
                 <button onclick="changeView('view-pricing')"
-                    class="mb-6 text-slate-400 font-bold flex items-center gap-2 hover:text-slate-600">
+                    class="mb-6 text-slate-400 font-bold flex items-center gap-2 hover:text-slate-600 transition-colors">
                     <i class="fa-solid fa-arrow-left"></i> Tarification
                 </button>
-                <h2 class="text-3xl font-black text-slate-900 mb-6">Dernière <span class="text-[#ff3c00]">étape</span>
+                <div class="mb-2">
+                    <span
+                        class="inline-block px-3 py-1 rounded-full bg-orange-100 text-[#ff3c00] text-xs font-bold uppercase tracking-wider mb-3">Dernière
+                        étape</span>
+                </div>
+                <h2 class="text-3xl font-black text-slate-900 mb-2">Trajet <span class="text-[#ff3c00]">retour</span> ?
                 </h2>
+                <p class="text-slate-500 mb-6 font-medium">Souhaitez-vous proposer un trajet retour ?</p>
 
-                <div class="space-y-4">
+                <div class="space-y-4 flex-1">
                     <div onclick="selectReturn(this, true)" class="card-option">
                         <div
                             class="w-12 h-12 bg-emerald-100 rounded-2xl flex items-center justify-center text-emerald-600 text-xl mb-4">
@@ -760,38 +970,27 @@
                             le moment.</p>
                     </div>
                 </div>
+
                 <div class="pt-8 border-t border-slate-100">
-                    <!-- Bouton en bas -->
                     <button id="btn-final-action"
-                        class="w-full py-4 mt-6 bg-slate-900 text-white rounded-2xl font-black hover:bg-black transition-all shadow-xl">
+                        class="w-full py-4 bg-slate-900 text-white rounded-2xl font-black hover:bg-black transition-all shadow-xl">
                         Publier le projet
                     </button>
-
                 </div>
-
-
             </div>
-            <!-- Partie Droite (White Clear Design - Décollage) -->
-            <div class="flex-1 bg-white flex items-center justify-center text-center p-12 relative overflow-hidden">
-                <!-- Subtle background decoration -->
-                <div class="absolute top-0 right-0 w-64 h-64 bg-slate-50 rounded-full blur-3xl -mr-32 -mt-32 opacity-50">
-                </div>
 
-                <div class="max-w-md w-full animate-fluid">
+            <div class="right-showcase hidden md:flex">
+                <div class="max-w-md w-full relative z-10">
                     <div
-                        class="w-32 h-32 bg-slate-50 rounded-[2.5rem] mx-auto flex items-center justify-center text-slate-900 text-5xl mb-10 animate-soft-bounce shadow-sm border border-slate-100/50">
+                        class="w-32 h-32 bg-slate-50 rounded-[2.5rem] mx-auto flex items-center justify-center text-5xl mb-10 shadow-sm border border-slate-100/50">
                         <i class="fa-solid fa-paper-plane text-[#ff3c00]"></i>
                     </div>
-
                     <h2 class="text-5xl font-black text-slate-900 mb-6 tracking-tight leading-none uppercase">
                         Prêt à <span class="text-[#ff3c00]">décoller</span> ?
                     </h2>
-
                     <p class="text-slate-400 text-lg font-medium leading-relaxed">
                         Votre annonce est complète et prête à être vue par la communauté.
                     </p>
-
-                    <!-- Decorative element -->
                     <div class="mt-12 flex justify-center gap-2">
                         <div class="w-1 h-1 rounded-full bg-slate-200"></div>
                         <div class="w-12 h-1 rounded-full bg-slate-100"></div>
@@ -801,127 +1000,224 @@
             </div>
         </section>
 
+        <!-- ===================================================== -->
+        <!-- DATE & HEURE DU RETOUR                                 -->
+        <!-- ===================================================== -->
         <section id="view-return-datetime" class="step-view">
             <div class="sidebar-panel p-8">
-                <button onclick="changeView('view-final')" class="mb-6 text-slate-400 font-bold">
-                    ← Retour
+                <button onclick="changeView('view-final')"
+                    class="mb-6 text-slate-400 font-bold flex items-center gap-2 hover:text-slate-600 transition-colors">
+                    <i class="fa-solid fa-arrow-left"></i> Retour
                 </button>
 
-                <h3 class="text-xl font-black mb-6">Date et heure du retour</h3>
+                <div class="mb-2">
+                    <span
+                        class="inline-block px-3 py-1 rounded-full bg-orange-100 text-[#ff3c00] text-xs font-bold uppercase tracking-wider mb-3">Retour</span>
+                </div>
+                <h2 class="text-3xl font-black text-slate-900 mb-2">Quand <span class="text-[#ff3c00]">rentrez-vous</span>
+                    ?</h2>
+                <p class="text-slate-500 mb-10 font-medium">Indiquez la date et l'heure de votre trajet retour.</p>
 
-                <div class="space-y-4">
-                    <div>
-                        <label class="text-sm font-bold text-slate-600">Date</label>
-                        <input type="date" id="return-date"
-                            class="w-full mt-1 p-3 rounded-xl border border-slate-200">
+                <div class="space-y-8 flex-1">
+                    <div class="space-y-3">
+                        <label class="block text-[11px] font-black text-slate-400 uppercase tracking-widest">Date de
+                            retour</label>
+                        <div
+                            class="flex items-center gap-4 p-5 bg-slate-50 rounded-2xl border border-slate-100 focus-within:border-[#ff3c00] transition-colors">
+                            <i class="fa-solid fa-calendar text-[#ff3c00] text-xl"></i>
+                            <input type="date" id="return-date"
+                                class="bg-transparent text-xl font-bold text-slate-900 w-full outline-none">
+                        </div>
                     </div>
-
-                    <div>
-                        <label class="text-sm font-bold text-slate-600">Heure</label>
-                        <input type="time" id="return-time"
-                            class="w-full mt-1 p-3 rounded-xl border border-slate-200">
+                    <div class="space-y-3">
+                        <label class="block text-[11px] font-black text-slate-400 uppercase tracking-widest">Heure de
+                            retour</label>
+                        <div
+                            class="flex items-center gap-4 p-5 bg-slate-50 rounded-2xl border border-slate-100 focus-within:border-[#ff3c00] transition-colors">
+                            <i class="fa-solid fa-clock text-[#ff3c00] text-xl"></i>
+                            <input type="time" id="return-time"
+                                class="bg-transparent text-xl font-bold text-slate-900 w-full outline-none">
+                        </div>
                     </div>
                 </div>
 
-                <button id="btn-go-return-pricing"
-                    class="w-full mt-8 py-4 bg-slate-900 text-white rounded-2xl font-black">
-                    Continuer
-                </button>
+                <div class="pt-8 border-t border-slate-100">
+                    <button id="btn-go-return-pricing"
+                        class="w-full py-4 bg-slate-900 text-white rounded-2xl font-black hover:bg-black transition-all shadow-xl text-lg">
+                        Continuer
+                    </button>
+                </div>
+            </div>
+
+            <div class="right-showcase hidden md:flex">
+                <div class="max-w-md relative z-10">
+                    <div class="text-[#ff3c00] text-6xl mb-8">
+                        <i class="fa-solid fa-rotate-left"></i>
+                    </div>
+                    <h3 class="text-4xl font-black text-slate-900 mb-6 uppercase tracking-tighter">
+                        Le <span class="text-[#ff3c00]">retour</span>, c'est maintenant.
+                    </h3>
+                    <div class="w-16 h-1 bg-[#ff3c00] mx-auto mb-8"></div>
+                    <p class="text-slate-500 text-lg font-medium leading-relaxed">
+                        Proposez un retour pour
+                        <span class="text-slate-900 font-black">doubler vos chances</span> de trouver des passagers.
+                    </p>
+                    <div class="mt-12 text-[10px] font-black text-slate-300 uppercase tracking-[0.3em]">
+                        Aller • Retour • Rentable
+                    </div>
+                </div>
             </div>
         </section>
+
+        <!-- ===================================================== -->
+        <!-- ROUTE RETOUR                                           -->
+        <!-- ===================================================== -->
         <section id="view-return-route" class="step-view">
             <div class="sidebar-panel p-6">
                 <button onclick="changeView('view-return-datetime')"
                     class="mb-6 text-slate-500 hover:text-slate-800 font-bold flex items-center gap-2 transition-colors">
                     <i class="fa-solid fa-chevron-left text-xs"></i> Date retour
                 </button>
-
                 <div class="mb-6">
                     <span
-                        class="inline-block px-3 py-1 rounded-full bg-orange-100 text-[#ff3c00] text-xs font-bold uppercase tracking-wider mb-2">
-                        Retour
-                    </span>
-                    <h2 class="text-2xl font-black text-slate-800">
-                        Choisissez la <span class="text-[#ff3c00]">route retour</span>
-                    </h2>
+                        class="inline-block px-3 py-1 rounded-full bg-orange-100 text-[#ff3c00] text-xs font-bold uppercase tracking-wider mb-2">Retour</span>
+                    <h2 class="text-2xl font-black text-slate-800">Choisissez la <span class="text-[#ff3c00]">route
+                            retour</span></h2>
                 </div>
-
                 <div id="return-routes-list" class="space-y-4 flex-1 overflow-y-auto pr-2"></div>
-
                 <div class="pt-6 border-t border-slate-100">
                     <button id="btn-validate-return-route"
-                        class="w-full py-4 bg-slate-900 text-white rounded-xl font-bold text-lg">
+                        class="w-full py-4 bg-slate-900 text-white rounded-xl font-bold text-lg hover:bg-[#ff3c00] transition-all">
                         Confirmer la route retour
                     </button>
                 </div>
             </div>
-
             <div class="map-container-traj">
                 <div id="map-return-route" class="h-full w-full"></div>
             </div>
         </section>
-        <section id="view-return-pricing" class="step-view">
-            <div class="sidebar-panel p-8">
-                <button onclick="changeView('view-return-datetime')"
-                    class="mb-6 text-slate-400 font-bold flex items-center gap-2 hover:text-slate-600">
-                    <i class="fa-solid fa-arrow-left"></i> Date retour
+
+        <!-- ===================================================== -->
+        <!-- ESCALES RETOUR                                         -->
+        <!-- ===================================================== -->
+        <section id="view-return-steps" class="step-view">
+            <div class="sidebar-panel p-6">
+                <button onclick="changeView('view-return-route')"
+                    class="mb-6 text-slate-500 hover:text-slate-800 font-bold flex items-center gap-2 transition-colors">
+                    <i class="fa-solid fa-chevron-left text-xs"></i> Route retour
+                </button>
+                <div class="mb-6">
+                    <span
+                        class="inline-block px-3 py-1 rounded-full bg-orange-100 text-[#ff3c00] text-xs font-bold uppercase tracking-wider mb-2">Retour</span>
+                    <h2 class="text-2xl font-black text-slate-800">Escales du <span class="text-[#ff3c00]">retour</span>
+                    </h2>
+                    <p class="text-sm text-slate-500 mt-2 font-medium">Sélectionnez ou ajoutez des escales pour le trajet
+                        retour.</p>
+                </div>
+
+                <div class="mb-4">
+                    <p class="text-[10px] font-black uppercase text-slate-400 tracking-widest mb-3">
+                        <i class="fa-solid fa-wand-magic-sparkles mr-1 text-[#ff3c00]"></i> Détectées sur la route retour
+                    </p>
+                    <div id="return-intermediate-cities" class="space-y-3"></div>
+                </div>
+
+                <div class="flex items-center gap-3 my-5">
+                    <div class="flex-1 h-px bg-slate-200"></div>
+                    <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Escales manuelles</span>
+                    <div class="flex-1 h-px bg-slate-200"></div>
+                </div>
+
+                <div id="return-manual-stops-list" class="space-y-3 mb-4"></div>
+
+                <button onclick="openStopPopin('retour')"
+                    class="w-full py-3 border-2 border-dashed border-slate-200 rounded-xl text-slate-500 font-bold hover:border-[#ff3c00] hover:text-[#ff3c00] transition-all flex items-center justify-center gap-2">
+                    <i class="fa-solid fa-plus"></i> Ajouter une escale retour
                 </button>
 
+                <div class="pt-6 border-t border-slate-100 mt-6">
+                    <button id="btn-confirm-return-steps"
+                        class="w-full py-4 bg-slate-900 text-white rounded-xl font-bold text-lg hover:bg-[#ff3c00] transition-all">
+                        Continuer vers les prix
+                    </button>
+                </div>
+            </div>
+            <div class="map-container-traj">
+                <div id="map-return-steps" class="h-full w-full"></div>
+            </div>
+        </section>
+
+        <!-- ===================================================== -->
+        <!-- PRIX RETOUR                                            -->
+        <!-- ===================================================== -->
+        <section id="view-return-pricing" class="step-view">
+            <div class="sidebar-panel p-8">
+                <button onclick="changeView('view-return-steps')"
+                    class="mb-6 text-slate-400 font-bold flex items-center gap-2 hover:text-slate-600 transition-colors">
+                    <i class="fa-solid fa-arrow-left"></i> Escales retour
+                </button>
+                <div class="mb-2">
+                    <span
+                        class="inline-block px-3 py-1 rounded-full bg-orange-100 text-[#ff3c00] text-xs font-bold uppercase tracking-wider mb-3">Tarification
+                        retour</span>
+                </div>
                 <h2 class="text-3xl font-black text-slate-900 mb-2">
                     Fixez vos <span class="text-[#ff3c00]">prix retour</span>
                 </h2>
                 <p class="text-slate-500 mb-8 font-medium">
                     Prix par passager pour chaque étape du trajet retour.
                 </p>
-
-                <div id="return-pricing-steps-container" class="space-y-6 flex-1 overflow-y-auto">
-                </div>
-
+                <div id="return-pricing-steps-container" class="space-y-6 flex-1 overflow-y-auto"></div>
                 <div class="pt-8 border-t border-slate-100">
-                    <button id="btn-go-driver-info" class="w-full py-4 bg-slate-900 text-white rounded-2xl font-black">
+                    <button id="btn-go-driver-info"
+                        class="w-full py-4 bg-slate-900 text-white rounded-2xl font-black hover:bg-black transition-all shadow-xl">
                         Dernière étape
                     </button>
                 </div>
             </div>
 
-            <div class="flex-1 bg-white flex items-center justify-center">
-                <div class="max-w-md w-full text-center">
+            <div class="right-showcase hidden md:flex">
+                <div class="max-w-md w-full relative z-10">
                     <div class="mb-8 p-10 bg-white rounded-[2.5rem] shadow-xl border border-slate-100">
-                        <p class="text-xs font-black text-slate-400 uppercase tracking-widest mb-4">
-                            Prix total retour
-                        </p>
-
+                        <p class="text-xs font-black text-slate-400 uppercase tracking-widest mb-4">Prix total retour</p>
                         <div id="return-total-price" class="text-6xl font-black text-slate-900 mb-2">
                             0<span class="text-[#ff3c00] ml-1 text-4xl">€</span>
+                        </div>
+                        <div class="flex items-center justify-center gap-2 text-emerald-500 font-black text-sm mt-3">
+                            <i class="fa-solid fa-wand-magic-sparkles"></i>
+                            <span>Ajustez selon vos préférences</span>
                         </div>
                     </div>
                 </div>
             </div>
         </section>
-        <!-- ÉTAPE DRIVER INFO -->
+
+        <!-- ===================================================== -->
+        <!-- DRIVER INFO                                            -->
+        <!-- ===================================================== -->
         <section id="view-driver-info" class="step-view">
             <div class="sidebar-panel p-8">
-                <!-- Bouton Retour Stylisé -->
                 <button onclick="changeView('view-final')"
                     class="group mb-8 text-slate-400 font-bold flex items-center gap-2 hover:text-slate-600 transition-colors">
                     <i class="fa-solid fa-arrow-left transition-transform group-hover:-translate-x-1"></i>
                     <span>Retour</span>
                 </button>
 
+                <div class="mb-2">
+                    <span
+                        class="inline-block px-3 py-1 rounded-full bg-orange-100 text-[#ff3c00] text-xs font-bold uppercase tracking-wider mb-3">Profil</span>
+                </div>
                 <h2 class="text-3xl font-black text-slate-900 mb-2 leading-tight">
                     Présentez-vous aux <span class="text-[#ff3c00]">passagers</span>
                 </h2>
-
                 <p class="text-slate-500 mb-10 font-medium">
                     Les profils avec photo inspirent <span class="text-slate-900 font-bold">plus confiance</span>.
                 </p>
 
                 <div class="space-y-8 flex-1">
-                    <!-- Zone Upload Photo Premium -->
                     <div class="space-y-4">
                         <label class="text-[11px] font-black text-slate-400 uppercase tracking-widest">Photo de
                             profil</label>
-
                         <div class="flex items-center gap-5">
                             <div class="relative">
                                 <div id="photo-preview-container"
@@ -941,8 +1237,6 @@
                             </div>
                         </div>
                     </div>
-
-                    <!-- Champ Bio Stylisé -->
                     <div class="space-y-3">
                         <label class="text-[11px] font-black text-slate-400 uppercase tracking-widest">Message
                             conducteur</label>
@@ -952,7 +1246,6 @@
                     </div>
                 </div>
 
-                <!-- Bouton Publication Premium -->
                 <div class="pt-8 border-t border-slate-100">
                     <button id="btn-publish"
                         class="w-full py-4 bg-[#ff3c00] text-white rounded-2xl font-black text-lg shadow-xl shadow-orange-200 hover:shadow-orange-300 hover:-translate-y-1 active:translate-y-0 transition-all duration-300 flex items-center justify-center gap-3">
@@ -961,7 +1254,8 @@
                     </button>
                 </div>
             </div>
-            <div class="flex-1 bg-white flex items-center justify-center p-16 relative overflow-hidden">
+
+            <div class="right-showcase hidden md:flex relative overflow-hidden">
                 <div
                     class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] border border-slate-100 rounded-full">
                 </div>
@@ -970,7 +1264,7 @@
                 </div>
 
                 <div class="relative w-full max-w-sm z-10">
-                    <div class="animate-reveal">
+                    <div>
                         <h3 class="text-4xl font-black text-slate-900 mb-4 leading-tight uppercase tracking-tight italic">
                             La <span class="text-[#ff3c00]">communauté</span> vous attend.
                         </h3>
@@ -979,11 +1273,9 @@
                         </p>
                     </div>
 
-                    <!-- Floating Cards UI -->
                     <div class="relative h-64 mt-8">
-                        <!-- Card 1 -->
                         <div
-                            class="testimonial-card absolute top-0 -left-4 bg-white p-4 rounded-2xl w-56 animate-float z-20">
+                            class="testimonial-card absolute top-0 -left-4 bg-white p-4 rounded-2xl w-56 animate-float z-20 shadow-lg border border-slate-100">
                             <div class="flex items-center gap-3 mb-2">
                                 <div
                                     class="w-8 h-8 rounded-full bg-orange-100 flex items-center justify-center text-[#ff3c00] font-bold text-[10px]">
@@ -1001,7 +1293,6 @@
                                 vraiment rassuré avant de réserver."</p>
                         </div>
 
-                        <!-- Card 2 (Driver Badge) -->
                         <div
                             class="testimonial-card absolute bottom-4 -right-4 bg-white p-5 rounded-2xl w-48 animate-float-delayed shadow-xl border-l-4 border-l-[#ff3c00] z-30">
                             <div class="flex items-center gap-3">
@@ -1016,22 +1307,16 @@
                             </div>
                         </div>
 
-                        <!-- User Icons Scatter -->
                         <div
-                            class="absolute top-1/4 right-8 w-10 h-10 rounded-full bg-white shadow-md flex items-center justify-center animate-bounce">
+                            class="absolute top-1/4 right-8 w-10 h-10 rounded-full bg-white shadow-md flex items-center justify-center animate-bounce border border-slate-100">
                             <i class="fa-solid fa-heart text-rose-500 text-xs"></i>
                         </div>
                     </div>
-
-
                 </div>
             </div>
         </section>
 
         <script>
-            /**
-             * Gère la prévisualisation de la photo de profil
-             */
             function handleImagePreview(input) {
                 const container = document.getElementById('photo-preview-container');
                 if (input.files && input.files[0]) {
@@ -1055,6 +1340,7 @@
             steps: null,
             summary: null,
             returnRoute: null,
+            returnSteps: null,
         };
         let markers = {
             start: null,
@@ -1067,9 +1353,20 @@
             endCoords = null;
         let intermediateCities = [];
 
+        // ========== VARIABLES ESCALES ==========
+        // Escales aller : auto-détectées (via checkbox) + manuelles
+        let manualStopsAller = []; // [{name, latlng, marker}]
+        let returnManualStops = []; // [{name, latlng, marker}]
+        let returnStepMarkers = []; // escales retour auto-détectées cochées
+
+        // Temporaire pour la popin
+        let pendingStopData = null; // {name, latlng} en attente de confirmation
+
         document.addEventListener('DOMContentLoaded', () => {
             initMap('map', 'main');
             setupAutocomplete();
+            setupPopinAutocomplete('popin-stop-input', 'popin-stop-results', 'aller');
+            setupPopinAutocomplete('popin-return-stop-input', 'popin-return-stop-results', 'retour');
 
             document.getElementById('btn-next').onclick = () => {
                 changeView('view-route');
@@ -1088,6 +1385,13 @@
                 changeView('view-summary');
                 initMap('map-summary', 'summary');
                 renderSummary();
+            };
+
+            // Bouton confirmer escales retour → pricing retour
+            document.getElementById('btn-confirm-return-steps').onclick = () => {
+                saveReturnSelectedSteps();
+                changeView('view-return-pricing');
+                generateReturnPricingSteps();
             };
         });
 
@@ -1178,6 +1482,191 @@
             });
         }
 
+        // ========== POPIN AUTOCOMPLETE ==========
+        function setupPopinAutocomplete(inputId, resultsId, type) {
+            const input = document.getElementById(inputId);
+            const resDiv = document.getElementById(resultsId);
+
+            input.addEventListener('input', debounce(async (e) => {
+                const query = e.target.value;
+                if (query.length < 3) {
+                    resDiv.classList.add('hidden');
+                    return;
+                }
+
+                const url =
+                    `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&limit=5`;
+                try {
+                    const response = await fetch(url);
+                    const data = await response.json();
+
+                    resDiv.innerHTML = '';
+                    resDiv.classList.remove('hidden');
+
+                    data.forEach(place => {
+                        const item = document.createElement('div');
+                        item.className = 'autocomplete-item';
+                        item.innerText = place.display_name;
+                        item.onclick = () => {
+                            const coords = [parseFloat(place.lat), parseFloat(place.lon)];
+                            const cityName = place.display_name.split(',')[0].trim();
+
+                            pendingStopData = {
+                                name: cityName,
+                                fullName: place.display_name,
+                                latlng: coords
+                            };
+
+                            // Afficher la sélection
+                            if (type === 'aller') {
+                                document.getElementById('popin-stop-selected-name')
+                                    .textContent = place.display_name;
+                                document.getElementById('popin-stop-selected').classList.remove(
+                                    'hidden');
+                                document.getElementById('popin-stop-confirm').disabled = false;
+                            } else {
+                                document.getElementById('popin-return-stop-selected-name')
+                                    .textContent = place.display_name;
+                                document.getElementById('popin-return-stop-selected').classList
+                                    .remove('hidden');
+                                document.getElementById('popin-return-stop-confirm').disabled =
+                                    false;
+                            }
+
+                            input.value = '';
+                            resDiv.classList.add('hidden');
+                        };
+                        resDiv.appendChild(item);
+                    });
+                } catch (err) {
+                    console.error(err);
+                }
+            }, 300));
+        }
+
+        function openStopPopin(type) {
+            pendingStopData = null;
+            if (type === 'aller') {
+                document.getElementById('popin-stop-input').value = '';
+                document.getElementById('popin-stop-results').classList.add('hidden');
+                document.getElementById('popin-stop-selected').classList.add('hidden');
+                document.getElementById('popin-stop-confirm').disabled = true;
+                document.getElementById('popin-add-stop').classList.add('active');
+            } else {
+                document.getElementById('popin-return-stop-input').value = '';
+                document.getElementById('popin-return-stop-results').classList.add('hidden');
+                document.getElementById('popin-return-stop-selected').classList.add('hidden');
+                document.getElementById('popin-return-stop-confirm').disabled = true;
+                document.getElementById('popin-add-return-stop').classList.add('active');
+            }
+        }
+
+        function closeStopPopin(type) {
+            pendingStopData = null;
+            if (type === 'aller') {
+                document.getElementById('popin-add-stop').classList.remove('active');
+            } else {
+                document.getElementById('popin-add-return-stop').classList.remove('active');
+            }
+        }
+
+        function clearPopinSelection(type) {
+            pendingStopData = null;
+            if (type === 'aller') {
+                document.getElementById('popin-stop-selected').classList.add('hidden');
+                document.getElementById('popin-stop-confirm').disabled = true;
+            } else {
+                document.getElementById('popin-return-stop-selected').classList.add('hidden');
+                document.getElementById('popin-return-stop-confirm').disabled = true;
+            }
+        }
+
+        function confirmManualStop(type) {
+            if (!pendingStopData) return;
+
+            if (type === 'aller') {
+                // Ajouter le marker sur la carte aller
+                const map = maps.steps;
+                const marker = L.marker(pendingStopData.latlng).addTo(map)
+                    .bindPopup(
+                        `<b>${pendingStopData.name}</b><br><span class="text-xs text-slate-500">Ajout manuel</span>`);
+
+                manualStopsAller.push({
+                    name: pendingStopData.name,
+                    fullName: pendingStopData.fullName,
+                    latlng: pendingStopData.latlng,
+                    marker: marker
+                });
+
+                renderManualStopsList('aller');
+                closeStopPopin('aller');
+            } else {
+                // Ajouter le marker sur la carte retour
+                const map = maps.returnSteps;
+                const marker = L.marker(pendingStopData.latlng).addTo(map)
+                    .bindPopup(
+                        `<b>${pendingStopData.name}</b><br><span class="text-xs text-slate-500">Ajout manuel</span>`);
+
+                returnManualStops.push({
+                    name: pendingStopData.name,
+                    fullName: pendingStopData.fullName,
+                    latlng: pendingStopData.latlng,
+                    marker: marker
+                });
+
+                renderManualStopsList('retour');
+                closeStopPopin('retour');
+            }
+
+            pendingStopData = null;
+        }
+
+        function renderManualStopsList(type) {
+            const list = type === 'aller' ? manualStopsAller : returnManualStops;
+            const containerId = type === 'aller' ? 'manual-stops-list' : 'return-manual-stops-list';
+            const container = document.getElementById(containerId);
+            container.innerHTML = '';
+
+            if (list.length === 0) {
+                container.innerHTML = '<p class="text-sm text-slate-400 italic text-center py-2">Aucune escale ajoutée</p>';
+                return;
+            }
+
+            list.forEach((stop, i) => {
+                const div = document.createElement('div');
+                div.className =
+                    "manual-stop-item flex items-center p-4 bg-white rounded-xl border border-slate-100 shadow-sm";
+
+                div.innerHTML = `
+                    <div class="w-8 h-8 rounded-lg bg-orange-100 flex items-center justify-center text-[#ff3c00] text-sm mr-3 flex-shrink-0">
+                        <i class="fa-solid fa-map-pin"></i>
+                    </div>
+                    <div class="flex-1 min-w-0">
+                        <p class="font-bold text-slate-800 text-sm truncate">${stop.name}</p>
+                        <p class="text-[10px] text-slate-400 uppercase font-black tracking-wider">Ajout manuel</p>
+                    </div>
+                    <button onclick="removeManualStop('${type}', ${i})" class="delete-btn ml-2 w-8 h-8 rounded-lg flex items-center justify-center text-slate-400 hover:bg-red-50 hover:text-red-500 transition-all">
+                        <i class="fa-solid fa-trash-can text-xs"></i>
+                    </button>
+                `;
+
+                container.appendChild(div);
+            });
+        }
+
+        function removeManualStop(type, index) {
+            if (type === 'aller') {
+                const stop = manualStopsAller[index];
+                if (stop.marker && maps.steps) maps.steps.removeLayer(stop.marker);
+                manualStopsAller.splice(index, 1);
+            } else {
+                const stop = returnManualStops[index];
+                if (stop.marker && maps.returnSteps) maps.returnSteps.removeLayer(stop.marker);
+                returnManualStops.splice(index, 1);
+            }
+            renderManualStopsList(type);
+        }
+
         function updateMarkers() {
             const map = maps.main;
             if (startCoords) {
@@ -1199,6 +1688,7 @@
         function checkStep1Valid() {
             document.getElementById('btn-next').disabled = !(startCoords && endCoords);
         }
+
         async function loadRoutes() {
             const url =
                 `https://router.project-osrm.org/route/v1/driving/${startCoords[1]},${startCoords[0]};${endCoords[1]},${endCoords[0]}?overview=full&geometries=geojson&alternatives=true`;
@@ -1229,14 +1719,11 @@
                         <span class="font-black text-slate-800">Option ${i + 1}</span>
                         ${i === 0 ? '<span class="text-[9px] bg-orange-500 text-white px-2 py-0.5 rounded-full uppercase">Rapide</span>' : ''}
                     </div>
-
                     <div class="flex gap-3 text-sm font-bold text-slate-500">
                         <span><i class="fa-solid fa-road mr-1"></i> ${dist} km</span>
                         <span><i class="fa-solid fa-clock mr-1"></i> ${dur} min</span>
                     </div>
-                    `;
-
-
+                `;
                 container.appendChild(div);
             });
         }
@@ -1259,10 +1746,9 @@
                 padding: [40, 40]
             });
 
-            // Sauvegarde des infos de la route dans le draft
             const routeData = {
-                distance: routes[index].distance, // en mètres
-                duration: routes[index].duration, // en secondes
+                distance: routes[index].distance,
+                duration: routes[index].duration,
                 geometry: routes[index].geometry
             };
 
@@ -1271,10 +1757,15 @@
                 selectedRouteIndex: index
             });
         }
+
         async function loadIntermediateCities() {
             const container = document.getElementById('intermediate-cities');
             container.innerHTML =
                 '<div class="text-center py-10 text-slate-400"><i class="fa-solid fa-circle-notch fa-spin mr-2"></i> Recherche des étapes...</div>';
+
+            // Reset escales manuelles aller quand on recharge les auto
+            manualStopsAller = [];
+            renderManualStopsList('aller');
 
             const coords = routes[selectedRouteIndex].geometry.coordinates;
             const samples = [
@@ -1296,15 +1787,22 @@
             }
 
             container.innerHTML = '';
+
+            if (cities.length === 0) {
+                container.innerHTML =
+                    '<p class="text-sm text-slate-400 italic text-center py-4">Aucune ville détectée sur ce trajet</p>';
+                return;
+            }
+
             cities.forEach((city, i) => {
                 const div = document.createElement('div');
                 div.className =
                     "flex items-center p-4 bg-slate-50 rounded-xl border border-slate-100 hover:border-orange-200 transition-all cursor-pointer";
                 div.innerHTML = `
-                <input type="checkbox" id="city-${i}" class="w-5 h-5 accent-[#ff3c00] rounded">
-                <label for="city-${i}" class="ml-4 flex-1 font-bold text-slate-700 cursor-pointer">${city.name}</label>
-                <i class="fa-solid fa-map-pin text-slate-300"></i>
-            `;
+                    <input type="checkbox" id="city-${i}" class="w-5 h-5 accent-[#ff3c00] rounded">
+                    <label for="city-${i}" class="ml-4 flex-1 font-bold text-slate-700 cursor-pointer">${city.name}</label>
+                    <i class="fa-solid fa-map-pin text-slate-300"></i>
+                `;
                 div.onclick = (e) => {
                     if (e.target.tagName !== 'INPUT') {
                         const cb = div.querySelector('input');
@@ -1334,16 +1832,28 @@
         }
 
         function saveSelectedSteps() {
+            // Combine: départ + escales auto cochées + escales manuelles + arrivée
+            const allWaypoints = [
+                ...stepMarkers.map(s => ({
+                    name: s.name,
+                    type: 'waypoint',
+                    source: 'auto',
+                    latlng: s.latlng
+                })),
+                ...manualStopsAller.map(s => ({
+                    name: s.name,
+                    type: 'waypoint',
+                    source: 'manual',
+                    latlng: s.latlng
+                }))
+            ];
+
             const finalSteps = [{
                     name: document.getElementById('input-start').value,
                     type: 'start',
                     latlng: startCoords
                 },
-                ...stepMarkers.map(s => ({
-                    name: s.name,
-                    type: 'waypoint',
-                    latlng: s.latlng
-                })),
+                ...allWaypoints,
                 {
                     name: document.getElementById('input-end').value,
                     type: 'end',
@@ -1353,6 +1863,123 @@
             localStorage.setItem('vtc_final_itinerary', JSON.stringify(finalSteps));
         }
 
+        // ========== ESCALES RETOUR ==========
+        function saveReturnSelectedSteps() {
+            const itinerary = JSON.parse(localStorage.getItem('vtc_final_itinerary')) || [];
+            if (itinerary.length < 2) return;
+
+            // Retour = destination → départ (inversé)
+            const returnStart = itinerary[itinerary.length - 1];
+            const returnEnd = itinerary[0];
+
+            const allReturnWaypoints = [
+                ...returnStepMarkers.map(s => ({
+                    name: s.name,
+                    type: 'waypoint',
+                    source: 'auto',
+                    latlng: s.latlng
+                })),
+                ...returnManualStops.map(s => ({
+                    name: s.name,
+                    type: 'waypoint',
+                    source: 'manual',
+                    latlng: s.latlng
+                }))
+            ];
+
+            const returnItinerary = [{
+                    name: returnStart.name,
+                    type: 'start',
+                    latlng: returnStart.latlng
+                },
+                ...allReturnWaypoints,
+                {
+                    name: returnEnd.name,
+                    type: 'end',
+                    latlng: returnEnd.latlng
+                }
+            ];
+
+            localStorage.setItem('vtc_return_itinerary', JSON.stringify(returnItinerary));
+        }
+
+        async function loadReturnIntermediateCities() {
+            const container = document.getElementById('return-intermediate-cities');
+            container.innerHTML =
+                '<div class="text-center py-10 text-slate-400"><i class="fa-solid fa-circle-notch fa-spin mr-2"></i> Recherche des étapes retour...</div>';
+
+            // Reset
+            returnManualStops = [];
+            returnStepMarkers = [];
+            renderManualStopsList('retour');
+
+            if (!returnRoutes[selectedReturnRouteIndex]) {
+                container.innerHTML =
+                    '<p class="text-sm text-slate-400 italic text-center py-4">Aucune route retour sélectionnée</p>';
+                return;
+            }
+
+            const coords = returnRoutes[selectedReturnRouteIndex].geometry.coordinates;
+            const samples = [
+                coords[Math.floor(coords.length * 0.25)],
+                coords[Math.floor(coords.length * 0.5)],
+                coords[Math.floor(coords.length * 0.75)]
+            ];
+
+            const cities = [];
+            for (let point of samples) {
+                const res = await fetch(
+                    `https://nominatim.openstreetmap.org/reverse?format=json&lat=${point[1]}&lon=${point[0]}`);
+                const data = await res.json();
+                const cityName = data.address.city || data.address.town || data.address.village;
+                if (cityName) cities.push({
+                    name: cityName,
+                    latlng: [point[1], point[0]]
+                });
+            }
+
+            container.innerHTML = '';
+
+            if (cities.length === 0) {
+                container.innerHTML =
+                    '<p class="text-sm text-slate-400 italic text-center py-4">Aucune ville détectée sur le trajet retour</p>';
+                return;
+            }
+
+            cities.forEach((city, i) => {
+                const div = document.createElement('div');
+                div.className =
+                    "flex items-center p-4 bg-slate-50 rounded-xl border border-slate-100 hover:border-orange-200 transition-all cursor-pointer";
+                div.innerHTML = `
+                    <input type="checkbox" id="return-city-${i}" class="w-5 h-5 accent-[#ff3c00] rounded">
+                    <label for="return-city-${i}" class="ml-4 flex-1 font-bold text-slate-700 cursor-pointer">${city.name}</label>
+                    <i class="fa-solid fa-map-pin text-slate-300"></i>
+                `;
+                div.onclick = (e) => {
+                    if (e.target.tagName !== 'INPUT') {
+                        const cb = div.querySelector('input');
+                        cb.checked = !cb.checked;
+                    }
+                    toggleReturnStepMarker(city, div.querySelector('input').checked);
+                };
+                container.appendChild(div);
+            });
+        }
+
+        function toggleReturnStepMarker(city, show) {
+            const map = maps.returnSteps;
+            if (show) {
+                const m = L.marker(city.latlng).addTo(map).bindPopup(city.name);
+                city.marker = m;
+                returnStepMarkers.push(city);
+            } else {
+                const index = returnStepMarkers.findIndex(s => s.name === city.name);
+                if (index > -1) {
+                    map.removeLayer(returnStepMarkers[index].marker);
+                    returnStepMarkers.splice(index, 1);
+                }
+            }
+        }
 
         function renderSummary() {
             const container = document.getElementById('selected-steps');
@@ -1367,11 +1994,13 @@
                 if (item.type === 'start') iconColor = "bg-emerald-500";
                 if (item.type === 'end') iconColor = "bg-[#ff3c00]";
 
+                const sourceLabel = item.source === 'manual' ? ' · Manuel' : '';
+
                 li.innerHTML = `
-                <span class="absolute left-0 top-1 w-[24px] h-[24px] rounded-full ${iconColor} border-4 border-white shadow-sm z-10"></span>
-                <span class="text-[10px] font-black uppercase text-slate-400">${item.type}</span>
-                <span class="font-bold text-slate-800 leading-tight">${item.name}</span>
-            `;
+                    <span class="absolute left-0 top-1 w-[24px] h-[24px] rounded-full ${iconColor} border-4 border-white shadow-sm z-10"></span>
+                    <span class="text-[10px] font-black uppercase text-slate-400">${item.type}${sourceLabel}</span>
+                    <span class="font-bold text-slate-800 leading-tight">${item.name}</span>
+                `;
                 container.appendChild(li);
             });
 
@@ -1408,6 +2037,7 @@
                 }
             });
         }
+
         document.querySelectorAll('[data-pref]').forEach(cb => {
             cb.addEventListener('change', () => {
                 saveTripDraft({
@@ -1433,7 +2063,6 @@
             localStorage.setItem('vtc_trip_draft', JSON.stringify(draft));
         }
 
-
         function savePricingStep(index, price) {
             const draft = getTripDraft();
             draft.pricing = draft.pricing || {
@@ -1456,28 +2085,21 @@
             });
         }
 
-
-
         function updateSegmentPrice(input) {
             const index = parseInt(input.dataset.index, 10);
             const value = parseFloat(input.value) || 0;
 
             const segments = JSON.parse(localStorage.getItem('vtc_pricing_segments')) || [];
-
             if (!segments[index]) return;
 
             segments[index].price = value;
-
             localStorage.setItem('vtc_pricing_segments', JSON.stringify(segments));
-
             calculateGlobalTotal();
         }
 
         function calculateGlobalTotal() {
             const segments = JSON.parse(localStorage.getItem('vtc_pricing_segments')) || [];
-
             const total = segments.reduce((sum, s) => sum + (parseFloat(s.price) || 0), 0);
-
             const totalEl = document.getElementById('pricing-total');
             if (totalEl) totalEl.innerText = total.toFixed(0);
         }
@@ -1487,7 +2109,6 @@
                 .forEach(c => c.classList.remove('selected'));
 
             el.classList.add('selected');
-
             saveTripDraft({
                 returnTrip: value
             });
@@ -1517,12 +2138,10 @@
             for (let i = 0; i < itinerary.length - 1; i++) {
                 const from = itinerary[i];
                 const to = itinerary[i + 1];
-
-                // Tu dois avoir les coordonnées, par exemple si tu les stockes dans from.coords
                 if (!from.latlng || !to.latlng) continue;
 
                 segments.push({
-                    fromCoords: from.latlng, // [lat, lng]
+                    fromCoords: from.latlng,
                     toCoords: to.latlng,
                     price: 0
                 });
@@ -1535,10 +2154,7 @@
             const segments = JSON.parse(localStorage.getItem('vtc_pricing_segments')) || [];
 
             for (let seg of segments) {
-                if (!seg.fromCoords || !seg.toCoords) {
-                    console.warn('Segment incomplet, skipping', seg);
-                    continue;
-                }
+                if (!seg.fromCoords || !seg.toCoords) continue;
 
                 const url =
                     `https://router.project-osrm.org/route/v1/driving/${seg.fromCoords[1]},${seg.fromCoords[0]};${seg.toCoords[1]},${seg.toCoords[0]}?overview=false`;
@@ -1548,9 +2164,9 @@
                     const data = await res.json();
 
                     if (data.routes && data.routes[0]) {
-                        seg.distance = data.routes[0].distance / 1000; // km
-                        seg.duration = data.routes[0].duration / 60; // min
-                        seg.price = Math.round(seg.distance * 1.5); // ex : 1.5€/km
+                        seg.distance = data.routes[0].distance / 1000;
+                        seg.duration = data.routes[0].duration / 60;
+                        seg.price = Math.round(seg.distance * 1.5);
                     }
                 } catch (err) {
                     console.error('Erreur lors du calcul du segment', seg, err);
@@ -1559,7 +2175,6 @@
 
             localStorage.setItem('vtc_pricing_segments', JSON.stringify(segments));
         }
-
 
         function renderPricing() {
             const container = document.getElementById('pricing-steps-container');
@@ -1575,7 +2190,6 @@
             };
 
             for (let i = 0; i < itinerary.length - 1; i++) {
-
                 if (!draft.pricing.steps[i]) {
                     draft.pricing.steps[i] = {
                         price: 20
@@ -1590,14 +2204,14 @@
                 block.className = "p-4 bg-slate-50 rounded-2xl border border-slate-100";
 
                 block.innerHTML = `
-            <div class="flex justify-between items-center mb-3">
-                <span class="font-bold text-slate-800">${from} → ${to}</span>
-                <span class="text-[#ff3c00] font-black price-value">${stepPrice}€</span>
-            </div>
-            <input type="range" min="5" max="100" value="${stepPrice}" 
-                data-index="${i}"
-                class="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-[#ff3c00]">
-        `;
+                    <div class="flex justify-between items-center mb-3">
+                        <span class="font-bold text-slate-800">${from} → ${to}</span>
+                        <span class="text-[#ff3c00] font-black price-value">${stepPrice}€</span>
+                    </div>
+                    <input type="range" min="5" max="100" value="${stepPrice}"
+                        data-index="${i}"
+                        class="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-[#ff3c00]">
+                `;
 
                 const range = block.querySelector('input');
                 const priceEl = block.querySelector('.price-value');
@@ -1626,6 +2240,7 @@
                 }
             }
         }
+
         document.querySelectorAll('input[name="passengerMode"]').forEach(input => {
             input.addEventListener('change', () => {
                 const mode = input.value;
@@ -1635,6 +2250,7 @@
                     mode
                 };
                 localStorage.setItem('vtc_trip_draft', JSON.stringify(draft));
+
                 document.querySelectorAll('.radio-card').forEach(card => {
                     card.classList.remove('border-orange-500', 'shadow-md');
                     const icon = card.querySelector('.check-icon');
@@ -1644,38 +2260,6 @@
                     }
                 });
 
-                const parentCard = input.closest('.radio-card');
-                if (parentCard) {
-                    parentCard.classList.add('border-orange-500', 'shadow-md');
-                    const icon = parentCard.querySelector('.check-icon');
-                    if (icon) {
-                        icon.style.opacity = 1;
-                        icon.style.transform = 'scale(1)';
-                    }
-                }
-            });
-        });
-
-        function getTripDraft() {
-            return JSON.parse(localStorage.getItem('vtc_trip_draft')) || {};
-        }
-        document.querySelectorAll('input[name="passengerMode"]').forEach(input => {
-            input.addEventListener('change', () => {
-                const mode = input.value;
-                const draft = getTripDraft();
-                draft.passengers = {
-                    ...(draft.passengers || {}),
-                    mode: mode
-                };
-                localStorage.setItem('vtc_trip_draft', JSON.stringify(draft));
-                document.querySelectorAll('.radio-card').forEach(card => {
-                    card.classList.remove('border-orange-500', 'shadow-md');
-                    const icon = card.querySelector('.check-icon');
-                    if (icon) {
-                        icon.style.opacity = 0;
-                        icon.style.transform = 'scale(0.75)';
-                    }
-                });
                 const parentLabel = input.closest('label');
                 if (parentLabel) {
                     const card = parentLabel.querySelector('.radio-card');
@@ -1690,6 +2274,11 @@
                 }
             });
         });
+
+        function getTripDraft() {
+            return JSON.parse(localStorage.getItem('vtc_trip_draft')) || {};
+        }
+
         document.addEventListener('DOMContentLoaded', () => {
             const draft = getTripDraft();
             const mode = draft.passengers?.mode || 'mixed';
@@ -1713,12 +2302,10 @@
         });
 
         document.getElementById('btn-go-return-pricing').onclick = () => {
-
             if (!returnDateInput.value || !returnTimeInput.value) {
                 alert("Veuillez sélectionner une date et une heure de retour.");
                 return;
             }
-
             saveReturnDateTime();
             goToReturnRoute();
         };
@@ -1731,9 +2318,7 @@
 
         function getPassengersPrefs() {
             const selected = document.querySelector('input[name="passengerMode"]:checked');
-
             const mode = selected ? selected.value : 'mixed';
-
             return {
                 count: 1,
                 womenOnly: mode === 'womenOnly',
@@ -1760,12 +2345,10 @@
             if (itinerary.length < 2) return [];
 
             const segments = [];
-
             for (let i = 0; i < itinerary.length - 1; i++) {
                 const from = itinerary[i].name;
                 const to = itinerary[i + 1].name;
                 const price = pricingSteps[i] ? pricingSteps[i].price : 20;
-
                 segments.push({
                     from,
                     to,
@@ -1777,9 +2360,9 @@
             }
 
             localStorage.setItem('vtc_pricing_segments', JSON.stringify(segments));
-
             return segments;
         }
+
         const inputDate = document.getElementById('input-date');
         const inputTime = document.getElementById('input-time');
 
@@ -1794,26 +2377,30 @@
         if (inputDate) inputDate.addEventListener('change', saveDateTime);
         if (inputTime) inputTime.addEventListener('change', saveDateTime);
 
-
+        // Sauvegarder les valeurs par défaut au chargement
+        document.addEventListener('DOMContentLoaded', () => {
+            if (inputDate && inputTime && inputDate.value && inputTime.value) {
+                const draft = getTripDraft();
+                if (!draft.datetime) {
+                    saveDateTime();
+                }
+            }
+        });
         const segments = generateSegmentObjects();
         console.log(segments);
 
-
         document.addEventListener('DOMContentLoaded', () => {
-
             const draft = getTripDraft();
             if (draft.passengers?.count) {
                 const el = document.getElementById('qty-passengers');
                 if (el) el.innerText = draft.passengers.count;
             }
             const savedMode = draft.booking?.mode;
-
             if (savedMode) {
                 document.querySelectorAll('.card-option').forEach(card => {
                     card.classList.toggle('selected', card.dataset.mode === savedMode);
                 });
             }
-
         });
 
         const STORAGE_KEY = 'vtc_trip_draft';
@@ -1824,7 +2411,6 @@
 
         function saveTripDraft(partial) {
             const current = getTripDraft() || {};
-
             const updated = {
                 ...current,
                 ...partial,
@@ -1835,7 +2421,6 @@
                         partial.pricing.steps : (current.pricing?.steps || [])
                 }
             };
-
             localStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
             return updated;
         }
@@ -1854,11 +2439,12 @@
                 return partial;
             }
         }
+
         let returnRoutes = [];
         let selectedReturnRouteIndex = 0;
         let returnRouteLayer = null;
-        async function loadReturnRoutes() {
 
+        async function loadReturnRoutes() {
             const itinerary = JSON.parse(localStorage.getItem('vtc_final_itinerary')) || [];
             if (itinerary.length < 2) return;
 
@@ -1872,18 +2458,15 @@
             const data = await res.json();
 
             returnRoutes = data.routes;
-
             renderReturnRouteList();
             displayReturnRouteOnMap(0);
         }
 
         function renderReturnRouteList() {
-
             const container = document.getElementById('return-routes-list');
             container.innerHTML = '';
 
             returnRoutes.forEach((route, i) => {
-
                 const div = document.createElement('div');
                 div.className =
                     `route-option p-4 rounded-xl bg-white ${i === selectedReturnRouteIndex ? 'selected' : ''}`;
@@ -1898,23 +2481,20 @@
                 const dur = Math.round(route.duration / 60);
 
                 div.innerHTML = `
-            <div class="flex justify-between items-start mb-1">
-                <span class="font-black text-slate-800">Option ${i + 1}</span>
-            </div>
-            <div class="flex gap-3 text-sm font-bold text-slate-500">
-                <span><i class="fa-solid fa-road mr-1"></i> ${dist} km</span>
-                <span><i class="fa-solid fa-clock mr-1"></i> ${dur} min</span>
-            </div>
-           `;
-
+                    <div class="flex justify-between items-start mb-1">
+                        <span class="font-black text-slate-800">Option ${i + 1}</span>
+                    </div>
+                    <div class="flex gap-3 text-sm font-bold text-slate-500">
+                        <span><i class="fa-solid fa-road mr-1"></i> ${dist} km</span>
+                        <span><i class="fa-solid fa-clock mr-1"></i> ${dur} min</span>
+                    </div>
+                `;
                 container.appendChild(div);
             });
         }
 
         function displayReturnRouteOnMap(index) {
-
             const map = maps.returnRoute;
-
             if (returnRouteLayer) map.removeLayer(returnRouteLayer);
 
             returnRouteLayer = L.geoJSON(returnRoutes[index].geometry, {
@@ -1928,29 +2508,25 @@
             map.fitBounds(returnRouteLayer.getBounds(), {
                 padding: [40, 40]
             });
-
             saveReturnRoute(index);
         }
 
         function saveReturnRoute(index) {
-
             const route = returnRoutes[index];
-
             const retourTrajet = {
                 selectedRouteIndex: index,
                 distance: route.distance,
                 duration: route.duration,
                 geometry: route.geometry
             };
-
             localStorage.setItem('retour_trajet', JSON.stringify(retourTrajet));
-
             saveTripDraftPartial({
                 retour_trajet: retourTrajet
             });
         }
-        document.getElementById('btn-validate-return-route').onclick = () => {
 
+        // ===== MODIFIÉ : btn-validate-return-route → va vers escales retour =====
+        document.getElementById('btn-validate-return-route').onclick = () => {
             const route = returnRoutes[selectedReturnRouteIndex];
 
             const retourTrajet = {
@@ -1961,32 +2537,56 @@
             };
 
             localStorage.setItem('retour_trajet', JSON.stringify(retourTrajet));
+
             if (!returnRoutes[selectedReturnRouteIndex]) {
                 alert("Aucune route retour sélectionnée.");
                 return;
             }
-            changeView('view-return-pricing');
-            generateReturnPricingSteps();
+
+            // → Aller vers la page escales retour au lieu du pricing directement
+            changeView('view-return-steps');
+            initMap('map-return-steps', 'returnSteps');
+
+            // Afficher la route sur la carte des escales retour
+            setTimeout(() => {
+                if (maps.returnSteps) {
+                    L.geoJSON(returnRoutes[selectedReturnRouteIndex].geometry, {
+                        style: {
+                            color: '#ff3c00',
+                            weight: 4,
+                            opacity: 0.6
+                        }
+                    }).addTo(maps.returnSteps);
+                    maps.returnSteps.fitBounds(
+                        L.geoJSON(returnRoutes[selectedReturnRouteIndex].geometry).getBounds(), {
+                            padding: [40, 40]
+                        }
+                    );
+                }
+            }, 200);
+
+            loadReturnIntermediateCities();
         };
 
         function generateReturnPricingSteps() {
+            // Utiliser l'itinéraire retour complet (avec escales)
+            const returnItinerary = JSON.parse(localStorage.getItem('vtc_return_itinerary')) || [];
 
-            const itinerary = JSON.parse(localStorage.getItem('vtc_final_itinerary')) || [];
-            if (itinerary.length < 2) return;
-
-            const reversed = [...itinerary].reverse();
+            // Fallback si pas d'itinéraire retour stocké
+            let itineraryToUse = returnItinerary;
+            if (itineraryToUse.length < 2) {
+                const itinerary = JSON.parse(localStorage.getItem('vtc_final_itinerary')) || [];
+                itineraryToUse = [...itinerary].reverse();
+            }
 
             const container = document.getElementById('return-pricing-steps-container');
             container.innerHTML = '';
 
             let returnPricing = [];
 
-            for (let i = 0; i < reversed.length - 1; i++) {
-
-                const from = reversed[i].name;
-                const to = reversed[i + 1].name;
-
-                const stepId = `return-step-${i}`;
+            for (let i = 0; i < itineraryToUse.length - 1; i++) {
+                const from = itineraryToUse[i].name;
+                const to = itineraryToUse[i + 1].name;
 
                 returnPricing.push({
                     from,
@@ -1998,17 +2598,17 @@
                 div.className = "p-4 bg-slate-50 rounded-2xl border border-slate-100";
 
                 div.innerHTML = `
-            <div class="flex justify-between items-center mb-3">
-                <span class="font-bold text-slate-800">${from} → ${to}</span>
-                <span id="price-label-${i}" class="text-[#ff3c00] font-black">0€</span>
-            </div>
-            <input type="range"
-                min="0"
-                max="100"
-                value="0"
-                class="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-[#ff3c00]"
-                oninput="updateReturnPrice(${i}, this.value)">
-             `;
+                    <div class="flex justify-between items-center mb-3">
+                        <span class="font-bold text-slate-800">${from} → ${to}</span>
+                        <span id="price-label-${i}" class="text-[#ff3c00] font-black">0€</span>
+                    </div>
+                    <input type="range"
+                        min="0"
+                        max="100"
+                        value="0"
+                        class="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-[#ff3c00]"
+                        oninput="updateReturnPrice(${i}, this.value)">
+                `;
 
                 container.appendChild(div);
             }
@@ -2017,31 +2617,22 @@
         }
 
         function updateReturnPrice(index, value) {
-
             let pricing = JSON.parse(localStorage.getItem('return_pricing')) || [];
-
             pricing[index].price = parseInt(value);
-
             localStorage.setItem('return_pricing', JSON.stringify(pricing));
-
             document.getElementById(`price-label-${index}`).innerText = value + "€";
-
             calculateReturnTotal();
         }
 
         function calculateReturnTotal() {
-
             let pricing = JSON.parse(localStorage.getItem('return_pricing')) || [];
-
             const total = pricing.reduce((sum, step) => sum + step.price, 0);
-
             document.getElementById('return-total-price').innerHTML =
                 `${total}<span class="text-[#ff3c00] ml-1 text-4xl">€</span>`;
-
             localStorage.setItem('return_total_price', total);
         }
-        document.getElementById('btn-go-driver-info').onclick = () => {
 
+        document.getElementById('btn-go-driver-info').onclick = () => {
             const retourTrajet = JSON.parse(localStorage.getItem('retour_trajet'));
             const returnPricing = JSON.parse(localStorage.getItem('return_pricing'));
             const total = localStorage.getItem('return_total_price');
@@ -2053,32 +2644,31 @@
             };
 
             localStorage.setItem('return_trip_data', JSON.stringify(returnData));
-
             changeView('view-driver-info');
         };
+
         const returnDateInput = document.getElementById('return-date');
         const returnTimeInput = document.getElementById('return-time');
 
         function saveReturnDateTime() {
-
             const returnDateTime = {
                 date: returnDateInput.value,
                 time: returnTimeInput.value
             };
-
             localStorage.setItem('return_datetime', JSON.stringify(returnDateTime));
-
             saveTripDraftPartial({
                 return_datetime: returnDateTime
             });
         }
+
         if (returnDateInput) returnDateInput.addEventListener('change', saveReturnDateTime);
         if (returnTimeInput) returnTimeInput.addEventListener('change', saveReturnDateTime);
+
         document.getElementById('btn-publish').addEventListener('click', async () => {
             try {
                 let draft = getTripDraft();
-
                 const finalItinerary = JSON.parse(localStorage.getItem('vtc_final_itinerary')) || [];
+                const returnItinerary = JSON.parse(localStorage.getItem('vtc_return_itinerary')) || [];
 
                 if (finalItinerary.length === 0) {
                     alert('Itinéraire vide. Veuillez sélectionner un trajet.');
@@ -2096,7 +2686,6 @@
                 const returnTripData = JSON.parse(localStorage.getItem('return_trip_data')) || null;
                 const returnDateTime = JSON.parse(localStorage.getItem('return_datetime')) || null;
 
-
                 const formData = new FormData();
                 formData.append('passenger_mode', draft.passengers?.mode || 'mixed');
                 formData.append('depart', finalItinerary[0]?.name || '');
@@ -2113,7 +2702,7 @@
                 formData.append('selected_route_index', draft.selectedRouteIndex ?? 0);
                 formData.append('return_trip_data', JSON.stringify(returnTripData));
                 formData.append('return_datetime', JSON.stringify(returnDateTime));
-
+                formData.append('return_itinerary', JSON.stringify(returnItinerary));
 
                 if (fileInput.files[0]) {
                     formData.append('photo_conducteur', fileInput.files[0]);
@@ -2147,12 +2736,18 @@
                         timer: 2000,
                         timerProgressBar: true
                     });
+                    const draft = getTripDraft();
+
+                    const bookingMode = draft.booking?.mode || 'instant';
+
+                    formData.append('booking_mode', bookingMode);
                     localStorage.removeItem('retour_trajet');
                     localStorage.removeItem('return_datetime');
                     localStorage.removeItem('return_pricing');
                     localStorage.removeItem('return_total_price');
                     localStorage.removeItem('return_trip_data');
                     localStorage.removeItem('vtc_final_itinerary');
+                    localStorage.removeItem('vtc_return_itinerary');
                     localStorage.removeItem('vtc_pricing_segments');
                     localStorage.removeItem('vtc_trip_draft');
                     window.location.href = `/trajet/${data.covoiturage_id}`;
