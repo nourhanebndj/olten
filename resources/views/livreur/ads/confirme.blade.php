@@ -1,175 +1,136 @@
 @extends('layouts.connected')
-@section('title', 'Gestion des Demandes | ' . config('app.name'))
+@section('title', 'Demandes | ' . config('app.name'))
 
 @section('content')
-    <section class="animate-fade min-h-screen pb-20">
-        <div class="px-6 lg:px-16 pt-12 mb-16">
-            <nav aria-label="Breadcrumb" class="flex-1">
-                <ol class="flex items-center space-x-2 text-sm font-medium">
-                    <li><a href="#" class="text-slate-400 hover:text-slate-600 transition-colors">Annonce</a></li>
-                    <li><i data-lucide="chevron-right" class="w-4 h-4 text-slate-300"></i></li>
-                    <li class="text-slate-900 font-bold uppercase tracking-tight text-xs">Demandes reçues</li>
-                </ol>
+    <section class="min-h-screen pb-20 px-4 sm:px-6 lg:px-16 pt-8 sm:pt-10">
+
+        {{-- Header --}}
+        <div class="mb-8 sm:mb-10">
+            <nav class="flex items-center gap-2 text-[11px] text-slate-400 uppercase tracking-widest mb-3">
+                <a href="#" class="hover:text-slate-600 transition-colors">Annonces</a>
+                <span>›</span>
+                <span class="text-slate-600">Demandes reçues</span>
             </nav>
-            <div class="mb-10">
-                <p class="text-slate-500 mt-2"> Interface de décision en temps réel</p>
-            </div>
-
+            <h1 class="text-xl sm:text-2xl font-semibold text-slate-900">Demandes reçues</h1>
+            <p class="text-sm text-slate-400 mt-1">Interface de décision en temps réel</p>
         </div>
-        <div class="space-y-4">
-            @forelse($mesAnnonces as $ad)
-                <div
-                    class="bg-white border-y border-slate-100 px-6 lg:px-16 py-16 shadow-[0_10px_40px_-15px_rgba(0,0,0,0.02)]">
-                    <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-8 mb-16">
-                        <div class="flex items-center gap-10">
-                            <span
-                                class="text-7xl font-[1000] text-slate-50 tabular-nums select-none">{{ str_pad($loop->iteration, 2, '0', STR_PAD_LEFT) }}</span>
 
-                            <div>
-                                <div class="flex items-center gap-3 mb-2">
-                                    <span class="w-2 h-2 rounded-full bg-[#ff3c00] animate-pulse"></span>
-                                    <h2 class="text-3xl font-[1000] uppercase tracking-tighter text-slate-900">
-                                        {{ $ad->title }}</h2>
-                                </div>
-                                <div class="flex flex-wrap items-center gap-4">
-                                    <span
-                                        class="text-[10px] font-black uppercase text-slate-400 tracking-widest flex items-center gap-2">
-                                        <i data-lucide="map-pin" class="w-3 h-3 text-slate-300"></i>
-                                        {{ $ad->client_address }}
-                                    </span>
-                                    <span
-                                        class="px-3 py-1 bg-slate-50 border border-slate-100 text-slate-900 text-[10px] font-[1000] uppercase tracking-widest rounded-lg">
-                                        Budget : {{ number_format($ad->delivery_cost, 0) }}€
-                                    </span>
-                                </div>
+        {{-- Annonces --}}
+        <div class="space-y-8 sm:space-y-10">
+            @forelse($mesAnnonces as $ad)
+                <div>
+                    {{-- Header section --}}
+                    <div
+                        class="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3 pb-4 border-b border-slate-100 mb-5">
+                        <div>
+                            <div class="flex items-baseline gap-3">
+                                <span class="text-[11px] font-medium text-slate-300 tracking-wider">
+                                    {{ str_pad($loop->iteration, 2, '0', STR_PAD_LEFT) }}
+                                </span>
+                                <h2 class="text-base font-semibold text-slate-900">{{ $ad->title }}</h2>
+                            </div>
+                            <div class="flex flex-wrap items-center gap-2 sm:gap-3 mt-2">
+                                <span class="text-xs text-slate-400 flex items-center gap-1">
+                                    <i data-lucide="map-pin" class="w-3 h-3 flex-shrink-0"></i>
+                                    {{ $ad->client_address }}
+                                </span>
+                                <span class="text-[11px] font-medium bg-slate-100 text-slate-700 px-3 py-1 rounded-full">
+                                    {{ number_format($ad->delivery_cost, 0) }} €
+                                </span>
                             </div>
                         </div>
-
-                        <div class="flex items-center gap-4 bg-slate-50 p-4 rounded-3xl border border-slate-100">
-                            <div class="text-right">
-                                <p class="text-[9px] font-black uppercase text-slate-400 tracking-widest">Candidatures</p>
-                                <p class="text-2xl font-[1000] text-slate-900 leading-none">{{ $ad->demandes->count() }}</p>
-                            </div>
-                            <div class="w-10 h-10 rounded-2xl bg-white flex items-center justify-center shadow-sm">
-                                <i data-lucide="users" class="w-5 h-5 text-[#ff3c00]"></i>
-                            </div>
+                        <div class="flex items-center gap-2 text-xs text-slate-400 font-medium sm:pt-1 flex-shrink-0">
+                            <i data-lucide="users" class="w-4 h-4"></i>
+                            {{ $ad->demandes->count() }} candidature{{ $ad->demandes->count() > 1 ? 's' : '' }}
                         </div>
                     </div>
-                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                        @forelse($ad->demandes as $demande)
-                            <div
-                                class="group relative bg-white border border-slate-100 rounded-[2.5rem] p-6 transition-all duration-500 hover:shadow-[0_25px_50px_-12px_rgba(0,0,0,0.08)] hover:border-[#ff3c00]/20 flex flex-col justify-between min-h-[300px]">
-                                <div class="flex items-start justify-between">
-                                    <div class="flex items-center gap-4">
-                                        <div class="relative">
-                                            <div
-                                                class="w-14 h-14 rounded-2xl bg-slate-900 overflow-hidden ring-4 ring-slate-50 transition-transform duration-500 group-hover:scale-110">
-                                                <img src="https://ui-avatars.com/api/?name={{ urlencode($demande->livreur->name) }}&background=0f172a&color=fff&bold=true"
-                                                    alt="" class="w-full h-full object-cover">
-                                            </div>
-                                            <div
-                                                class="absolute -bottom-1 -right-1 w-5 h-5 bg-green-500 border-4 border-white rounded-full shadow-sm">
-                                            </div>
-                                        </div>
-                                        <div>
-                                            <h4
-                                                class="text-sm font-[1000] uppercase tracking-tighter text-slate-900 leading-none mb-1">
-                                                {{ $demande->livreur->name }}
-                                            </h4>
-                                            <span
-                                                class="text-[8px] font-black text-[#ff3c00] uppercase tracking-[0.2em] flex items-center gap-1">
-                                                <i data-lucide="verified" class="w-3 h-3"></i> Profil Certifié
-                                            </span>
-                                        </div>
-                                    </div>
-                                    <button class="text-slate-300 hover:text-slate-900 transition-colors">
-                                        <i data-lucide="info" class="w-4 h-4"></i>
-                                    </button>
-                                </div>
-                                <div class="my-6 grid grid-cols-2 gap-2">
-                                    <div class="bg-slate-50/80 rounded-2xl p-3 border border-slate-50">
-                                        <p
-                                            class="text-[7px] font-black text-slate-400 uppercase tracking-widest mb-1 italic">
-                                            Score Livreur
-                                        </p>
-                                        <div class="flex items-center gap-1">
-                                            <span class="text-xs font-[1000] text-slate-900">
-                                                {{ $scoreLivreur }}
-                                            </span>
-                                            <i data-lucide="star" class="w-2.5 h-2.5 text-amber-400 fill-amber-400"></i>
-                                        </div>
-                                    </div>
-                                    <div class="bg-slate-50/80 rounded-2xl p-3 border border-slate-50">
-                                        <p
-                                            class="text-[7px] font-black text-slate-400 uppercase tracking-widest mb-1 italic">
-                                            Proximité
-                                        </p>
-                                        <div class="flex items-center gap-1 text-slate-900 font-[1000] text-xs">
-                                            <i data-lucide="navigation" class="w-2.5 h-2.5 text-[#ff3c00]"></i>
-                                            {{ $proximiteKm }} km
-                                        </div>
-                                    </div>
-                                    <div
-                                        class="col-span-2 bg-slate-50/80 rounded-2xl p-3 border border-slate-50 flex items-center justify-between">
-                                        <p class="text-[7px] font-black text-slate-400 uppercase tracking-widest italic">
-                                            Missions réussies
-                                        </p>
-                                        <span class="text-[10px] font-black text-slate-900 uppercase tracking-tighter">
-                                            {{ $missionsReussies }} livraisons
-                                        </span>
-                                    </div>
-                                </div>
 
-                                <div class="space-y-3">
+                    {{-- Candidats --}}
+                    @if ($ad->demandes->isEmpty())
+                        <div
+                            class="border border-dashed border-slate-200 rounded-2xl py-10 text-center text-xs text-slate-300 font-medium uppercase tracking-widest">
+                            Aucune candidature pour le moment
+                        </div>
+                    @else
+                        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
+                            @foreach ($ad->demandes as $demande)
+                                <div
+                                    class="bg-white border border-slate-100 rounded-2xl p-4 sm:p-5 flex flex-col gap-4 hover:border-slate-200 transition-colors">
+
+                                    {{-- Identité --}}
+                                    <div class="flex items-start justify-between">
+                                        <div class="flex items-center gap-3">
+                                            <div
+                                                class="w-9 h-9 rounded-xl bg-slate-900 flex items-center justify-center text-white text-xs font-semibold flex-shrink-0">
+                                                {{ strtoupper(substr($demande->livreur->name, 0, 2)) }}
+                                            </div>
+                                            <div>
+                                                <p class="text-sm font-semibold text-slate-900 leading-none mb-1">
+                                                    {{ $demande->livreur->name }}
+                                                </p>
+                                                <span class="text-[10px] font-medium text-[#ff3c00]">● Certifié</span>
+                                            </div>
+                                        </div>
+                                        <div class="w-2 h-2 rounded-full bg-emerald-400 mt-1 flex-shrink-0"></div>
+                                    </div>
+
+                                    {{-- Stats --}}
+                                    <div class="grid grid-cols-2 gap-2">
+                                        <div class="bg-slate-50 rounded-xl p-3">
+                                            <p class="text-[9px] font-medium text-slate-400 uppercase tracking-wider mb-1">
+                                                Score</p>
+                                            <p class="text-sm font-semibold text-slate-900">{{ $scoreLivreur }} ★</p>
+                                        </div>
+                                        <div class="bg-slate-50 rounded-xl p-3">
+                                            <p class="text-[9px] font-medium text-slate-400 uppercase tracking-wider mb-1">
+                                                Distance</p>
+                                            <p class="text-sm font-semibold text-slate-900">{{ $proximiteKm }} km</p>
+                                        </div>
+                                        <div
+                                            class="col-span-2 bg-slate-50 rounded-xl px-3 py-2.5 flex items-center justify-between">
+                                            <p class="text-[9px] font-medium text-slate-400 uppercase tracking-wider">
+                                                Missions</p>
+                                            <p class="text-xs font-semibold text-slate-900">{{ $missionsReussies }}</p>
+                                        </div>
+                                    </div>
+
+                                    {{-- Actions --}}
                                     @if ($demande->statut == 'en_attente')
-                                        <div class="flex gap-2">
+                                        <div class="flex gap-2 mt-auto">
                                             <form action="{{ route('locataire.demande.accept', $demande) }}" method="POST"
                                                 class="flex-1">
                                                 @csrf
                                                 <button
-                                                    class="w-full py-4 bg-slate-900 text-white rounded-2xl font-[1000] text-[10px] uppercase tracking-[0.2em] hover:bg-[#ff3c00] transition-all shadow-lg shadow-slate-100 active:scale-95 flex items-center justify-center gap-2 group-hover:gap-3">
-                                                    Recruter <i data-lucide="arrow-right"
-                                                        class="w-3 h-3 transition-all"></i>
+                                                    class="w-full py-2.5 bg-slate-900 text-white rounded-xl text-[11px] font-semibold tracking-wide hover:bg-[#ff3c00] transition-colors">
+                                                    Recruter →
                                                 </button>
                                             </form>
                                             <form action="{{ route('locataire.demande.refuse', $demande) }}"
                                                 method="POST">
                                                 @csrf
                                                 <button
-                                                    class="w-12 h-12 flex items-center justify-center bg-white border border-slate-100 text-slate-300 hover:text-red-500 hover:border-red-100 rounded-2xl transition-all shadow-sm">
+                                                    class="w-9 h-9 flex items-center justify-center border border-slate-100 rounded-xl text-slate-300 hover:text-red-400 hover:border-red-100 transition-colors">
                                                     <i data-lucide="x" class="w-4 h-4"></i>
                                                 </button>
                                             </form>
                                         </div>
                                     @else
                                         <div
-                                            class="w-full py-4 bg-slate-100 rounded-2xl flex items-center justify-center gap-2">
-                                            <span class="w-1.5 h-1.5 rounded-full bg-slate-400"></span>
-                                            <span
-                                                class="text-[9px] font-[1000] uppercase text-slate-400 tracking-[0.2em]">Offre
-                                                {{ $demande->statut }}</span>
+                                            class="mt-auto py-2.5 bg-slate-50 rounded-xl text-center text-[10px] font-medium text-slate-400 uppercase tracking-widest">
+                                            {{ $demande->statut }}
                                         </div>
                                     @endif
                                 </div>
-
-                            </div>
-                        @empty
-
-                            <div
-                                class="col-span-full py-12 flex flex-col items-center justify-center bg-slate-50/30 rounded-[2.5rem] border-2 border-dashed border-slate-100">
-                                <i data-lucide="clock" class="w-6 h-6 text-slate-200 mb-2"></i>
-                                <p class="text-[9px] font-black text-slate-300 uppercase tracking-[0.3em]">En attente de
-                                    chauffeurs...</p>
-                            </div>
-                        @endforelse
-                    </div>
+                            @endforeach
+                        </div>
+                    @endif
                 </div>
             @empty
-
+                <div
+                    class="border border-dashed border-slate-200 rounded-2xl py-16 text-center text-xs text-slate-300 font-medium uppercase tracking-widest">
+                    Aucune annonce active
+                </div>
             @endforelse
         </div>
-
     </section>
-
-
 @endsection

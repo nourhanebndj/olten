@@ -150,6 +150,8 @@ Route::middleware('auth')->group(function () {
 
     Route::post('/covoiturage/{id}/update-mode', [CovoiturageController::class, 'updateMode'])
         ->name('covoiturage.updateMode');
+    Route::get('/vehicle/edit', [VehicleController::class, 'edit'])->name('vehicle.edit');
+    Route::post('/vehicle/update', [VehicleController::class, 'update'])->name('vehicle.update');
 });
 //visualiser le détails d'une annonce meme pour un utilisateur visteur non connecté
 Route::get('/annonces/{ad}/détails', [AdController::class, 'show'])->name('ads.show');
