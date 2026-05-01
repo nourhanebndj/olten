@@ -2783,3 +2783,74 @@ body {
 .StripeElement--invalid {
     border-color: #fa755a;
 }
+
+/* product show */
+.toggle-switch {
+    position: relative;
+    display: inline-block;
+}
+
+.toggle-switch input[type="checkbox"] {
+    display: none;
+}
+
+.toggle-label {
+    display: block;
+    width: 50px;
+    height: 26px;
+    background: #dee2e6;
+    border-radius: 13px;
+    cursor: pointer;
+    transition: all 0.3s;
+    position: relative;
+}
+
+.toggle-label::after {
+    content: '';
+    position: absolute;
+    top: 3px;
+    left: 3px;
+    width: 20px;
+    height: 20px;
+    background: #fff;
+    border-radius: 50%;
+    transition: all 0.3s;
+}
+
+.toggle-switch input[type="checkbox"]:checked+.toggle-label {
+    background: #28a745;
+}
+
+.toggle-switch input[type="checkbox"]:checked+.toggle-label::after {
+    left: 27px;
+}
+
+.suggestions {
+    list-style: none;
+    border: 1px solid #ccc;
+    background: white;
+    max-height: 150px;
+    overflow-y: auto;
+    padding: 0;
+    margin: 0;
+    z-index: 999;
+    width: 100%;
+}
+
+.suggestions li {
+    padding: 8px;
+    cursor: pointer;
+}
+
+.suggestions li:hover {
+    background: #eee;
+}
+
+.radius-2 {
+    border-radius: 4px;
+}
+
+.expired-card, .notActive-card {
+    opacity: 0.5;
+    filter: grayscale(100%);
+}

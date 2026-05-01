@@ -66,6 +66,10 @@
                                 <i class="fa-solid fa-calendar"></i>
                                 Expirant : {{ $ad->expires_at ? $ad->expires_at->format('d/m/Y') : 'Jamais/non défini' }}
                             </span>
+                            <span class="stat-item">
+                                <i class="fa-solid fa-truck"></i>
+                                Livraison : {{ $ad->delivery_active ? 'disponible' : 'Non disponible' }}
+                            </span>
                         </div>
                     </div>
                     @if($ad->expires_at && Carbon::parse($ad->expires_at)->toDateString() < now()->toDateString())

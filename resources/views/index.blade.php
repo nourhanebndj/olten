@@ -94,7 +94,7 @@
                 <div class="carousel-track">
                     @forelse($ads as $ad)
                         @if($ad->is_approved)
-                            <a href="{{ route('ads.show', $ad) }}" class="annonce-card" id="ad-link">
+                            <a href="{{ route('ads.show', $ad) }}" id="ad-link"  class="annonce-card {{ $ad->expires_at && \Carbon\Carbon::parse($ad->expires_at)->toDateString() < now()->toDateString() ? 'expired-card' : '' }}">
                                 <div class="card-image-container">
                                     <img src="{{ $ad->images->first() ? asset('storage/' . $ad->images->first()->path) : asset('assets/images/no-image.jpg') }}" alt="{{ $ad->title }}" class="card-image">
                                     <span class="watermark">leboncoin</span>
@@ -112,6 +112,9 @@
                                         @if($ad->expires_at && Carbon::parse($ad->expires_at)->toDateString() < now()->toDateString())
                                             <span class="expired">Expirée</span>
                                         @endif
+                                        @if($ad->delivery_active)
+                                            <span class="mt-auto mb-auto bg-success text-white fs-6 p-1 radius-2">Livraison disponible</span>
+                                        @endif                            
                                     </div>
                                     
                                     <p class="card-price">Commence à partir de {{ number_format($ad->price_per_day, 2) }} € / jour</p>
@@ -152,7 +155,7 @@
         <div class="carousel-wrapper">
             <div class="carousel-track">
                 @foreach($products as $product)
-                    <a href="{{ route('products.show', $product) }}" class="product-card" id="product-link">
+                    <a href="{{ route('products.show', $product) }}" class="product-card {{ $product->is_active ? '' : 'notActive-card' }}" id="product-link">
                         <div class="card-image-container">
                             <img src="{{ $product->images->first() 
                                 ? asset('storage/' . $product->images->first()->image) 
@@ -169,7 +172,12 @@
                                     <span class="card-qte">{{ $product->stock }} disponible</span>
                                 @endif
                             </div>
-                            <p class="card-price">{{ number_format($product->price, 2) }} €</p>
+                            <div class="d-flex justify-content-between">
+                                <p class="card-price">{{ number_format($product->price, 2) }} €</p>
+                                @if($product->delivery_available)
+                                    <span class="mt-auto mb-auto bg-success text-white fs-6 p-1 radius-2">Livraison disponible</span>
+                                @endif                            
+                            </div>
                         </div>
                     </a>
                 @endforeach

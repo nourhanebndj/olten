@@ -61,7 +61,7 @@
                     @if($product->stock > 0)
                         <form action="{{ route('products.purchase', $product) }}" method="POST">
                             @csrf
-                            <div class="form-group">
+                            <div class="form-group w-50">
                                 <label for="quantity">Quantité</label>
                                 <input type="number" name="quantity" id="quantity" class="form-control" value="1" min="1" max="{{ $product->stock }}">
                             </div>

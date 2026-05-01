@@ -56,7 +56,6 @@ class AdController extends Controller
 
             $ad->increment('views');
         }
-
         return view('pages.annonces_pages.annonces_details', compact('ad'));
     }
 

@@ -82,6 +82,42 @@
         </div>
     </div>
 
+    <!-- SECTION ADRESSE -->
+    <div class="form-container">
+        <div class="form-section-header">
+            <div class="form-section-icon">
+                <i class="fa-solid fa-location-dot"></i>
+            </div>
+            <h2 class="form-section-title">Adresse du vendeur</h2>
+        </div>
+
+        <div class="map-container">
+            <div id="map" style="height: 100%;"></div>
+        </div>
+
+        <div class="address-fields">
+            <div class="form-group">
+                <label class="form-label">Adresse</label>
+                <input type="text" name="address" id="adresseVendeur" class="form-input"
+                       placeholder="Adresse vendeur" value="{{ old('address', $product->address) }}">
+                <ul id="adresseSuggestions" class="suggestions"></ul>
+            </div>
+
+            <div class="coordinate-fields d-none">
+                <div class="form-group">
+                    <label class="form-label">Longitude</label>
+                    <input type="text" name="longitude" id="longitude" class="form-input"
+                           placeholder="Longitude" value="{{ old('longitude', $product->longitude) }}">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Latitude</label>
+                    <input type="text" name="latitude" id="latitude" class="form-input"
+                           placeholder="Latitude" value="{{ old('latitude', $product->latitude) }}">
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- SECTION PRIX & STOCK -->
     <div class="form-container">
         <div class="form-section-header">
@@ -125,13 +161,32 @@
         <div class="form-group">
             <label class="form-label">Produit actif ?</label>
             <div class="toggle-switch">
-                <input type="checkbox" name="is_active"
-                       {{ old('is_active', $product->is_active) ? 'checked' : '' }}>
-                <label class="toggle-label"></label>
+                <input type="checkbox" id="is_active" name="is_active" value="1" {{ old('is_active', $product->is_active) ? 'checked' : '' }}>
+                <label class="toggle-label" for="is_active"></label>
+                <input type="hidden" name="is_active" value="0">
+            </div>
+        </div>
+        
+    </div>
+
+    <!-- SECTION LIVRAISON -->
+    <div class="form-container">
+        <div class="form-section-header">
+            <div class="form-section-icon">
+                <i class="fa-solid fa-truck"></i>
+            </div>
+            <h2 class="form-section-title">Livraison</h2>
+        </div>
+
+        <div class="form-group">
+            <label class="form-label">Proposez-vous une livraison ?</label>
+            <div class="toggle-switch">
+                <input type="hidden" name="delivery_available" value="0">
+                <input type="checkbox" name="delivery_available" id="livraisonActive" value="1" {{ old('delivery_available', $product->delivery_available) ? 'checked' : '' }}>
+                <label for="livraisonActive" class="toggle-label"></label>
             </div>
         </div>
     </div>
-
     <!-- SUBMIT -->
     <div class="form-actions">
         <button type="submit" class="btn-submit">

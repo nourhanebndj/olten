@@ -44,7 +44,11 @@ class ProductController extends Controller
             'price' => 'required|numeric|min:0',
             'stock' => 'required|integer|min:0',
             'description' => 'nullable|string',
-            'images.*' => 'image|mimes:jpg,jpeg,png,webp|max:2048'
+            'images.*' => 'image|mimes:jpg,jpeg,png,webp|max:2048',
+            'delivery_available' => 'nullable|boolean',
+            'address' => 'nullable|string|max:255',
+            'latitude' => 'nullable|numeric',
+            'longitude' => 'nullable|numeric',
         ]);
 
         $product = Product::create([
@@ -55,6 +59,10 @@ class ProductController extends Controller
             'stock' => $request->stock,
             'description' => $request->description,
             'is_active' => $request->has('is_active'),
+            'delivery_available' => $request->has('delivery_available'),
+            'address' => $request->address,
+            'latitude' => $request->latitude,
+            'longitude' => $request->longitude,
         ]);
 
         if ($request->hasFile('images')) {
@@ -95,7 +103,8 @@ class ProductController extends Controller
             'category_id' => 'required|exists:categories,id',
             'price' => 'required|numeric|min:0',
             'stock' => 'required|integer|min:0',
-            'images.*' => 'image|max:2048'
+            'images.*' => 'image|max:2048',
+            'delivery_available' => 'nullable|boolean',
         ]);
 
         $produit->update([
@@ -105,6 +114,7 @@ class ProductController extends Controller
             'stock' => $request->stock,
             'description' => $request->description,
             'is_active' => $request->has('is_active'),
+            'delivery_available' => $request->has('delivery_available'),
         ]);
 
         if ($request->hasFile('images')) {
@@ -203,69 +213,109 @@ class ProductController extends Controller
             return redirect()->back();
         }
 
-        $product = Product::findOrFail(session('product_id'));
+        $product  = Product::findOrFail(session('product_id'));
         $quantity = session('quantity');
-        return view('pages.products.confirm', compact('product', 'quantity'));
+
+        $sellerLat = $product->latitude;
+        $sellerLng = $product->longitude;
+
+        return view('pages.products.confirm', compact('product', 'quantity', 'sellerLat', 'sellerLng'));
     }
 
     public function pay(Request $request)
     {
+        $request->validate([
+            'product_id'          => 'required|exists:products,id',
+            'quantity'            => 'required|integer|min:1',
+
+            'payment_method'      => 'required|string',
+            'address'             => 'required|string',
+            'phone'               => 'required|string',
+
+            'delivery_requested'  => 'nullable|boolean',
+            'delivery_distance'   => 'nullable|numeric|min:0',
+            'delivery_address'    => 'nullable|string',
+        ]);
+
         $user = Auth::user();
 
         Stripe::setApiKey(config('services.stripe.secret'));
 
-        $product = Product::findOrFail(session('product_id'));
-        $quantity = session('quantity');
-
-        if ($product->stock < $quantity) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Stock insuffisant'
-            ]);
-        }
-
-        $total = $product->price * $quantity;
-        $amountInCents = $total * 100;
-
         try {
-            $intent = PaymentIntent::create([
-                'amount' => $amountInCents,
-                'currency' => 'eur',
-                'payment_method' => $request->payment_method,
-                'confirm' => true,
-                'automatic_payment_methods' => ['enabled' => true],
-            ]);
 
-            if ($intent->status === 'succeeded') {
+            return DB::transaction(function () use ($request, $user) {
+
+                $product = Product::where('id', $request->product_id)
+                                    ->lockForUpdate()
+                                    ->firstOrFail();
+
+                $quantity = (int) $request->quantity;
+
+                if ($product->stock < $quantity) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'Stock insuffisant',
+                    ]);
+                }
+
+                $productTotal = $product->price * $quantity;
+
+                $deliveryCost = 0;
+
+                if ($request->boolean('delivery_requested')) {
+                    $distance = (float) $request->delivery_distance;
+
+                    $deliveryCost = ceil($distance) * 1;
+                }
+
+                $grandTotal    = $productTotal + $deliveryCost;
+                $amountInCents = (int) round($grandTotal * 100);
+
+                $intent = PaymentIntent::create([
+                                                    'amount'   => $amountInCents,
+                                                    'currency' => 'eur',
+                                                    'payment_method' => $request->payment_method,
+                                                    'confirm'  => true,
+                                                    'automatic_payment_methods' => [
+                                                        'enabled' => true,
+                                                    ],
+                                                ]);
+
+                if ($intent->status !== 'succeeded') {
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'Paiement non confirmé',
+                    ]);
+                }
+
                 $product->decrement('stock', $quantity);
 
                 ProductSale::create([
-                    'product_id' => $product->id,
-                    'buyer_id'   => $user->id,
-                    'seller_id'  => $product->user_id,
-                    'quantity'   => $quantity,
-                    'total_price'=> $total,
-                    'status'=> 'paid',
-                    'payment_intent_id' => $intent->id,
-                    'address'    => $request->address,
-                    'phone'      => $request->phone,
+                    'product_id'          => $product->id,
+                    'buyer_id'            => $user->id,
+                    'seller_id'           => $product->user_id,
+                    'quantity'            => $quantity,
+                    'total_price'         => $grandTotal,
+                    'status'              => 'paid',
+                    'payment_intent_id'   => $intent->id,
+                    'address'             => $request->address,
+                    'phone'               => $request->phone,
+                    'delivery_requested'  => $request->boolean('delivery_requested'),
+                    'delivery_cost'       => $deliveryCost,
+                    'delivery_distance_km'=> (float) $request->delivery_distance,
+                    'delivery_address'    => $request->delivery_address,
                 ]);
 
                 return response()->json([
-                    'success' => true,
-                    'redirect' => route('products.success')
+                    'success'  => true,
+                    'redirect' => route('products.success'),
                 ]);
-            }
-
-            return response()->json([
-                'success' => false,
-                'message' => 'Paiement non effectué. Veuillez réessayer.'
-            ]);
+            });
 
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Erreur de paiement : ' . $e->getMessage()
+                'message' => 'Erreur de paiement : ' . $e->getMessage(),
             ]);
         }
     }

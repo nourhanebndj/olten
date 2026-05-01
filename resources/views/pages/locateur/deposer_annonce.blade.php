@@ -160,27 +160,6 @@
                 <label for="livraisonActive" class="toggle-label"></label>
             </div>
         </div>
-
-        <div id="livraisonDetails" style="display:none;">
-            <div class="form-group">
-                <label class="form-label">Adresse du client</label>
-                <input type="text" name="client_address" id="adresseClient" class="form-input" placeholder="Adresse de livraison">
-                <ul id="adresseClientSuggestions" class="suggestions"></ul>
-            </div>
-
-            <div class="form-group">
-                <label class="form-label">Tarif par kilomètre</label>
-                <div class="input-group">
-                    <input type="number" name="price_per_km" id="tarifKm" class="form-input" value="50" step="0.01">
-                    <span class="input-suffix">Euro / km</span>
-                </div>
-            </div>
-
-            <div class="distance-result" id="distanceResult">
-                Distance : -- km<br>
-                Coût total livraison : -- Euro
-            </div>
-        </div>
     </div>
 
     <div class="form-actions">

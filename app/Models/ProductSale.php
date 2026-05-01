@@ -16,6 +16,10 @@ class ProductSale extends Model
         'address',
         'phone',
         'payment_intent_id',
+        'delivery_requested',    
+        'delivery_cost',    
+        'delivery_distance_km',    
+        'delivery_address'
     ];
 
     public function product()

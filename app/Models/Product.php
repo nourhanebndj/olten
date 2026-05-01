@@ -14,12 +14,17 @@ class Product extends Model
         'stock',
         'description',
         'is_active',
-        'views'
+        'views',
+        'delivery_available',
+        'address',
+        'latitude',
+        'longitude',
     ];
 
     protected $casts = [
         'price' => 'decimal:2',
         'is_active' => 'boolean',
+        'delivery_available' => 'boolean',
     ];
 
     public function category()

@@ -64,6 +64,11 @@
                             <i class="fa-solid fa-eye"></i>
                             Vues : {{ $product->views ?? 0 }}
                         </span>
+
+                        <span class="stat-item text-white {{ $product->delivery_available ? 'bg-success' : 'bg-danger' }}">
+                            <i class="fa-solid fa-truck"></i>
+                            Livraison : {{ $product->delivery_available ? "Diponible" : "Non disponible" }}
+                        </span>
                     </div>
 
                     @if($product->stock <= 0)

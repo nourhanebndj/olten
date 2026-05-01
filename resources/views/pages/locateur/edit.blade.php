@@ -186,28 +186,6 @@
             </div>
         </div>
 
-        <div id="livraisonDetails" style="display: {{ old('delivery_active', $ad->delivery_active) ? 'block' : 'none' }}">
-            <div class="form-group">
-                <label class="form-label">Adresse du client</label>
-                <input type="text" name="client_address" id="adresseClient" class="form-input"
-                       placeholder="Adresse de livraison" value="{{ old('client_address', $ad->client_address) }}">
-                <ul id="adresseClientSuggestions" class="suggestions"></ul>
-            </div>
-
-            <div class="form-group">
-                <label class="form-label">Tarif par kilomètre</label>
-                <div class="input-group">
-                    <input type="number" name="price_per_km" id="tarifKm" class="form-input"
-                           step="0.01" value="{{ old('price_per_km', $ad->price_per_km ?? 0) }}">
-                    <span class="input-suffix">Euro / km</span>
-                </div>
-            </div>
-
-            <div class="distance-result" id="distanceResult">
-                Distance : {{ $ad->distance_km ?? '--' }} km<br>
-                Coût total livraison : {{ $ad->delivery_cost ?? '--' }} Euro
-            </div>
-        </div>
     </div>
 
     <div class="form-actions">

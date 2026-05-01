@@ -52,8 +52,12 @@ class BookingController extends Controller
         if (!session()->has('start_date')) {
             return redirect()->back();
         }
-
-        return view('pages.annonces_pages.confirm_booking');
+        $ad = Ad::findOrFail(session('ad_id'));
+        return view('pages.annonces_pages.confirm_booking', [
+                                                                'ad' => $ad,
+                                                                'start_date' => session('start_date'),
+                                                                'end_date' => session('end_date'),
+                                                            ]);
     }
 
     public function pay(Request $request)
