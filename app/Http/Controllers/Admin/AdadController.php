@@ -25,14 +25,14 @@ class AdadController extends Controller
             $query->where('user_id', $request->user_id);
         }
         if ($request->filled('category_id')) {
-                $query->where('category_id', $request->category_id);
-            }
+            $query->where('category_id', $request->category_id);
+        }
         $ads = $query->paginate(10)->withQueryString();
-   
+
         $categories = \App\Models\Category::orderBy('nom')->get();
         $users = \App\Models\User::orderBy('name')->get();
 
-        return view('admin.ads.index', compact('ads', 'users','categories'));
+        return view('admin.ads.index', compact('ads', 'users', 'categories'));
     }
 
 

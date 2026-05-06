@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Http\Controllers\livrer;
+
 use App\Http\Controllers\Controller;
 use App\Models\Booking;
 use App\Models\DemandeLivreur;
@@ -22,9 +23,12 @@ class DeliveryAdController extends Controller
             ->where('status', 'pending')
             ->whereNotIn('ad_id', $requestedBookingIds)
             ->whereNotIn('ad_id', $acceptedBookingIds)
+            ->whereHas('ad', function ($q) {
+                $q->where('delivery_active', true);
+            })
             ->latest()
             ->get()
-            ->map(function($booking) {
+            ->map(function ($booking) {
                 $ad = $booking->ad;
                 $ad->booking_id = $booking->id;
                 $ad->start_date = $booking->start_date;
@@ -34,20 +38,20 @@ class DeliveryAdController extends Controller
                 $ad->status = $booking->status;
                 return $ad;
             });
-            $adsDemandees = Ad::whereIn('id', function($q) use ($livreurId) {
-                    $q->select('id_annonce')
-                    ->from('demande_livreur')
-                    ->where('id_livreur', $livreurId)
-                    ->where('statut', 'en_attente'); 
-                })
-                ->with(['user', 'category'])
-                ->get();
-        $adsEnCours = Ad::whereIn('id', function($q) use ($livreurId) {
-                $q->select('id_annonce')
-                ->from('demande_livreur')
-                ->where('id_livreur', $livreurId)
-                ->where('statut', 'acceptee');
-            })
+        $adsDemandees = Ad::whereIn('id', function ($q) use ($livreurId) {
+            $q->select('id_annonce')
+            ->from('demande_livreur')
+            ->where('id_livreur', $livreurId)
+            ->where('statut', 'en_attente');
+        })
+            ->with(['user', 'category'])
+            ->get();
+        $adsEnCours = Ad::whereIn('id', function ($q) use ($livreurId) {
+            $q->select('id_annonce')
+            ->from('demande_livreur')
+            ->where('id_livreur', $livreurId)
+            ->where('statut', 'acceptee');
+        })
             ->with(['user', 'category'])
             ->get();
         return view('livreur.ads.index', compact('adsDisponibles', 'adsDemandees', 'adsEnCours'));
@@ -68,7 +72,7 @@ class DeliveryAdController extends Controller
         $livreurId = Auth::id();
 
         $livraisonsTerminees = LivraisonColis::where('livreur_id', $livreurId)
-            ->where('statut', 'livré') 
+            ->where('statut', 'livré')
             ->with('expediteur')
             ->orderBy('date_creation', 'desc')
             ->get();
