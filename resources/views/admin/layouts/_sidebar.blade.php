@@ -69,6 +69,12 @@
             <i class="bi bi-car-front-fill mr-3 w-5 h-5"></i>
             Trajets
         </a>
+        {{-- Paramètres --}}
+        <a href="{{ route('admin.settings.index') }}"
+            class="sidebar-link flex items-center p-3 rounded-xl text-sm font-medium hover:text-primary-accent hover:bg-gray-100">
+            <i class="bi bi-gear-fill mr-3 w-5 h-5"></i>
+            Paramètres
+        </a>
     </nav>
 
     <!-- Déconnexion -->

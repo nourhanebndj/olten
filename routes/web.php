@@ -35,7 +35,18 @@ use App\Models\LivraisonColis;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Models\User;
+use App\Http\Controllers\Admin\SettingController;
 
+Route::get('rapport-test', [AdminDashboardController::class, 'rapportTest'])->name('rapport_test');
+Route::prefix('admin')
+    ->name('admin.')
+    ->middleware(['auth'])
+    ->group(function () {
+
+        Route::get('/settings', [SettingController::class, 'index'])
+            ->name('settings.index');
+
+    });
 Route::get('/', [HomeController::class, 'index'])->name('home');
 Route::get('/creer-site', function () {
     return view('pages.creer_site');
@@ -212,6 +223,8 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'role:admin']) ->gro
     // annonce
     Route::get('/ads/admin', [AdadController::class, 'index'])->name('admin.ads.index');
     Route::patch('/ads/{ad}/approve', [AdadController::class, 'approve'])->name('ads.approve');
+    // Rapport de test PDF
+
     // Logout admin
     Route::post('/logout', [AdminAuthController::class, 'logout'])->name('admin.logout');
 });
