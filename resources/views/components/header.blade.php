@@ -14,10 +14,7 @@
 
             <div class="search-field">
                 <i class="fa-solid fa-magnifying-glass"></i>
-                <input type="text"
-                    name="search"
-                    placeholder="Que recherchez-vous ?"
-                    class="search-input"
+                <input type="text" name="search" placeholder="Que recherchez-vous ?" class="search-input"
                     value="{{ request('search') }}">
             </div>
 
@@ -25,10 +22,7 @@
 
             <div class="search-field">
                 <i class="fa-solid fa-location-dot"></i>
-                <input type="text"
-                    name="location"
-                    placeholder="Emplacement"
-                    class="location-input"
+                <input type="text" name="location" placeholder="Emplacement" class="location-input"
                     value="{{ request('location') }}">
             </div>
 
@@ -38,7 +32,7 @@
                 <select name="category" class="category-select">
                     <option value="">Toutes les catégories</option>
 
-                    @foreach($categories as $category)
+                    @foreach ($categories as $category)
                         <option value="{{ $category->id }}"
                             {{ request('category') == $category->id ? 'selected' : '' }}>
                             {{ $category->nom }}
@@ -59,7 +53,7 @@
             <i class="fa-solid fa-magnifying-glass"></i>
         </button>
 
-        @if(Auth::check())
+        @if (Auth::check())
             <div class="user-menu">
                 @php
                     $name = Auth::user()->name;
@@ -106,7 +100,8 @@
                     <li>
                         <form method="POST" action="{{ route('logout') }}">
                             @csrf
-                            <a href="{{route('logout')}}" onclick="event.preventDefault(); this.closest('form').submit();">
+                            <a href="{{ route('logout') }}"
+                                onclick="event.preventDefault(); this.closest('form').submit();">
                                 <i class="fa-solid fa-right-from-bracket"></i> Déconnexion
                             </a>
                         </form>
@@ -132,19 +127,13 @@
 
                 <div class="search-field">
                     <i class="fa-solid fa-magnifying-glass"></i>
-                    <input type="text"
-                        name="search"
-                        placeholder="Que recherchez-vous ?"
-                        class="search-input"
+                    <input type="text" name="search" placeholder="Que recherchez-vous ?" class="search-input"
                         value="{{ request('search') }}">
                 </div>
 
                 <div class="search-field">
                     <i class="fa-solid fa-location-dot"></i>
-                    <input type="text"
-                        name="location"
-                        placeholder="Emplacement"
-                        class="location-input"
+                    <input type="text" name="location" placeholder="Emplacement" class="location-input"
                         value="{{ request('location') }}">
                 </div>
 
@@ -152,7 +141,7 @@
                     <select name="category" class="category-select">
                         <option value="">Toutes les catégories</option>
 
-                        @foreach($categories as $category)
+                        @foreach ($categories as $category)
                             <option value="{{ $category->id }}"
                                 {{ request('category') == $category->id ? 'selected' : '' }}>
                                 {{ $category->nom }}
@@ -247,23 +236,37 @@
         <div class="tab-content" id="register" style="display:none;">
             <form id="registerForm">
                 @csrf
+
                 <div class="input-group">
                     <i class="fa-solid fa-pen"></i>
                     <input type="text" name="first_name" placeholder="Prénom" required>
                 </div>
+
                 <div class="input-group">
                     <i class="fa-solid fa-pen"></i>
                     <input type="text" name="last_name" placeholder="Nom de famille" required>
                 </div>
+
                 <div class="input-group">
                     <i class="fa-solid fa-envelope"></i>
                     <input type="email" name="email" placeholder="Adresse e-mail" required>
                 </div>
+
                 <div class="input-group">
                     <i class="fa-solid fa-lock"></i>
                     <input type="password" name="password" placeholder="Mot de passe" required>
                     <i class="fa-solid fa-eye toggle-password"></i>
                 </div>
+
+                {{-- ✅ Confirmation mot de passe remontée avant le rôle --}}
+                <div class="input-group">
+                    <i class="fa-solid fa-lock"></i>
+                    <input type="password" name="password_confirmation" placeholder="Confirmer le mot de passe"
+                        required>
+                    <i class="fa-solid fa-eye toggle-password"></i>
+                </div>
+
+                {{-- ✅ Rôle en dernier (masqué si géré par l'admin, voir point 2) --}}
                 <div class="input-group">
                     <i class="fa-solid fa-user-tag"></i>
                     <select name="role" required>
@@ -272,12 +275,10 @@
                         <option value="vendeur">Vendeur</option>
                     </select>
                 </div>
-                <div class="input-group">
-                    <i class="fa-solid fa-lock"></i>
-                    <input type="password" name="password_confirmation" placeholder="Confirmer le mot de passe" required>
-                </div>
+
                 <label>
-                    <input type="checkbox" name="terms" required> J'accepte les <a href="#">Conditions de confidentialité</a>
+                    <input type="checkbox" name="terms" required>
+                    J'accepte les <a href="#">Conditions de confidentialité</a>
                 </label>
 
                 <div id="registerErrors"></div>
@@ -296,4 +297,3 @@
     window.PASSWORD_RESET_STATUS = @json(session('status', null));
 </script>
 <script src="{{ asset('assets/js/auth.js') }}"></script>
-

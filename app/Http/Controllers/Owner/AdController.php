@@ -17,10 +17,13 @@ class AdController extends Controller
 {
     public function index(Request $request)
     {
-        $search = $request->input('search');
+        $search     = $request->input('search');
         $categoryId = $request->input('category_id');
+        $status     = $request->input('status');          // ← nouveau
 
-        $query = Ad::where('user_id', Auth::id())->with('category')->latest();
+        $query = Ad::where('user_id', Auth::id())
+                ->with('category')
+                ->latest();
 
         if ($search) {
             $query->where('title', 'ILIKE', "%{$search}%");
@@ -30,8 +33,18 @@ class AdController extends Controller
             $query->where('category_id', $categoryId);
         }
 
-        $ads = $query->paginate(8)->withQueryString();
+      
+        match($status) {
+            'approved' => $query->where('is_approved', true)->whereNull('rejected_at'),
+            'pending'  => $query->where('is_approved', false)->whereNull('rejected_at')
+                                ->where(fn($q) => $q->whereNull('expires_at')
+                                                ->orWhere('expires_at', '>=', now())),
+            'rejected' => $query->whereNotNull('rejected_at'),
+            'expired'  => $query->whereNotNull('expires_at')->where('expires_at', '<', now()),
+            default    => null,
+        };
 
+        $ads        = $query->paginate(8)->withQueryString();
         $categories = Category::all();
 
         return view('pages.locateur.mes_annonces', compact('ads', 'categories'));

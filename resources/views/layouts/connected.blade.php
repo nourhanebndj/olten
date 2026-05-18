@@ -21,7 +21,7 @@
 
         {{-- SIDEBAR --}}
         @include('components.sidebar_connected')
-
+        <div class="overlay" id="sidebarOverlay"></div>
         <div class="main-content">
 
             {{-- HEADER --}}
@@ -54,7 +54,74 @@
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script>
         lucide.createIcons();
+        document.addEventListener('DOMContentLoaded', function() {
+
+            // ════════════════════════════════════════
+            // 1. SIDEBAR — slide-in mobile
+            // ════════════════════════════════════════
+            const sidebar = document.querySelector('.connected-sidebar');
+            const overlay = document.getElementById('sidebarOverlay');
+            const btnToggle = document.querySelector('.btn-toggle-sidebar'); // bouton ☰ dans le header
+
+            function openSidebar() {
+                sidebar.classList.add('active');
+                overlay.classList.add('active');
+                document.body.style.overflow = 'hidden';
+            }
+
+            function closeSidebar() {
+                sidebar.classList.remove('active');
+                overlay.classList.remove('active');
+                document.body.style.overflow = '';
+            }
+
+            if (btnToggle) {
+                btnToggle.addEventListener('click', () =>
+                    sidebar.classList.contains('active') ? closeSidebar() : openSidebar()
+                );
+            }
+
+            overlay?.addEventListener('click', closeSidebar);
+
+            // Fermer sidebar quand on clique un lien (mobile)
+            document.querySelectorAll('.connected-sidebar a').forEach(link =>
+                link.addEventListener('click', () => {
+                    if (window.innerWidth <= 1024) closeSidebar();
+                })
+            );
+
+            // ════════════════════════════════════════
+            // 2. DROPDOWN — menu utilisateur dans le header
+            // ════════════════════════════════════════
+            const userMenus = document.querySelectorAll('.user-menu'); // avatar + chevron
+
+            userMenus.forEach(menu => {
+                menu.addEventListener('click', function(e) {
+                    // Ne pas interférer avec les liens/boutons à l'intérieur
+                    if (e.target.closest('a') || e.target.closest('button[type="submit"]')) return;
+                    menu.classList.toggle('open');
+                });
+            });
+
+            // Fermer dropdown en cliquant ailleurs
+            document.addEventListener('click', function(e) {
+                userMenus.forEach(menu => {
+                    if (!menu.contains(e.target)) menu.classList.remove('open');
+                });
+            });
+
+            // ════════════════════════════════════════
+            // 3. ÉCHAP — ferme les deux
+            // ════════════════════════════════════════
+            document.addEventListener('keydown', function(e) {
+                if (e.key !== 'Escape') return;
+                closeSidebar();
+                userMenus.forEach(m => m.classList.remove('open'));
+            });
+
+        });
     </script>
+
 </body>
 
 </html>

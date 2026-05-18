@@ -161,6 +161,10 @@
                                             class="px-3 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-700">
                                             Approuvée
                                         </span>
+                                    @elseif ($ad->rejected_at)
+                                        <span class="px-3 py-1 text-xs font-semibold rounded-full bg-red-100 text-red-700">
+                                            Refusée
+                                        </span>
                                     @else
                                         <span
                                             class="px-3 py-1 text-xs font-semibold rounded-full bg-yellow-100 text-yellow-700">
@@ -170,20 +174,40 @@
                                 </td>
 
                                 <td class="px-6 py-4 text-right">
-                                    @if (!$ad->is_approved)
-                                        <form action="{{ route('admin.ads.approve', $ad) }}" method="POST">
-                                            @csrf
-                                            @method('PATCH')
-                                            <button
-                                                class="inline-flex items-center px-4 py-2 bg-red-600 text-white text-xs font-medium rounded-xl
-                                                   hover:bg-red-700 transition">
-                                                <i class="bi bi-check-circle mr-1"></i>
-                                                Approuver
+                                    <div class="inline-flex gap-2 justify-end">
+
+                                        @if (!$ad->is_approved)
+                                            <form id="approve-form-{{ $ad->id }}"
+                                                action="{{ route('admin.ads.approve', $ad) }}" method="POST"
+                                                class="hidden">
+                                                @csrf @method('PATCH')
+                                            </form>
+                                            <button type="button" onclick="confirmAction('approve', {{ $ad->id }})"
+                                                class="inline-flex items-center px-4 py-2 bg-green-600 text-white
+                       text-xs font-medium rounded-xl hover:bg-green-700 transition">
+                                                <i class="bi bi-check-circle mr-1"></i> Approuver
                                             </button>
-                                        </form>
-                                    @else
-                                        <span class="text-xs text-gray-400 italic">Aucune action</span>
-                                    @endif
+                                        @endif
+
+                                        @if (!                                        @if (!$ad->rejected_at)
+$ad->rejected_at)
+                                            <form id="reject-form-{{ $ad->id }}"
+                                                action="{{ route('admin.ads.reject', $ad) }}" method="POST"
+                                                class="hidden">
+                                                @csrf @method('PATCH')
+                                            </form>
+                                            <button type="button" onclick="confirmAction('reject', {{ $ad->id }})"
+                                                class="inline-flex items-center px-4 py-2 bg-red-600 text-white
+                       text-xs font-medium rounded-xl hover:bg-red-700 transition">
+                                                <i class="bi bi-x-circle mr-1"></i> Refuser
+                                            </button>
+                                        @endif
+
+                                        @if ($ad->is_approved && $ad->rejected_at)
+                                            <span class="text-xs text-gray-400 italic">Aucune action</span>
+                                        @endif
+
+                                    </div>
                                 </td>
                             </tr>
                         @empty
@@ -203,6 +227,56 @@
 
         </div>
     </div>
+    {{-- SweetAlert2 CDN (si pas déjà dans le layout) --}}
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <script>
+        function confirmAction(type, adId) {
+            const config = {
+                approve: {
+                    title: 'Approuver cette annonce ?',
+                    text: 'L\'annonce sera visible par les utilisateurs.',
+                    icon: 'question',
+                    confirmButtonText: 'Oui, approuver',
+                    confirmButtonColor: '#16a34a', // green-600
+                    cancelButtonText: 'Annuler',
+                },
+                reject: {
+                    title: 'Refuser cette annonce ?',
+                    text: 'L\'annonce sera marquée comme refusée.',
+                    icon: 'warning',
+                    confirmButtonText: 'Oui, refuser',
+                    confirmButtonColor: '#dc2626', // red-600
+                    cancelButtonText: 'Annuler',
+                }
+            };
+
+            const {
+                title,
+                text,
+                icon,
+                confirmButtonText,
+                confirmButtonColor,
+                cancelButtonText
+            } = config[type];
+
+            Swal.fire({
+                title,
+                text,
+                icon,
+                showCancelButton: true,
+                confirmButtonColor,
+                cancelButtonColor: '#6b7280', // gray-500
+                confirmButtonText,
+                cancelButtonText,
+                reverseButtons: true,
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    document.getElementById(`${type}-form-${adId}`).submit();
+                }
+            });
+        }
+    </script>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             new TomSelect('#user_select', {

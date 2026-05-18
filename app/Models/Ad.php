@@ -28,7 +28,8 @@ class Ad extends Model
         'available_until',
         'expires_at',
         'is_approved',
-        'views'
+        'views',
+        'rejected_at'
     ];
 
     protected $casts = [

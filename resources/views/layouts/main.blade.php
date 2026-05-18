@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="fr">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -32,9 +33,59 @@
     </main>
 
     <x-footer />
-
-    <!-- Script -->
     <script src="{{ asset('assets/js/script.js') }}"></script>
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+
+            // ════════════════════════════════════════
+            // 1. SIDEBAR publique (bouton ☰ menuToggle)
+            // ════════════════════════════════════════
+            const sidebar = document.getElementById('sidebar');
+            const menuToggle = document.getElementById('menuToggle');
+            const closeSidebar = document.getElementById('closeSidebar');
+
+            menuToggle?.addEventListener('click', () => sidebar?.classList.add('active'));
+            closeSidebar?.addEventListener('click', () => sidebar?.classList.remove('active'));
+
+            // ════════════════════════════════════════
+            // 2. RECHERCHE mobile (bouton loupe)
+            // ════════════════════════════════════════
+            const searchToggle = document.getElementById('searchToggle');
+            const mobileSearch = document.getElementById('mobileSearch');
+
+            searchToggle?.addEventListener('click', () => mobileSearch?.classList.toggle('active'));
+
+            // ════════════════════════════════════════
+            // 3. DROPDOWN user-menu (header public)
+            // ════════════════════════════════════════
+            const userMenus = document.querySelectorAll('.user-menu');
+
+            userMenus.forEach(function(menu) {
+                menu.addEventListener('click', function(e) {
+                    if (e.target.closest('a') || e.target.closest('button[type="submit"]')) return;
+                    menu.classList.toggle('open');
+                });
+            });
+
+            document.addEventListener('click', function(e) {
+                userMenus.forEach(function(menu) {
+                    if (!menu.contains(e.target)) menu.classList.remove('open');
+                });
+            });
+
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape') {
+                    userMenus.forEach(m => m.classList.remove('open'));
+                    sidebar?.classList.remove('active');
+                    mobileSearch?.classList.remove('active');
+                }
+            });
+
+        });
+    </script>
+
 </body>
+
 </html>

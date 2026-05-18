@@ -34,14 +34,23 @@ class AdadController extends Controller
 
         return view('admin.ads.index', compact('ads', 'users', 'categories'));
     }
-
-
     public function approve(Ad $ad)
     {
         $ad->update([
-            'is_approved' => true
+            'is_approved' => true,
+            'rejected_at' => null,   // annule un éventuel refus précédent
         ]);
 
         return redirect()->back()->with('success', 'Annonce approuvée avec succès.');
+    }
+
+    public function reject(Ad $ad)
+    {
+        $ad->update([
+            'is_approved'  => false,
+            'rejected_at'  => now(),
+        ]);
+
+        return redirect()->back()->with('success', 'Annonce refusée.');
     }
 }

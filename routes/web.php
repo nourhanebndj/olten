@@ -222,7 +222,8 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'role:admin']) ->gro
     Route::post('vtc-cards/{document}/reject', [VtcAdminController::class, 'reject'])->name('vtc_cards.reject');
     // annonce
     Route::get('/ads/admin', [AdadController::class, 'index'])->name('admin.ads.index');
-    Route::patch('/ads/{ad}/approve', [AdadController::class, 'approve'])->name('ads.approve');
+    Route::patch('ads/{ad}/approve', [AdadController::class, 'approve'])->name('ads.approve');
+    Route::patch('ads/{ad}/reject', [AdadController::class, 'reject'])->name('ads.reject');
     // Rapport de test PDF
 
     // Logout admin
