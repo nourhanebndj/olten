@@ -92,20 +92,44 @@
             @endif
         </div>
     </div>
+    @php
+        $today = now()->format('Y-m-d');
+
+        $availableFrom = optional($ad->available_from)->format('Y-m-d');
+        $availableUntil = optional($ad->available_until)->format('Y-m-d');
+
+        $minFrom = ($availableFrom && $availableFrom < $today) ? $availableFrom : $today;
+    @endphp
 
     <div class="form-grid">
         <div class="form-group">
             <label class="form-label">
                 Disponible à partir du <span class="required">*</span>
             </label>
-            <input type="date" name="available_from" class="form-input" value="{{ optional($ad->available_from)->format('Y-m-d') }}" required>
+
+            <input 
+                type="date"
+                name="available_from"
+                class="form-input"
+                value="{{ old('available_from', $availableFrom) }}"
+                min="{{ $minFrom }}"
+                required
+            >
         </div>
 
         <div class="form-group">
             <label class="form-label">
                 Disponible jusqu'au <span class="required">*</span>
             </label>
-            <input type="date" name="available_until" class="form-input" value="{{ optional($ad->available_until)->format('Y-m-d') }}" required>
+
+            <input 
+                type="date"
+                name="available_until"
+                class="form-input"
+                value="{{ old('available_until', $availableUntil) }}"
+                min="{{ old('available_from', $availableFrom ?? $today) }}"
+                required
+            >
         </div>
     </div>
 

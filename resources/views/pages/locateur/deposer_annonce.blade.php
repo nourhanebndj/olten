@@ -78,14 +78,14 @@
             <label class="form-label">
                 Disponible à partir du <span class="required">*</span>
             </label>
-            <input type="date" name="available_from" class="form-input" required>
+            <input type="date" name="available_from" class="form-input" min="{{ now()->format('Y-m-d') }}" required>
         </div>
 
         <div class="form-group">
             <label class="form-label">
                 Disponible jusqu'au <span class="required">*</span>
             </label>
-            <input type="date" name="available_until" class="form-input" required>
+            <input type="date" name="available_until" class="form-input" min="{{ now()->format('Y-m-d') }}" required>
         </div>
     </div>
 
