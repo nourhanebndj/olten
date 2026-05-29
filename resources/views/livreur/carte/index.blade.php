@@ -21,7 +21,7 @@
                         véhicule pour maintenir votre activité.</p>
                 </div>
 
-                <button id="openUploadModal"
+                <button onclick="openModal(null)"
                     class="group py-4 px-8 bg-[#ff3c00] hover:bg-black text-white rounded-2xl font-black uppercase tracking-widest text-[10px] transition-all duration-500 shadow-xl shadow-orange-200 flex items-center justify-center gap-3 hover:-translate-y-1">
                     <i data-lucide="upload-cloud" class="w-4 h-4 group-hover:animate-bounce"></i>
                     Mettre à jour mes documents
@@ -101,12 +101,12 @@
                                     class="flex items-center gap-2 text-slate-400 hover:text-slate-900 font-bold text-xs uppercase tracking-widest transition-colors">
                                     <i data-lucide="eye" class="w-4 h-4"></i> Aperçu
                                 </a>
-                                <button onclick="document.getElementById('openUploadModal').click()"
+                                <button onclick="openModal('{{ $doc['name'] }}')"
                                     class="w-10 h-10 flex items-center justify-center rounded-xl bg-slate-50 text-slate-400 hover:bg-[#ff3c00] hover:text-white transition-all shadow-sm">
                                     <i data-lucide="refresh-cw" class="w-4 h-4"></i>
                                 </button>
                             @else
-                                <button onclick="document.getElementById('openUploadModal').click()"
+                                <button onclick="openModal('{{ $doc['name'] }}')"
                                     class="w-full py-4 bg-slate-900 text-white rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-[#ff3c00] transition-all shadow-lg hover:shadow-[#ff3c00]/20">
                                     Transférer le document
                                 </button>
@@ -221,82 +221,95 @@
             </div>
         </div>
 
-        <!-- Upload Modal - Simplified and Refined -->
-        <div id="uploadModal" class="fixed inset-0 z-[100] hidden">
-            <div class="absolute inset-0 bg-slate-900/60 backdrop-blur-sm transition-opacity"></div>
-            <div class="relative min-h-screen flex items-center justify-center p-4">
-                <div
-                    class="bg-white w-full max-w-xl rounded-[3rem] overflow-hidden shadow-2xl transform transition-all animate-in zoom-in duration-300">
-                    <div class="p-8 sm:p-12">
-                        <div class="flex justify-between items-center mb-10">
-                            <div>
-                                <h3 class="text-3xl font-black text-slate-900 tracking-tighter">Mise à jour</h3>
-                                <p class="text-slate-400 text-xs font-bold uppercase tracking-widest mt-1">Sécurisé &
-                                    Chiffré</p>
-                            </div>
-                            <button id="closeUploadModal"
-                                class="w-12 h-12 flex items-center justify-center bg-slate-50 rounded-2xl hover:bg-red-50 hover:text-red-500 transition-all">
-                                <i data-lucide="x" class="w-6 h-6"></i>
-                            </button>
+        <!-- Upload Modal -->
+        <div id="uploadModal" class="fixed inset-0 z-[100] hidden" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+            <!-- Backdrop -->
+            <div id="modalBackdrop" class="absolute inset-0 bg-slate-900/60 backdrop-blur-sm"></div>
+
+            <div class="relative h-full flex items-center justify-center p-4 pointer-events-none">
+                <div id="modalCard"
+                    class="bg-white w-full max-w-lg rounded-3xl shadow-2xl pointer-events-auto flex flex-col max-h-[calc(100vh-2rem)] overflow-hidden">
+
+                    <!-- Header (fixe) -->
+                    <div class="flex justify-between items-center px-7 pt-7 pb-5 border-b border-slate-100 flex-shrink-0">
+                        <div>
+                            <h3 id="modalTitle" class="text-2xl font-black text-slate-900 tracking-tighter">Document</h3>
+                            <p id="modalSubtitle" class="text-slate-400 text-[10px] font-bold uppercase tracking-widest mt-0.5">
+                                Sécurisé & Chiffré</p>
                         </div>
+                        <button id="closeUploadModal" aria-label="Fermer"
+                            class="w-10 h-10 flex items-center justify-center bg-slate-50 rounded-xl hover:bg-red-50 hover:text-red-500 transition-all flex-shrink-0">
+                            <i data-lucide="x" class="w-5 h-5"></i>
+                        </button>
+                    </div>
 
-                        <form action="{{ route('documents.upload') }}" method="POST" enctype="multipart/form-data"
-                            class="space-y-8">
+                    <!-- Body (scrollable si besoin) -->
+                    <div class="overflow-y-auto px-7 py-6">
+                        <form id="uploadForm" action="{{ route('documents.upload') }}" method="POST"
+                            enctype="multipart/form-data" class="space-y-5" novalidate>
                             @csrf
-                            <div class="grid grid-cols-2 gap-4">
-                                <label class="relative cursor-pointer group">
-                                    <input type="radio" name="document_type" value="identity_card" class="peer hidden"
-                                        required>
-                                    <div
-                                        class="p-5 border-2 border-slate-100 rounded-[2rem] peer-checked:border-[#ff3c00] peer-checked:bg-orange-50/30 transition-all flex flex-col items-center gap-3">
-                                        <i data-lucide="contact-2"
-                                            class="w-6 h-6 text-slate-300 peer-checked:text-[#ff3c00]"></i>
-                                        <span
-                                            class="text-[10px] font-black uppercase tracking-widest text-slate-600">Identité</span>
-                                    </div>
-                                </label>
-                                <label class="relative cursor-pointer group">
-                                    <input type="radio" name="document_type" value="vtc_card" class="peer hidden">
-                                    <div
-                                        class="p-5 border-2 border-slate-100 rounded-[2rem] peer-checked:border-[#ff3c00] peer-checked:bg-orange-50/30 transition-all flex flex-col items-center gap-3">
-                                        <i data-lucide="award"
-                                            class="w-6 h-6 text-slate-300 peer-checked:text-[#ff3c00]"></i>
-                                        <span class="text-[10px] font-black uppercase tracking-widest text-slate-600">Carte
-                                            VTC</span>
-                                    </div>
-                                </label>
-                            </div>
 
-                            <div id="drop-area" class="relative">
-                                <label
-                                    class="flex flex-col items-center justify-center w-full h-64 border-2 border-dashed border-slate-200 rounded-[2.5rem] bg-slate-50 hover:bg-white hover:border-[#ff3c00] transition-all cursor-pointer group">
-                                    <div
-                                        class="w-20 h-20 bg-white rounded-[2rem] shadow-sm flex items-center justify-center mb-4 transition-transform group-hover:scale-110 duration-500">
-                                        <i data-lucide="upload-cloud" class="w-8 h-8 text-[#ff3c00]"></i>
-                                    </div>
-                                    <p class="text-sm font-black uppercase tracking-tight text-slate-900">Importer le
-                                        fichier</p>
-                                    <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-2">PDF,
-                                        JPEG ou PNG • Max 5Mo</p>
-                                    <input type="file" name="file" id="file-input" class="hidden" required />
-                                </label>
-
-                                <div id="file-preview"
-                                    class="hidden absolute inset-0 bg-white rounded-[2.5rem] flex flex-col items-center justify-center border-2 border-[#ff3c00] p-6 animate-in fade-in zoom-in">
-                                    <div
-                                        class="w-20 h-20 bg-green-50 rounded-[2rem] flex items-center justify-center mb-4 text-green-500">
-                                        <i data-lucide="file-check-2" class="w-10 h-10"></i>
-                                    </div>
-                                    <p id="file-name" class="text-sm font-black text-slate-800 truncate max-w-full px-4">
-                                    </p>
-                                    <button type="button" onclick="resetFile()"
-                                        class="mt-4 text-[10px] font-black uppercase tracking-widest text-red-500 hover:text-red-700">Supprimer</button>
+                            <!-- Document type selector — horizontal compact -->
+                            <div>
+                                <p class="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-3">Type de document</p>
+                                <div class="grid grid-cols-2 gap-3" id="docTypeGrid">
+                                    <label id="label-identity_card" class="cursor-pointer">
+                                        <input type="radio" name="document_type" value="identity_card" id="radio-identity_card" class="sr-only" required>
+                                        <div class="doc-type-card flex items-center gap-3 px-4 py-3 border-2 border-slate-100 rounded-2xl transition-all">
+                                            <i data-lucide="contact-2" class="w-5 h-5 doc-type-icon text-slate-300 transition-colors flex-shrink-0"></i>
+                                            <span class="text-[10px] font-black uppercase tracking-widest text-slate-600 leading-tight">Pièce d'identité</span>
+                                        </div>
+                                    </label>
+                                    <label id="label-vtc_card" class="cursor-pointer">
+                                        <input type="radio" name="document_type" value="vtc_card" id="radio-vtc_card" class="sr-only">
+                                        <div class="doc-type-card flex items-center gap-3 px-4 py-3 border-2 border-slate-100 rounded-2xl transition-all">
+                                            <i data-lucide="award" class="w-5 h-5 doc-type-icon text-slate-300 transition-colors flex-shrink-0"></i>
+                                            <span class="text-[10px] font-black uppercase tracking-widest text-slate-600 leading-tight">Carte VTC</span>
+                                        </div>
+                                    </label>
                                 </div>
+                                <p id="docTypeError" class="hidden mt-1.5 text-xs text-red-500 font-bold">Veuillez sélectionner un type de document.</p>
                             </div>
 
-                            <button
-                                class="w-full py-5 bg-slate-900 text-white rounded-[2rem] font-black uppercase tracking-[0.2em] text-[10px] hover:bg-black transition-all shadow-xl shadow-slate-200">
-                                Confirmer la mise à jour
+                            <!-- File upload zone — compact -->
+                            <div>
+                                <p class="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-3">Fichier</p>
+                                <div class="relative h-40">
+                                    <label for="file-input"
+                                        class="flex flex-col items-center justify-center w-full h-full border-2 border-dashed border-slate-200 rounded-2xl bg-slate-50 hover:bg-white hover:border-[#ff3c00] transition-all cursor-pointer group">
+                                        <div class="w-12 h-12 bg-white rounded-xl shadow-sm flex items-center justify-center mb-3 transition-transform group-hover:scale-110 duration-300">
+                                            <i data-lucide="upload-cloud" class="w-6 h-6 text-[#ff3c00]"></i>
+                                        </div>
+                                        <p class="text-xs font-black uppercase tracking-tight text-slate-900">Importer le fichier</p>
+                                        <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1">PDF, JPEG ou PNG • Max 5 Mo</p>
+                                        <input type="file" name="file" id="file-input" class="hidden" accept=".pdf,.jpg,.jpeg,.png" required />
+                                    </label>
+
+                                    <!-- File preview overlay -->
+                                    <div id="file-preview"
+                                        class="hidden absolute inset-0 bg-white rounded-2xl flex flex-col items-center justify-center border-2 border-[#ff3c00] p-4">
+                                        <div class="w-12 h-12 bg-green-50 rounded-xl flex items-center justify-center mb-3 text-green-500">
+                                            <i data-lucide="file-check-2" class="w-6 h-6"></i>
+                                        </div>
+                                        <p id="file-name" class="text-xs font-black text-slate-800 truncate max-w-full px-4"></p>
+                                        <button type="button" onclick="resetFile()"
+                                            class="mt-3 text-[10px] font-black uppercase tracking-widest text-red-500 hover:text-red-700 transition-colors">
+                                            Supprimer
+                                        </button>
+                                    </div>
+                                </div>
+                                <p id="fileError" class="hidden mt-1.5 text-xs text-red-500 font-bold">Veuillez sélectionner un fichier.</p>
+                            </div>
+
+                            <!-- Submit -->
+                            <button id="submitBtn" type="submit"
+                                class="w-full py-4 bg-slate-900 text-white rounded-2xl font-black uppercase tracking-[0.2em] text-[10px] hover:bg-[#ff3c00] transition-all flex items-center justify-center gap-3 disabled:opacity-50 disabled:cursor-not-allowed">
+                                <i data-lucide="check" class="w-4 h-4" id="submitIcon"></i>
+                                <svg id="submitSpinner" class="hidden animate-spin w-4 h-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"></path>
+                                </svg>
+                                <span id="submitLabel">Confirmer la mise à jour</span>
                             </button>
                         </form>
                     </div>
@@ -311,23 +324,16 @@
         }
 
         @keyframes fadeIn {
-            from {
-                opacity: 0;
-                transform: translateY(30px);
-            }
-
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
+            from { opacity: 0; transform: translateY(30px); }
+            to   { opacity: 1; transform: translateY(0); }
         }
 
-        input[type="radio"]:checked+div {
+        .doc-type-card.selected {
             border-color: #ff3c00;
-            background-color: rgba(255, 60, 0, 0.05);
+            background-color: rgba(255, 60, 0, 0.04);
         }
 
-        input[type="radio"]:checked+div i {
+        .doc-type-card.selected .doc-type-icon {
             color: #ff3c00;
         }
     </style>
@@ -336,35 +342,127 @@
     <script>
         lucide.createIcons();
 
-        const modal = document.getElementById('uploadModal');
-        const openBtn = document.getElementById('openUploadModal');
-        const closeBtn = document.getElementById('closeUploadModal');
-        const fileInput = document.getElementById('file-input');
-        const preview = document.getElementById('file-preview');
-        const fileNameDisplay = document.getElementById('file-name');
+        const modal       = document.getElementById('uploadModal');
+        const backdrop    = document.getElementById('modalBackdrop');
+        const closeBtn    = document.getElementById('closeUploadModal');
+        const fileInput   = document.getElementById('file-input');
+        const preview     = document.getElementById('file-preview');
+        const fileNameEl  = document.getElementById('file-name');
+        const submitBtn   = document.getElementById('submitBtn');
+        const submitIcon  = document.getElementById('submitIcon');
+        const submitSpinner = document.getElementById('submitSpinner');
+        const submitLabel = document.getElementById('submitLabel');
+        const modalTitle  = document.getElementById('modalTitle');
+        const modalSubtitle = document.getElementById('modalSubtitle');
 
-        const toggleModal = (show) => {
-            modal.classList.toggle('hidden', !show);
-            document.body.style.overflow = show ? 'hidden' : 'auto';
+        const DOC_LABELS = {
+            identity_card: "Pièce d'identité",
+            vtc_card:      'Carte Professionnelle',
         };
 
-        const resetFile = () => {
+        function openModal(docType) {
+            modal.classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
+            resetFile();
+            resetDocTypeErrors();
+
+            // Pre-select document type if provided
+            if (docType && DOC_LABELS[docType]) {
+                selectDocType(docType);
+                modalTitle.textContent    = DOC_LABELS[docType];
+                modalSubtitle.textContent = 'Mise à jour du document';
+            } else {
+                clearDocTypeSelection();
+                modalTitle.textContent    = 'Transférer un document';
+                modalSubtitle.textContent = 'Sécurisé & Chiffré';
+            }
+        }
+
+        function closeModal() {
+            modal.classList.add('hidden');
+            document.body.style.overflow = '';
+        }
+
+        function selectDocType(value) {
+            document.querySelectorAll('[id^="radio-"]').forEach(radio => {
+                const card = radio.closest('label').querySelector('.doc-type-card');
+                radio.checked = (radio.value === value);
+                card.classList.toggle('selected', radio.checked);
+            });
+        }
+
+        function clearDocTypeSelection() {
+            document.querySelectorAll('[id^="radio-"]').forEach(radio => {
+                radio.checked = false;
+                radio.closest('label').querySelector('.doc-type-card').classList.remove('selected');
+            });
+        }
+
+        function resetDocTypeErrors() {
+            document.getElementById('docTypeError').classList.add('hidden');
+            document.getElementById('fileError').classList.add('hidden');
+        }
+
+        function resetFile() {
             fileInput.value = '';
             preview.classList.add('hidden');
-        };
+        }
 
-        openBtn.addEventListener('click', () => toggleModal(true));
-        closeBtn.addEventListener('click', () => toggleModal(false));
+        // Update card style when radio changes via click
+        document.querySelectorAll('[id^="radio-"]').forEach(radio => {
+            radio.addEventListener('change', () => {
+                selectDocType(radio.value);
+                modalTitle.textContent    = DOC_LABELS[radio.value] || 'Document';
+                modalSubtitle.textContent = 'Mise à jour du document';
+                document.getElementById('docTypeError').classList.add('hidden');
+            });
+        });
 
+        // File input
         fileInput.addEventListener('change', (e) => {
             if (e.target.files.length > 0) {
                 preview.classList.remove('hidden');
-                fileNameDisplay.textContent = e.target.files[0].name;
+                fileNameEl.textContent = e.target.files[0].name;
+                document.getElementById('fileError').classList.add('hidden');
             }
         });
 
-        modal.addEventListener('click', (e) => {
-            if (e.target === modal) toggleModal(false);
+        // Client-side validation before submit
+        document.getElementById('uploadForm').addEventListener('submit', (e) => {
+            let valid = true;
+
+            const selectedType = document.querySelector('input[name="document_type"]:checked');
+            if (!selectedType) {
+                document.getElementById('docTypeError').classList.remove('hidden');
+                valid = false;
+            }
+
+            if (!fileInput.files.length) {
+                document.getElementById('fileError').classList.remove('hidden');
+                valid = false;
+            }
+
+            if (!valid) {
+                e.preventDefault();
+                return;
+            }
+
+            // Loading state
+            submitBtn.disabled = true;
+            submitIcon.classList.add('hidden');
+            submitSpinner.classList.remove('hidden');
+            submitLabel.textContent = 'Envoi en cours…';
+        });
+
+        // Close on backdrop click
+        backdrop.addEventListener('click', closeModal);
+
+        // Close button
+        closeBtn.addEventListener('click', closeModal);
+
+        // Close on Escape
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && !modal.classList.contains('hidden')) closeModal();
         });
     </script>
 @endsection
