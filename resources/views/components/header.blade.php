@@ -270,9 +270,11 @@
                 <div class="input-group">
                     <i class="fa-solid fa-user-tag"></i>
                     <select name="role" required>
-                        <option value="">Choisir un type de compte</option>
+                        <option value="">Choisir un rôle</option>
                         <option value="locateur">Locateur</option>
                         <option value="vendeur">Vendeur</option>
+                        <option value="locateur|livreur">Locataire + Livreur</option>
+                        <option value="vendeur|livreur">Vendeur + Livreur</option>
                     </select>
                 </div>
 

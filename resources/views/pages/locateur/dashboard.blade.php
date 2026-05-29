@@ -26,7 +26,7 @@
                 @endif
                 <div
                     class="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-xl text-[10px] font-black uppercase shadow-lg shadow-blue-200">
-                    <i class="fa-solid fa-key"></i> {{ Auth::user()->roles->pluck('name')->first() }}
+                    <i class="fa-solid fa-key"></i> {{ Auth::user()->roles->pluck('name')->reject(fn($role) => $role === 'livreur')->first() }}
                 </div>
             </div>
         </header>

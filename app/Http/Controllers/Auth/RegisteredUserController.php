@@ -74,16 +74,22 @@ class RegisteredUserController extends Controller
             'email'    => $request->email,
             'password' => Hash::make($request->password),
         ]);
+        
+        $roles = explode('|', $request->role);
 
-        $role = Role::where('name', $request->role)->first();
+        $roleIds = [];
 
-        if (!$role) {
-            throw new \Exception('Rôle invalide.');
+        foreach ($roles as $roleName) {
+            $role = Role::where('name', $roleName)->first();
+
+            if (!$role) {
+                throw new \Exception("Rôle invalide: $roleName");
+            }
+
+            $roleIds[] = $role->id;
         }
 
-        if ($role) {
-            $user->syncRoles([$role]);
-        }
+        $user->syncRoles($roleIds);
 
         event(new Registered($user));
 
