@@ -121,8 +121,8 @@
                         <div class="date-selector">
                             <label>Dates de réservation</label>
                                 <div class="d-flex gap-3">
-                                    <input type="date" name="start_date" min="{{ \Carbon\Carbon::parse($ad->available_from)->format('Y-m-d') }}" max="{{ \Carbon\Carbon::parse($ad->available_until)->format('Y-m-d') }}">
-                                    <input type="date" name="end_date" min="{{ \Carbon\Carbon::parse($ad->available_from)->format('Y-m-d') }}" max="{{ \Carbon\Carbon::parse($ad->available_until)->format('Y-m-d') }}">
+                                    <input type="date" name="start_date"  min="{{ now()->format('Y-m-d') }}" max="{{ \Carbon\Carbon::parse($ad->available_until)->format('Y-m-d') }}">
+                                    <input type="date" name="end_date"  min="{{ now()->format('Y-m-d') }}" max="{{ \Carbon\Carbon::parse($ad->available_until)->format('Y-m-d') }}">
                                 </div>
                         </div>
                         <button class="reserve-button">Réserver Maintenant</button>
