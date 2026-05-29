@@ -3,10 +3,27 @@
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <style>
-    .leaflet-container {
-        border-radius: 12px;
+    /* Cartes inline */
+    #map-aller,
+    #map-retour {
         height: 350px;
+    }
+    #map-aller .leaflet-container,
+    #map-retour .leaflet-container {
+        height: 350px;
+        border-radius: 12px;
         width: 100%;
+    }
+    /* Carte plein écran : remplit le conteneur */
+    #map-fullscreen {
+        height: 100%;
+        width: 100%;
+        border-radius: 8px;
+    }
+    #map-fullscreen .leaflet-container {
+        height: 100% !important;
+        width: 100%;
+        border-radius: 8px;
     }
 </style>
 <script src="https://api.mapbox.com/mapbox-gl-js/v2.15.0/mapbox-gl.js"></script>
@@ -149,7 +166,7 @@
                                 <i class="fas fa-map mr-2 text-[#FF4500]"></i>
                                 Parcours aller
                             </h3>
-                            <span class="text-xs text-gray-400 cursor-pointer" id="openMapFullscreen" data-map-type="aller">
+                            <span class="text-xs text-gray-400 cursor-pointer map-fullscreen-btn" data-map-type="aller">
                                 <i class="fas fa-expand-alt mr-1"></i> Plein écran
                             </span>
                         </div>
@@ -266,8 +283,8 @@
                                         <i class="fas fa-map mr-2 text-blue-500"></i>
                                         Parcours retour
                                     </h3>
-                                    <span class="text-xs text-gray-400 cursor-pointer" id="openMapFullscreen"
-                                        data-map-type="aller">
+                                    <span class="text-xs text-gray-400 cursor-pointer map-fullscreen-btn"
+                                        data-map-type="retour">
                                         <i class="fas fa-expand-alt mr-1"></i> Plein écran
                                     </span>
                                 </div>
@@ -427,73 +444,65 @@
             @endif
         </script>
         <script>
-            const openMapBtns = document.querySelectorAll('#openMapFullscreen');
-            const mapModal = document.getElementById('mapFullScreenModal');
+            const openMapBtns = document.querySelectorAll('.map-fullscreen-btn');
+            const mapModal    = document.getElementById('mapFullScreenModal');
             const closeMapBtn = document.getElementById('closeMapModal');
             let mapFull = null;
 
+            function initFullscreenMap(type) {
+                if (mapFull) { mapFull.remove(); mapFull = null; }
+
+                const coords = type === 'retour'
+                    ? (typeof validCoordsRetour !== 'undefined' ? validCoordsRetour : [])
+                    : (typeof validCoordsAller  !== 'undefined' ? validCoordsAller  : []);
+
+                if (!coords.length) return;
+
+                mapFull = L.map('map-fullscreen').fitBounds(coords);
+
+                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                    attribution: '&copy; OpenStreetMap contributors'
+                }).addTo(mapFull);
+
+                L.polyline(coords, {
+                    color:     type === 'retour' ? '#3B82F6' : '#FF4500',
+                    weight:    5,
+                    opacity:   0.8,
+                    dashArray: type === 'retour' ? '5,5' : null
+                }).addTo(mapFull);
+
+                L.marker(coords[0])
+                    .bindPopup(type === 'retour' ? 'Départ Retour' : 'Départ Aller')
+                    .addTo(mapFull);
+                L.marker(coords[coords.length - 1])
+                    .bindPopup(type === 'retour' ? 'Arrivée Retour' : 'Arrivée Aller')
+                    .addTo(mapFull);
+
+                // Forcer Leaflet à recalculer la taille maintenant que le modal est visible
+                mapFull.invalidateSize();
+            }
+
             openMapBtns.forEach(btn => {
-                btn.addEventListener('click', function() {
-                    const type = btn.dataset.mapType; // "aller" ou "retour"
+                btn.addEventListener('click', function () {
+                    const type = btn.dataset.mapType;
                     mapModal.classList.remove('hidden');
+                    document.body.style.overflow = 'hidden';
 
-                    // Supprime la carte précédente si elle existe
-                    if (mapFull) mapFull.remove();
-
-                    // Sélection des coordonnées
-                    let coords = [];
-                    if (type === 'aller') coords = validCoordsAller;
-                    if (type === 'retour') coords = validCoordsRetour;
-
-                    // Crée la carte plein écran
-                    mapFull = L.map('map-fullscreen').fitBounds(coords);
-
-                    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                        attribution: '&copy; OpenStreetMap contributors'
-                    }).addTo(mapFull);
-
-                    // Tracer la ligne
-                    L.polyline(coords, {
-                        color: type === 'aller' ? '#FF4500' : '#3B82F6',
-                        weight: 5,
-                        opacity: 0.8,
-                        dashArray: type === 'retour' ? '5,5' : null
-                    }).addTo(mapFull);
-
-                    // Marqueurs
-                    L.marker(coords[0]).bindPopup(type === 'aller' ? 'Départ Aller' : 'Départ Retour').addTo(
-                        mapFull);
-                    L.marker(coords[coords.length - 1]).bindPopup(type === 'aller' ? 'Arrivée Aller' :
-                        'Arrivée Retour').addTo(mapFull);
+                    // requestAnimationFrame garantit que le navigateur a repeint le modal
+                    // (container non-nul) avant que Leaflet calcule ses dimensions
+                    requestAnimationFrame(() => initFullscreenMap(type));
                 });
             });
 
-            // Fermer le modal
             closeMapBtn.addEventListener('click', () => {
                 mapModal.classList.add('hidden');
-                if (mapFull) mapFull.remove();
+                document.body.style.overflow = '';
+                if (mapFull) { mapFull.remove(); mapFull = null; }
             });
 
-
-            let id = $(this).data('id');
-
-            if (!confirm('Voulez-vous vraiment annuler ce trajet ?')) {
-                return;
-            }
-
-            $.ajax({
-                url: '/covoiturage/' + id,
-                type: 'DELETE',
-                data: {
-                    _token: '{{ csrf_token() }}'
-                },
-                success: function(response) {
-                    if (response.success) {
-                        location.reload();
-                    }
-                },
-                error: function() {
-                    alert('Erreur lors de la suppression');
+            document.addEventListener('keydown', e => {
+                if (e.key === 'Escape' && !mapModal.classList.contains('hidden')) {
+                    closeMapBtn.click();
                 }
             });
         </script>
