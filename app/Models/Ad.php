@@ -63,4 +63,9 @@ class Ad extends Model
     {
         return $this->hasMany(AdReport::class);
     }
+
+    public function bookings()
+    {
+        return $this->hasMany(Booking::class, 'ad_id', 'id');
+    }
 }

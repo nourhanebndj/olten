@@ -26,6 +26,7 @@ use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\livrer\CarteVtcController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\ContactController;
+use App\Http\Controllers\WalletController;
 use App\Http\Controllers\CovoiturageController;
 use App\Http\Controllers\VehicleController;
 use App\Http\Middleware\AdminMiddleware;
@@ -96,9 +97,7 @@ Route::middleware('auth')->group(function () {
         return view('pages.locateur.statistiques');
     })->name('statistiques');
     Route::post('/ads/{ad}/report', [AdReportController::class, 'store'])->middleware('auth')->name('ads.report');
-    Route::get('/portefeuille', function () {
-        return view('pages.locateur.walt');
-    })->name('walt.index');
+    Route::get('/portefeuille', [WalletController::class, 'index'])->name('stats.ads');
     // livreur annonce
     Route::prefix('livreur')->group(function () {
         Route::post('/documents/upload', [CarteVtcController::class, 'store'])->name('documents.upload');
