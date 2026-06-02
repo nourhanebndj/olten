@@ -359,13 +359,10 @@
                             <i class="fas fa-edit mb-2 text-gray-400 group-hover:text-[#FF4500]"></i>
                             <span class="text-xs font-bold uppercase">Modifier</span>
                         </a>
-                        <form action="{{ route('covoiturage.destroy', $trajet->covoiturage_id) }}" method="POST"
-                            onsubmit="return confirm('Voulez-vous vraiment annuler ce trajet ?');" class="flex">
-
+                        <form id="form-annuler-trajet" action="{{ route('covoiturage.destroy', $trajet->covoiturage_id) }}" method="POST" class="flex">
                             @csrf
                             @method('DELETE')
-
-                            <button type="submit"
+                            <button type="button" onclick="confirmerAnnulation()"
                                 class="flex flex-col items-center justify-center p-4 bg-white border border-gray-100 rounded-2xl shadow-sm hover:border-red-500 hover:text-red-500 transition-all group">
                                 <i class="fas fa-trash-alt mb-2 text-gray-400 group-hover:text-red-500"></i>
                                 <span class="text-xs font-bold uppercase">Annuler</span>
@@ -507,4 +504,32 @@
             });
         </script>
     @endif
+
+    <script>
+        function confirmerAnnulation() {
+            Swal.fire({
+                title: 'Annuler ce trajet ?',
+                html: '<p class="text-slate-500 text-sm">Cette action est <strong>irréversible</strong>.<br>Le trajet et toutes ses réservations seront supprimés.</p>',
+                icon: 'warning',
+                iconColor: '#ef4444',
+                showCancelButton: true,
+                confirmButtonText: '<i class="fas fa-trash-alt mr-2"></i>Oui, annuler le trajet',
+                cancelButtonText: 'Non, conserver',
+                confirmButtonColor: '#ef4444',
+                cancelButtonColor: '#64748b',
+                reverseButtons: true,
+                customClass: {
+                    popup: 'rounded-3xl shadow-2xl',
+                    title: 'font-black text-slate-900 text-xl',
+                    confirmButton: 'rounded-2xl font-bold text-xs uppercase tracking-widest px-6 py-3',
+                    cancelButton: 'rounded-2xl font-bold text-xs uppercase tracking-widest px-6 py-3',
+                    actions: 'gap-3',
+                },
+            }).then(result => {
+                if (result.isConfirmed) {
+                    document.getElementById('form-annuler-trajet').submit();
+                }
+            });
+        }
+    </script>
 @endsection

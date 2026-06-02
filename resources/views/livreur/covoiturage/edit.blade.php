@@ -164,13 +164,10 @@
                         </span>
                     </a>
                 </div>
-                <form action="{{ route('covoiturage.destroy', $trajet->covoiturage_id) }}" method="POST"
-                    onsubmit="return confirm('Voulez-vous vraiment supprimer ce trajet ?');" class="flex">
-
+                <form id="form-supprimer-trajet" action="{{ route('covoiturage.destroy', $trajet->covoiturage_id) }}" method="POST" class="flex">
                     @csrf
                     @method('DELETE')
-
-                    <button type="submit"
+                    <button type="button" onclick="confirmerSuppression()"
                         class="w-full sm:w-auto flex items-center justify-center space-x-2 text-red-500 hover:text-red-700 font-black text-[10px] uppercase tracking-[0.2em] transition-colors group">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -191,6 +188,27 @@
     <script>
         function dupliquerTrajet(e) {
             e.preventDefault();
+
+            Swal.fire({
+                title: 'Dupliquer ce trajet ?',
+                html: '<p class="text-slate-500 text-sm">Un nouveau trajet identique sera créé.<br>Vous pourrez le modifier avant de le publier.</p>',
+                icon: 'question',
+                iconColor: '#ff3c00',
+                showCancelButton: true,
+                confirmButtonText: '<i class="fas fa-copy mr-2"></i>Oui, dupliquer',
+                cancelButtonText: 'Annuler',
+                confirmButtonColor: '#ff3c00',
+                cancelButtonColor: '#64748b',
+                reverseButtons: true,
+                customClass: {
+                    popup: 'rounded-3xl shadow-2xl',
+                    title: 'font-black text-slate-900 text-xl',
+                    confirmButton: 'rounded-2xl font-bold text-xs uppercase tracking-widest px-6 py-3',
+                    cancelButton: 'rounded-2xl font-bold text-xs uppercase tracking-widest px-6 py-3',
+                    actions: 'gap-3',
+                },
+            }).then(result => {
+                if (!result.isConfirmed) return;
 
             fetch(`/covoiturage/{{ $trajet->covoiturage_id }}/dupliquer`, {
                     method: 'POST',
@@ -224,6 +242,35 @@
                         text: 'Une erreur est survenue lors de la duplication.',
                     });
                 });
+            }); // fin Swal confirmation
+        }
+    </script>
+
+    <script>
+        function confirmerSuppression() {
+            Swal.fire({
+                title: 'Supprimer ce trajet ?',
+                html: '<p class="text-slate-500 text-sm">Cette action est <strong>irréversible</strong>.<br>Le trajet et toutes ses données associées seront définitivement supprimés.</p>',
+                icon: 'warning',
+                iconColor: '#ef4444',
+                showCancelButton: true,
+                confirmButtonText: '<i class="fas fa-trash-alt mr-2"></i>Oui, supprimer',
+                cancelButtonText: 'Non, conserver',
+                confirmButtonColor: '#ef4444',
+                cancelButtonColor: '#64748b',
+                reverseButtons: true,
+                customClass: {
+                    popup: 'rounded-3xl shadow-2xl',
+                    title: 'font-black text-slate-900 text-xl',
+                    confirmButton: 'rounded-2xl font-bold text-xs uppercase tracking-widest px-6 py-3',
+                    cancelButton: 'rounded-2xl font-bold text-xs uppercase tracking-widest px-6 py-3',
+                    actions: 'gap-3',
+                },
+            }).then(result => {
+                if (result.isConfirmed) {
+                    document.getElementById('form-supprimer-trajet').submit();
+                }
+            });
         }
     </script>
 @endsection

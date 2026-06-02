@@ -32,20 +32,16 @@
         }
 
         @keyframes pulse-emerald {
-            0% {
-                transform: scale(0.95);
-                box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.4);
-            }
+            0%   { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.5); }
+            70%  { transform: scale(1);   box-shadow: 0 0 0 6px rgba(16, 185, 129, 0); }
+            100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
+        }
 
-            70% {
-                transform: scale(1);
-                box-shadow: 0 0 0 6px rgba(16, 185, 129, 0);
-            }
-
-            100% {
-                transform: scale(0.95);
-                box-shadow: 0 0 0 0 rgba(16, 185, 129, 0);
-            }
+        .pulse-amber { animation: pulse-amber 2s infinite; }
+        @keyframes pulse-amber {
+            0%   { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(245, 158, 11, 0.5); }
+            70%  { transform: scale(1);   box-shadow: 0 0 0 6px rgba(245, 158, 11, 0); }
+            100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(245, 158, 11, 0); }
         }
     </style>
 
@@ -67,7 +63,7 @@
 
                 </div>
 
-                <a href="#"
+                <a href="{{ route('covoiturage.create') }}"
                     class="py-3 px-6 bg-[#ff3c00] hover:bg-black text-white rounded-[2rem] font-black uppercase tracking-widest text-xs transition-all duration-300 shadow-lg shadow-orange-200 flex items-center justify-center gap-2 whitespace-nowrap">
                     <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4" />
@@ -85,35 +81,21 @@
                         <!-- Header de la carte -->
                         <div class="flex justify-between items-start mb-8">
                             <div class="flex flex-col gap-1">
-                                <div
-                                    class="flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-50 border border-emerald-100 w-fit">
-                                    <div class="w-1.5 h-1.5 rounded-full bg-emerald-500 pulse-emerald"></div>
-                                    @php
-                                        $statusClasses = [
-                                            'actif' => 'bg-emerald-100 text-emerald-700',
-                                            'inactif' => 'bg-gray-100 text-gray-500',
-                                            'pending' => 'bg-yellow-100 text-yellow-700',
-                                            'validé' => 'bg-blue-100 text-blue-700',
-                                            'complet' => 'bg-red-100 text-red-700',
-                                        ];
-
-                                        $statusLabel = [
-                                            'actif' => 'En ligne',
-                                            'inactif' => 'Hors ligne',
-                                            'pending' => 'En attente',
-                                            'validé' => 'Validé',
-                                            'complet' => 'Complet',
-                                        ];
-
-                                        $class = $statusClasses[$trajet->statut] ?? 'bg-gray-100 text-gray-500';
-                                        $label = $statusLabel[$trajet->statut] ?? 'Inconnu';
-                                    @endphp
-
-                                    <span
-                                        class="text-[10px] font-black uppercase tracking-widest px-2 py-1 rounded-full {{ $class }}">
-                                        {{ $label }}
+                                @php
+                                    $statusConfig = [
+                                        'actif'   => ['wrap' => 'bg-emerald-50 border-emerald-200', 'dot' => 'bg-emerald-500 pulse-emerald', 'text' => 'text-emerald-700', 'label' => 'Actif'],
+                                        'inactif' => ['wrap' => 'bg-slate-50 border-slate-200',   'dot' => 'bg-slate-400',                  'text' => 'text-slate-500',   'label' => 'Inactif'],
+                                        'pending' => ['wrap' => 'bg-amber-50 border-amber-200',   'dot' => 'bg-amber-500 pulse-amber',      'text' => 'text-amber-700',   'label' => 'En attente'],
+                                        'validé'  => ['wrap' => 'bg-blue-50 border-blue-200',     'dot' => 'bg-blue-500',                   'text' => 'text-blue-700',    'label' => 'Validé'],
+                                        'complet' => ['wrap' => 'bg-rose-50 border-rose-200',     'dot' => 'bg-rose-500',                   'text' => 'text-rose-700',    'label' => 'Complet'],
+                                    ];
+                                    $sc = $statusConfig[$trajet->statut] ?? ['wrap' => 'bg-slate-50 border-slate-200', 'dot' => 'bg-slate-400', 'text' => 'text-slate-500', 'label' => 'Inconnu'];
+                                @endphp
+                                <div class="flex items-center gap-2 px-3 py-1.5 rounded-full border {{ $sc['wrap'] }} w-fit">
+                                    <div class="w-2 h-2 rounded-full {{ $sc['dot'] }}"></div>
+                                    <span class="text-[10px] font-black uppercase tracking-widest {{ $sc['text'] }}">
+                                        {{ $sc['label'] }}
                                     </span>
-
                                 </div>
                                 <span class="text-xs font-bold text-slate-400 mt-2">
                                     {{ $trajet->date_depart ? \Carbon\Carbon::parse($trajet->date_depart)->translatedFormat('d M Y • H:i') : 'Date non définie' }}
@@ -224,7 +206,7 @@
                         <h3 class="text-2xl font-black mb-2">Aucun trajet pour le moment</h3>
                         <p class="text-slate-400 mb-8 max-w-xs mx-auto">Partagez votre route et commencez à rentabiliser vos
                             déplacements.</p>
-                        <a href="#"
+                        <a href="{{ route('covoiturage.create') }}"
                             class="inline-flex items-center px-8 py-4 bg-primary-orange text-white rounded-2xl font-bold shadow-xl shadow-orange-100">
                             Publier une annonce
                         </a>

@@ -2703,6 +2703,7 @@
                 formData.append('return_trip_data', JSON.stringify(returnTripData));
                 formData.append('return_datetime', JSON.stringify(returnDateTime));
                 formData.append('return_itinerary', JSON.stringify(returnItinerary));
+                formData.append('booking_mode', draft.booking?.mode || 'instant');
 
                 if (fileInput.files[0]) {
                     formData.append('photo_conducteur', fileInput.files[0]);
@@ -2736,11 +2737,6 @@
                         timer: 2000,
                         timerProgressBar: true
                     });
-                    const draft = getTripDraft();
-
-                    const bookingMode = draft.booking?.mode || 'instant';
-
-                    formData.append('booking_mode', bookingMode);
                     localStorage.removeItem('retour_trajet');
                     localStorage.removeItem('return_datetime');
                     localStorage.removeItem('return_pricing');
