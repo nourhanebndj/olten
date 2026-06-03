@@ -80,8 +80,7 @@
 
                 @if ($category->image)
                     <p class="text-sm text-gray-500 mt-2">Image actuelle :</p>
-                    <img src="{{ asset('uploads/categories/' . $category->image) }}"
-                         class="w-24 h-24 object-cover rounded-lg border mt-1">
+                    <img src="{{ asset('storage/' . $category->image) }}" class="w-24 h-24 object-cover rounded-lg border mt-1">
                 @endif
             </div>
 
