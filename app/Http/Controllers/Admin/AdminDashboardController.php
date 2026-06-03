@@ -12,6 +12,7 @@ use App\Models\LivraisonColis;
 use App\Models\LivraisonRepas;
 use App\Models\LivraisonVtc;
 use App\Models\ProductSale;
+use App\Models\Role;
 
 class AdminDashboardController extends Controller
 {
@@ -30,11 +31,10 @@ class AdminDashboardController extends Controller
         $totalVentes     = ProductSale::count();
 
         // Répartition des rôles
-        $roles = User::selectRaw('role, COUNT(*) as total')
-            ->groupBy('role')
-            ->pluck('total', 'role')
-            ->toArray();
-
+        $roles = Role::withCount('users')
+                    ->get()
+                    ->pluck('users_count', 'name')
+                    ->toArray();
         // Inscriptions des 6 derniers mois — tous les mois affichés même à 0
         $rawInscriptions = User::selectRaw("TO_CHAR(created_at, 'YYYY-MM') as mois, COUNT(*) as total")
             ->where('created_at', '>=', now()->subMonths(5)->startOfMonth())
