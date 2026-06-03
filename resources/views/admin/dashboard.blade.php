@@ -12,7 +12,7 @@
                 <h1 class="text-2xl font-[800] tracking-tight text-slate-900">
                     Bonjour, <span class="accent-rouge">{{ Auth::user()->name ?? 'Admin' }}</span> 👋
                 </h1>
-                <p class="text-slate-500 text-sm mt-1">{{ now()->isoFormat('dddd D MMMM YYYY') }} — Vue d'ensemble de la
+                <p class="text-slate-500 text-sm mt-1">{{ now()->locale('fr')->isoFormat('dddd D MMMM YYYY') }} — Vue d'ensemble de la
                     plateforme</p>
             </div>
             <a href="{{ route('admin.users.index') }}"
