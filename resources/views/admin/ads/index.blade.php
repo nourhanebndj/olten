@@ -189,8 +189,7 @@
                                             </button>
                                         @endif
 
-                                        @if (!                                        @if (!$ad->rejected_at)
-$ad->rejected_at)
+                                        @if (!($ad->rejected_at))
                                             <form id="reject-form-{{ $ad->id }}"
                                                 action="{{ route('admin.ads.reject', $ad) }}" method="POST"
                                                 class="hidden">
