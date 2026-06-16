@@ -62,7 +62,9 @@ Route::get('/annonce-details', function () {
 Route::view('/categories', 'pages.annonces_pages.categories_annonces')
 ->name('categories');
 
-Route::middleware('auth')->group(function () {
+Route::get('/compte-en-attente', function () { return view('auth.pending-approval');})->name('account.pending');
+
+Route::middleware('auth', 'approved')->group(function () {
     Route::post('/profile/toggle-vtc', [ProfileController::class, 'toggleVtc'])->name('profile.toggleVtc');
     Route::post('/profile/toggleLivreur', [ProfileController::class, 'toggleLivreur'])->name('profile.toggleLivreur');
 

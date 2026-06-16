@@ -76,7 +76,7 @@
             <ul>
                 @if(auth()->user()->hasRole('locateur'))
                 <li class="{{ Route::is('ads.create') ? 'active' : '' }}">
-                    <a href="{{ route('ads.create') }}">
+                    <a href="{{ auth()->user()->is_approved ? route('ads.create') : '#' }}" class="{{ !auth()->user()->is_approved ? 'opacity-50 pointer-events-none cursor-not-allowed' : '' }}">
                         <i class="fa-solid fa-circle-plus"></i>
                         <span>Ajouter une annonce</span>
                     </a>
@@ -101,7 +101,7 @@
                     </a>
                 </li>
                 <li class="{{ request()->routeIs('livreur.ads.index') ? 'active' : '' }}">
-                    <a href="{{ route('livreur.ads.index') }}" class="flex items-center gap-3">
+                    <a href="{{ auth()->user()->is_approved ? route('livreur.ads.index') : '#' }}" class="flex items-center gap-3 {{ !auth()->user()->is_approved ? 'opacity-50 pointer-events-none cursor-not-allowed' : '' }}">
                         <i class="fa-solid fa-paper-plane"></i>
                         <span>Demande de livraison</span>
                     </a>

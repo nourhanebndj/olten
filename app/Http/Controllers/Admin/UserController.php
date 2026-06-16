@@ -93,7 +93,7 @@ class UserController extends Controller
     }
     public function verify(User $user)
     {
-        $user->verifie = true;
+        $user->is_approved = true;
         $user->save();
 
         return redirect()->back()->with('success', 'Utilisateur Approuver avec succès.');

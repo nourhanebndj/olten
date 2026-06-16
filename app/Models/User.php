@@ -22,7 +22,7 @@ class User extends Authenticatable implements LaratrustUser
         'name','firstname','lastname','email','password','about_me',
         'phone','gender','disable_email_notifications','x_com','facebook',
         'linkedin','instagram','youtube','tiktok','whatsapp',
-        'identity_verification','profile_photo','is_admin','verifie','role','is_vtc_driver'
+        'identity_verification','profile_photo','is_admin','verifie','role','is_vtc_driver', 'is_approved'
     ];
 
     protected $hidden = ['password','remember_token'];
@@ -32,6 +32,7 @@ class User extends Authenticatable implements LaratrustUser
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
             'is_vtc_driver' => 'boolean',
+            'is_approved' => 'boolean',
         ];
     }
     public function sendPasswordResetNotification($token)

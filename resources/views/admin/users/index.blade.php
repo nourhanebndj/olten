@@ -102,7 +102,9 @@
                             </td>
 
                             <td class="px-6 py-4">
-                                @if ($user->verifie)
+                                @if($user->hasRole('admin'))
+                                    <span class="text-gray-500">-</span>
+                                @elseif ($user->is_approved)
                                     <span
                                         class="inline-block px-3 py-1 text-xs font-semibold text-green-600 bg-green-100 rounded-full">
                                         Approuver
@@ -129,7 +131,7 @@
                                     </button>
 
                                     <div class="dropdown-menu-white absolute right-9 w-36 divide-y divide-gray-200">
-                                        @if (!$user->verifie)
+                                        @if (!$user->hasRole('admin') && !$user->is_approved)
                                             <form action="{{ route('admin.users.verify', $user) }}" method="POST">
                                                 @csrf
                                                 <button type="submit"
