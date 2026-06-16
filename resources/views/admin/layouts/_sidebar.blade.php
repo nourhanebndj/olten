@@ -1,5 +1,5 @@
 <aside id="sidebar"
-    class="sidebar fixed inset-y-0 left-0 z-30 w-64 shadow-lg transform -translate-x-full md:translate-x-0 transition-transform duration-300 ease-in-out p-4 flex flex-col border-r">
+    class="sidebar overflow-auto fixed inset-y-0 left-0 z-30 w-64 shadow-lg transform -translate-x-full md:translate-x-0 transition-transform duration-300 ease-in-out p-4 flex flex-col border-r">
 
     <!-- Logo -->
     <div class="flex items-center justify-center h-16 mb-6 border-b" style="border-color: #E5E7EB;">
