@@ -19,7 +19,6 @@ class StatsController extends Controller
 
         Carbon::setLocale('fr');
 
-        // Définir la période
         if ($period === 'custom') {
             $start = Carbon::parse($request->get('start'))->startOfDay();
             $end   = Carbon::parse($request->get('end'))->endOfDay();
@@ -29,48 +28,47 @@ class StatsController extends Controller
                     $start = now()->startOfMonth();
                     $end   = now()->endOfMonth();
                     break;
+
                 case 'year':
                     $start = now()->startOfYear();
                     $end   = now()->endOfYear();
                     break;
+
                 default:
                     $start = now()->subDays(6)->startOfDay();
                     $end   = now()->endOfDay();
             }
         }
 
-        // Query des annonces
-        $adQuery = Ad::where('user_id', auth()->id())
-                    ->whereBetween('created_at', [$start, $end]);
+        $adsQuery = Ad::where('user_id', auth()->id())
+            ->whereBetween('created_at', [$start, $end]);
 
         if ($adFilter === 'active') {
-            $adQuery->where('is_approved', 1);
+            $adsQuery->where('is_approved', 1);
         } elseif ($adFilter === 'inactive') {
-            $adQuery->where('is_approved', 0);
+            $adsQuery->where('is_approved', 0);
         }
 
-        $ads = $adQuery->get();
-        $adIds = $ads->pluck('id');
+        $adsPerDay = $adsQuery
+            ->selectRaw('DATE(created_at) as date, COUNT(*) as count')
+            ->groupBy('date')
+            ->pluck('count', 'date');
 
-        // Préparer les visites selon le filtre
-        $visitsQuery = AdVisit::whereIn('ad_id', $adIds)
-                            ->whereBetween('created_at', [$start, $end]);
+        $visitsQuery = AdVisit::whereBetween('created_at', [$start, $end]);
 
         if ($visitFilter === 'unique') {
-            // Une visite par user+IP par jour
-            $visitsQuery->selectRaw('ad_id, user_id, ip, created_at')
-                        ->groupBy('ad_id', 'user_id', 'ip', 'created_at');
+            $visitsQuery->selectRaw('DATE(created_at) as date, COUNT(DISTINCT CONCAT(user_id, ip, DATE(created_at))) as count')
+                ->groupBy('date');
         } elseif ($visitFilter === 'repeat') {
-            $visitsQuery->selectRaw('ad_id, user_id, ip, created_at, COUNT(*) as count')
-                        ->groupBy('ad_id', 'user_id', 'ip', 'created_at')
-                        ->havingRaw('COUNT(*) > 1');
+            $visitsQuery->selectRaw('DATE(created_at) as date, COUNT(*) as count')
+                ->groupBy('date');
+        } else {
+            $visitsQuery->selectRaw('DATE(created_at) as date, COUNT(*) as count')
+                ->groupBy('date');
         }
 
-        $visits = $visitsQuery->get()->groupBy(function($v) {
-            return Carbon::parse($v->created_at)->format('Y-m-d');
-        });
+        $visitsPerDay = $visitsQuery->pluck('count', 'date');
 
-        // Préparer les données du graphique
         $labels = [];
         $adsData = [];
         $viewsData = [];
@@ -78,16 +76,9 @@ class StatsController extends Controller
         for ($date = $start->copy(); $date->lte($end); $date->addDay()) {
             $key = $date->format('Y-m-d');
 
-            // Compter les annonces par jour
-            $adsCount = $ads->whereBetween('created_at', [$date->copy()->startOfDay(), $date->copy()->endOfDay()])->count();
-
-            // Compter les vues selon le filtre
-            $dayVisits = $visits[$key] ?? collect();
-            $viewsCount = $visitFilter === 'repeat' ? $dayVisits->sum('count') : $dayVisits->count();
-
             $labels[] = $date->translatedFormat('d M');
-            $adsData[] = $adsCount;
-            $viewsData[] = $viewsCount;
+            $adsData[] = $adsPerDay[$key] ?? 0;
+            $viewsData[] = $visitsPerDay[$key] ?? 0;
         }
 
         return response()->json([
