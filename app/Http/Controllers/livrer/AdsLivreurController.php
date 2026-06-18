@@ -17,8 +17,9 @@ class AdsLivreurController extends Controller
     {
         $userId = auth()->id();
         $mesAnnonces = Ad::where('user_id', $userId)
-            ->with(['demandes.livreur'])
-            ->get();
+                         ->where('delivery_active', true)
+                         ->with(['demandes.livreur'])
+                         ->get();
         $missionsReussies = LivraisonColis::where('livreur_id', $userId)
             ->where('statut', 'livré')
             ->count();
