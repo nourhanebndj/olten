@@ -7,9 +7,83 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Stripe\Stripe;
 use Stripe\PaymentIntent;
+use Stripe\Refund;
+use Illuminate\Support\Facades\Mail;
+use App\Mail\BookingRejectedMail;
+use App\Mail\BookingAcceptedMail;
 
 class BookingController extends Controller
 {
+    public function receivedBookings()
+    {
+        $bookings = Booking::with('ad', 'user')
+                           ->whereHas('ad', function ($q) {
+                                $q->where('user_id', auth()->id());
+                            })
+                           ->latest()
+                           ->paginate(25);
+
+        return view('pages.locateur.bookingReceived', compact('bookings'));
+    }
+
+    public function myBookings()
+    {
+        $bookings = Booking::with(['ad.category', 'ad.user'])
+                           ->where('user_id', auth()->id())
+                           ->latest()
+                           ->paginate(25);
+        return view('bookings.my', compact('bookings'));
+    }
+
+    public function accept(Booking $booking)
+    {
+        if ($booking->ad->user_id !== auth()->id()) {
+            abort(403);
+        }
+
+        $booking->update([
+            'status' => 'confirmed',
+        ]);
+
+        Mail::to($booking->user->email)->send(
+            new BookingAcceptedMail($booking)
+        );
+
+        return back()->with('success', 'Réservation acceptée avec succès.');
+    }
+
+    public function reject(Booking $booking)
+    {
+        if ($booking->ad->user_id !== auth()->id()) {
+            abort(403);
+        }
+
+        if (in_array($booking->status, ['cancelled', 'completed'])) {
+            return back()->with('error', 'Action impossible sur cette réservation.');
+        }
+
+        if ($booking->status === 'confirmed' && $booking->payment_intent_id) {
+
+            Stripe::setApiKey(config('services.stripe.secret'));
+
+            Refund::create([
+                'payment_intent' => $booking->payment_intent_id,
+            ]);
+        }
+
+        $booking->update([
+            'status' => 'cancelled',
+        ]);
+
+        if ($booking->user && $booking->user->email) {
+            Mail::to($booking->user->email)->send(
+                new BookingRejectedMail($booking)
+            );
+        }
+
+        return back()->with('success', 'Réservation refusée avec remboursement si nécessaire.');
+    }
+
     public function store(Request $request, Ad $ad)
     {
         $validated = $request->validate([
@@ -26,20 +100,6 @@ class BookingController extends Controller
             return back()->withErrors(['dates' => 'Les dates choisies ne sont pas disponibles pour cette annonce.']);
         }
 
-        // $booking = new Booking();
-        // $booking->ad_id = $ad->id;
-        // $booking->user_id = auth()->id();
-        // $booking->start_date = $validated['start_date'];
-        // $booking->end_date = $validated['end_date'];
-
-        // if ($ad->delivery_active) {
-        //     $booking->delivery_cost = $ad->delivery_cost ?? 0;
-        // }
-
-        // $booking->calculateTotalPrice();
-        // $booking->save();
-
-        // return back()->with('success', 'Réservation effectuée avec succès !');
         return redirect()->route('bookings.confirm')->with([
             'ad_id' => $ad->id,
             'start_date' => $request->start_date,
@@ -66,28 +126,33 @@ class BookingController extends Controller
 
         Stripe::setApiKey(config('services.stripe.secret'));
 
-        $ad = Ad::findOrFail(session('ad_id'));
-        $start_date = session('start_date');
-        $end_date = session('end_date');
+        $ad = Ad::findOrFail($request->ad_id);
+
+        $start_date = $request->start_date;
+        $end_date = $request->end_date;
 
         $days = \Carbon\Carbon::parse($start_date)->diffInDays($end_date) + 1;
         $total = $days * $ad->price_per_day;
-
+        
         $intent = PaymentIntent::create([
-            'amount' => $total * 100,
+            'amount' => (int) round($total * 100),
             'currency' => 'eur',
-            'payment_method' => $request->payment_method,
-            'confirm' => true,
-            'automatic_payment_methods' => ['enabled' => true],
+            'automatic_payment_methods' => [
+                'enabled' => true,
+            ],
         ]);
 
-        if ($intent->status === 'succeeded') {
-
+        $intent = $intent->confirm([
+            'payment_method' => $request->payment_method,
+            'return_url' => route('bookings.confirm'),
+        ]);
+        if ($intent->status == 'succeeded') {
             $booking = new Booking();
             $booking->ad_id = $ad->id;
             $booking->user_id = $user->id;
             $booking->start_date = $start_date;
             $booking->end_date = $end_date;
+            $booking->status = 'confirmed';
 
             if ($ad->delivery_active) {
                 $booking->delivery_cost = $ad->delivery_cost ?? 0;
@@ -99,7 +164,7 @@ class BookingController extends Controller
 
         return response()->json([
             'success' => true,
-            'redirect' => route('bookings.confirm')
+            'redirect' => url("/annonces/{$ad->id}/détails")
         ]);
     }
 

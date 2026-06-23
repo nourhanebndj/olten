@@ -135,6 +135,7 @@ s                    </div>
 <script src="https://cdn.jsdelivr.net/npm/intl-tel-input@18.2.1/build/js/intlTelInput.min.js"></script>
 
 <script>
+    console.log("Stripe key:", "{{ config('services.stripe.key') }}");
 const phoneInput = document.querySelector("#phone");
 const iti = window.intlTelInput(phoneInput, {
     initialCountry: "fr",
@@ -168,6 +169,7 @@ form.addEventListener("submit", async (e) => {
 
     fetch("{{ route('bookings.pay') }}", {
         method: "POST",
+        credentials: "same-origin",
         headers: {
             "Content-Type": "application/json",
             "X-CSRF-TOKEN": document.querySelector('input[name=_token]').value
@@ -190,7 +192,6 @@ form.addEventListener("submit", async (e) => {
     });
 });
 
-/* DELIVERY JS (inchangé) */
 const BASE_TOTAL = {{ $baseTotal }};
 let deliveryCost = 0;
 

@@ -59,30 +59,26 @@ class SellerOrderController extends Controller
 
     public function cancelOrder($id)
     {
-
         $order = ProductSale::where('user_id', auth()->id())->findOrFail($id);
 
-        if ($order->buyer && $order->buyer->email) {
-            Mail::to($order->buyer->email)->send(new OrderCancelledMail($order));
-        }
-        if (in_array($order->order_status, ['delivered', 'cancelled'])) {
+        if (in_array($order->order_status, ['delivered', 'cancelled', 'shipped'])) {
             return back()->with('error', 'Impossible d’annuler cette commande');
         }
 
         $product = $order->product;
+
         if ($product) {
             $product->stock += $order->quantity;
             $product->save();
         }
 
-        $order->order_status = 'cancelled';
-
         if ($order->status === 'paid') {
-            Stripe::setApiKey(config('services.stripe.secret'));
 
             if (!$order->payment_intent_id) {
-                return back()->with('error', 'Impossible de rembourser : pas de PaymentIntent.');
+                return back()->with('error', 'Impossible de rembourser : PaymentIntent manquant.');
             }
+
+            Stripe::setApiKey(config('services.stripe.secret'));
 
             Refund::create([
                 'payment_intent' => $order->payment_intent_id,
@@ -91,11 +87,14 @@ class SellerOrderController extends Controller
             $order->status = 'refunded';
         }
 
+        $order->order_status = 'cancelled';
+
         if ($order->buyer && $order->buyer->email) {
             Mail::to($order->buyer->email)->send(new OrderCancelledMail($order));
         }
+
         $order->save();
 
-        return back()->with('success', 'Commande annulée et paiement remboursé, stock mis à jour');
+        return back()->with('success', 'Commande annulée et remboursée avec succès');
     }
 }

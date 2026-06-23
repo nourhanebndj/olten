@@ -50,13 +50,19 @@
                     </li>
                 @endif
                 @if(auth()->user()->hasRole('locateur'))
-                <li>
-                    <a href="{{ url('/dashboard') }}">
+                <li class="{{ Route::is('bookings.receivedBookings') ? 'active' : '' }}">
+                    <a href="{{ url('/mes-reservations-recues') }}">
+                        <i class="fa-solid fa-calendar-check"></i>
+                        <span>Mes réservations reçues</span>
+                    </a>
+                </li>
+                @endif
+                <li class="{{ Route::is('bookings.myBookings') ? 'active' : '' }}">
+                    <a href="{{ url('/mes-reservations') }}">
                         <i class="fa-solid fa-calendar-check"></i>
                         <span>Mes réservations</span>
                     </a>
                 </li>
-                @endif
                 <li class="{{ request()->routeIs('messages*') ? 'active' : '' }}">
                     <a href="{{ route('messages') }}">
                         <i class="fa-solid fa-envelope"></i>

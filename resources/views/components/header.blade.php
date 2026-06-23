@@ -273,6 +273,7 @@
                         <option value="">Choisir un rôle</option>
                         <option value="locateur">Locateur</option>
                         <option value="vendeur">Vendeur</option>
+                        <option value="livreur">Livreur</option>
                         <option value="locateur|livreur">Locataire + Livreur</option>
                         <option value="vendeur|livreur">Vendeur + Livreur</option>
                     </select>

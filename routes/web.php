@@ -78,6 +78,10 @@ Route::middleware('auth', 'approved')->group(function () {
     Route::post('/ads', [AdController::class, 'store'])->name('ads.store');
     Route::get('/ads/reverse-geocode', [AdController::class, 'reverseGeocode'])->name('ads.reverse-geocode');
     Route::get('/annonces/mes-annonces', [AdController::class, 'index'])->name('ads.index');
+    Route::get('/mes-reservations-recues', [BookingController::class, 'receivedBookings'])->name('bookings.receivedBookings');
+    Route::get('/mes-reservations', [BookingController::class, 'myBookings'])->name('bookings.myBookings');
+    Route::patch('/bookings/{booking}/accept', [BookingController::class, 'accept'])->name('bookings.accept');
+    Route::patch('/bookings/{booking}/reject', [BookingController::class, 'reject'])->name('bookings.reject');
     Route::get('/annonces/{ad}/ical', [AdController::class, 'exportICal'])->name('ads.ical');
     Route::get('/annonces/{ad}/modifier', [AdController::class, 'edit'])->name('ads.edit');
     Route::put('/annonces/{ad}/modifier', [AdController::class, 'update'])->name('ads.update');
