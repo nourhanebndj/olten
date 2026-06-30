@@ -333,7 +333,7 @@
                                         <div class="flex items-center gap-2">
                                             <input type="number" min="0" step="50" value="0" id="price-last-segment"
                                                 class="price-input w-24 px-3 py-2 text-sm font-bold text-center bg-white border border-slate-200 rounded-xl focus:ring-2 focus:ring-orange-200 focus:border-orange-400 outline-none">
-                                            <span class="text-xs font-bold text-slate-400">DA</span>
+                                            <span class="text-xs font-bold text-slate-400">€</span>
                                         </div>
                                     </div>
                                 </div>
@@ -342,7 +342,7 @@
                             <div id="price-summary" class="hidden mt-6 p-5 bg-gradient-to-r from-orange-50 to-amber-50 rounded-2xl border border-orange-100">
                                 <div class="flex items-center justify-between">
                                     <span class="text-xs font-black uppercase tracking-widest text-orange-800">Prix total du trajet</span>
-                                    <span class="text-xl font-black text-orange-600" id="total-price">0 DA</span>
+                                    <span class="text-xl font-black text-orange-600" id="total-price">0 €</span>
                                 </div>
                             </div>
 
@@ -829,7 +829,7 @@
                 if (el) total += parseFloat(el.value) || 0;
             });
             total += parseFloat(document.getElementById('price-last-segment').value) || 0;
-            document.getElementById('total-price').textContent = total.toLocaleString('fr-FR') + ' DA';
+            document.getElementById('total-price').textContent = total.toLocaleString('fr-FR') + ' €';
         }
 
         // =============================================

@@ -42,7 +42,7 @@ class BookingController extends Controller
         }
 
         $booking->update([
-            'status' => 'confirmed',
+            'booking_status' => 'confirmed',
         ]);
 
         Mail::to($booking->user->email)->send(
@@ -58,11 +58,11 @@ class BookingController extends Controller
             abort(403);
         }
 
-        if (in_array($booking->status, ['cancelled', 'completed'])) {
+        if (in_array($booking->booking_status, ['cancelled', 'completed'])) {
             return back()->with('error', 'Action impossible sur cette réservation.');
         }
 
-        if ($booking->status === 'confirmed' && $booking->payment_intent_id) {
+        if ($booking->status === 'paid' && $booking->payment_intent_id) {
 
             Stripe::setApiKey(config('services.stripe.secret'));
 
@@ -72,7 +72,8 @@ class BookingController extends Controller
         }
 
         $booking->update([
-            'status' => 'cancelled',
+            'status' => 'refunded',
+            'booking_status' => 'cancelled',
         ]);
 
         if ($booking->user && $booking->user->email) {
@@ -132,8 +133,7 @@ class BookingController extends Controller
         $end_date = $request->end_date;
 
         $days = \Carbon\Carbon::parse($start_date)->diffInDays($end_date) + 1;
-        $total = $days * $ad->price_per_day;
-        
+        $total = (float) $request->finalPrice;
         $intent = PaymentIntent::create([
             'amount' => (int) round($total * 100),
             'currency' => 'eur',
@@ -152,10 +152,18 @@ class BookingController extends Controller
             $booking->user_id = $user->id;
             $booking->start_date = $start_date;
             $booking->end_date = $end_date;
-            $booking->status = 'confirmed';
+            $booking->status = 'paid';
+            $booking->booking_status = 'pending';
+            $booking->payment_intent_id = $intent->id;
+            $booking->address = $ad->address;
 
-            if ($ad->delivery_active) {
-                $booking->delivery_cost = $ad->delivery_cost ?? 0;
+            $booking->delivery_requested = $request->boolean('delivery_requested');
+
+            if ($booking->delivery_requested) {
+
+                $booking->delivery_cost = $request->delivery_cost;
+                $booking->delivery_distance_km = $request->delivery_distance;
+                $booking->delivery_address = $request->delivery_address;
             }
 
             $booking->calculateTotalPrice();

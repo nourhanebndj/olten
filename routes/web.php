@@ -109,17 +109,22 @@ Route::middleware('auth', 'approved')->group(function () {
         Route::post('/documents/upload', [CarteVtcController::class, 'store'])->name('documents.upload');
         Route::get('/livreur/carte-vtc', [CarteVtcController::class, 'index'])->name('livreur.carte.vtc');
     });
-    Route::get('/livreur/ads', [AdsLivreurController::class, 'index'])->name('livreur.ads.index');
+    Route::get('/demandes-de-livraison', [AdsLivreurController::class, 'index'])->name('livreur.ads.index');
     // Locataire
-    Route::post('/locataire/demande/{demande}/accept', [AdsLivreurController::class, 'acceptDemande'])->name('locataire.demande.accept');
-    Route::post('/locataire/demande/{demande}/refuse', [AdsLivreurController::class, 'refuseDemande'])->name('locataire.demande.refuse');
-    Route::post('/demande/{demande}/finaliser', [AdsLivreurController::class, 'finaliserMission'])->name('demande.finaliser');
-    Route::post('/demande/{demande}/annuler', [AdsLivreurController::class, 'annulerMission'])->name('demande.annuler');
-    Route::get('/espace-livraison', [DeliveryAdController::class, 'index'])->name('delivery.ads');
+    Route::post('/demandes/{demande}/accept', [AdsLivreurController::class, 'acceptDemande'])->name('delivery.request.accept');
+    Route::post('/demandes/{demande}/refuse', [AdsLivreurController::class, 'refuseDemande'])->name('delivery.request.refuse');
+    Route::post('/demandes/{demande}/annuler', [AdsLivreurController::class, 'annulerMission'])->name('demande.annuler');
+    // Route::get('/espace-livraison', [DeliveryAdController::class, 'index'])->name('delivery.ads');
+    Route::get('/espace-livraison/missions', [DeliveryAdController::class, 'missions'])->name('livreur.missions');
+    Route::get('/espace-livraison/demandes', [DeliveryAdController::class, 'demandes'])->name('livreur.demandes');
+    Route::get('/espace-livraison/livraisons-en-cours', [DeliveryAdController::class, 'livraisons'])->name('livreur.livraisons');
     Route::post('/espace-livraison/{ad}/accept', [DeliveryAdController::class, 'accept'])->name('delivery.ads.accept');
     Route::post('/espace-livraison/{ad}/reject', [DeliveryAdController::class, 'reject'])->name('delivery.ads.reject');
+    Route::post('/espace-livraison/livraison/{delivery}/finaliser', [DeliveryAdController::class, 'finaliserMission'])->name('livreur.livraison.finaliser');
+    Route::post('/espace-livraison/{delivery}/pickup', [DeliveryAdController::class, 'pickupDelivery'])->name('livreur.livraison.pickup');
+    Route::post('/espace-livraison/{delivery}/start', [DeliveryAdController::class, 'startDelivery'])->name('livreur.livraison.start');
     Route::get('/livraison.termine', [DeliveryAdController::class, 'historiqueTermine'])->name('liv_termine');
-    Route::post('/delivery/ads/{ad}/request', [DeliveryAdController::class, 'sendRequest'])->name('delivery.ads.request');
+    Route::post('/delivery/ads/{ad}/{type}/request', [DeliveryAdController::class, 'sendRequest'])->name('delivery.ads.request');
     Route::get('/covoiturage', [CovoiturageController::class, 'index'])
         ->name('covoiturage.index');
     Route::get('/covoiturage/create', [CovoiturageController::class, 'create'])
@@ -248,11 +253,16 @@ Route::prefix('vendeur')
         Route::get('ventes/{sale}/invoice', [SellerController::class, 'invoice'])->name('sales.invoice');
         Route::post('ventes/{sale}/paid', [SellerController::class, 'markAsPaid'])->name('sales.paid');
         Route::get('orders/{order}', [SellerOrderController::class, 'showOrder'])->name('orders.show');
-        Route::get('mes-commandes', [SellerOrderController::class, 'orders'])->name('orders');
         Route::get('commandes-clients', [SellerOrderController::class, 'clientOrders'])->name('clientOrders');
         Route::post('commandes-clients/{order}/cancel', [SellerOrderController::class, 'cancelOrder'])->name('orders.cancel');
+        Route::post('commandes-clients/{order}/confirmer', [SellerOrderController::class, 'confirmOrder'])->name('orders.confirm');
     });
-
+Route::middleware(['auth'])
+    ->group(function () {
+        Route::get('mes-commandes', [SellerOrderController::class, 'orders'])->name('orders');
+        Route::get('/mes-commandes/{order}', [SellerOrderController::class, 'show'])->name('orders.show');
+        Route::post('/orders/{order}/rate', [DeliveryAdController::class, 'rateDelivery'])->name('delivery.rate');
+    });
 Route::prefix('produits')
     ->name('products.')
     ->group(function () {

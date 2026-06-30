@@ -106,7 +106,7 @@
 
                             <span class="stat-item">
                                 <i class="fa-solid fa-money-bill"></i>
-                                Total : {{ number_format($booking->total_price, 2, ',', ' ') }} DA
+                                Total : {{ number_format($booking->total_price, 2, ',', ' ') }} €
                             </span>
 
                             <span class="stat-item">

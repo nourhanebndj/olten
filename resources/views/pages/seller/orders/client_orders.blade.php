@@ -47,7 +47,16 @@
                 </div>
 
                 <div class="annonce-details">
-                    <h3 class="annonce-title">{{ $order->product->name }}</h3>
+                    <div class="d-flex justify-content-between">
+                        <h3 class="annonce-title">{{ $order->product->name }}</h3>
+                        <div class="annonce-actions">
+                            <a href="{{ route('orders.show', $order->id) }}"
+                            class="btn-action btn-primary">
+                                <i class="fas fa-truck"></i>
+                                Suivre la commande
+                            </a>
+                        </div>
+                    </div>
 
                     <div class="annonce-tags">
                         <span class="tag tag-orange">
@@ -62,7 +71,7 @@
                         </span>
 
                         <span class="stat-item">
-                            <i class="fas fa-money-bill"></i> Total : {{ $order->total_price }} DA
+                            <i class="fas fa-money-bill"></i> Total : {{ $order->total_price }} €
                         </span>
 
                         <span class="stat-item">
@@ -88,6 +97,14 @@
                 </div>
 
                 <div class="annonce-actions">
+                    @if($order->order_status == 'pending' && $order->status == 'paid')
+                        <form action="{{ route('seller.orders.confirm', $order->id) }}" method="POST">
+                            @csrf
+                            <button type="submit" class="btn-action btn-success">
+                                <i class="fas fa-check"></i> Accepter
+                            </button>
+                        </form>
+                    @endif
                     @if(!in_array($order->order_status, ['delivered', 'cancelled']))
                         <form action="{{ route('seller.orders.cancel', $order) }}" method="POST" onsubmit="return confirm('Voulez-vous vraiment annuler cette commande ?')">
                             @csrf

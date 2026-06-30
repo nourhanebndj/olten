@@ -11,7 +11,7 @@ class DemandeLivreur extends Model
     public $timestamps = true;
 
     protected $fillable = [
-        'id_livreur', 'id_annonce', 'statut', 'date_demande'
+        'id_livreur', 'id_annonce', 'statut', 'date_demande', 'booking_id'
     ];
     public function livreur() {
         return $this->belongsTo(User::class, 'id_livreur');
@@ -19,8 +19,9 @@ class DemandeLivreur extends Model
     public function ad() {
         return $this->belongsTo(Ad::class, 'id_annonce', 'id');
     }
-    public function booking() {
-        return $this->hasOne(Booking::class, 'ad_id', 'id_annonce')
-                    ->where('status', 'pending'); 
+
+    public function booking()
+    {
+        return $this->belongsTo(Booking::class);
     }
 }

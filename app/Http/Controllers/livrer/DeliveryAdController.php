@@ -9,77 +9,181 @@ use App\Models\Ad;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Models\LivraisonColis;
+use App\Models\ProductSale;
+use App\Models\DeliveryRequest;
+use App\Models\Delivery;
+use App\Models\DeliveryReview;
 
 class DeliveryAdController extends Controller
 {
-    public function index()
+    public function missions()
     {
         $livreurId = auth()->id();
-        $requestedBookingIds = DemandeLivreur::where('id_livreur', $livreurId)
-            ->pluck('id_annonce');
-        $acceptedBookingIds = DemandeLivreur::where('statut', 'acceptee')
-            ->pluck('id_annonce');
-        $adsDisponibles = Booking::with(['ad.user', 'ad.category'])
-            ->where('status', 'pending')
-            ->whereNotIn('ad_id', $requestedBookingIds)
-            ->whereNotIn('ad_id', $acceptedBookingIds)
-            ->whereHas('ad', function ($q) {
-                $q->where('delivery_active', true);
-            })
-            ->latest()
-            ->get()
-            ->map(function ($booking) {
-                $ad = $booking->ad;
-                $ad->booking_id = $booking->id;
-                $ad->start_date = $booking->start_date;
-                $ad->end_date = $booking->end_date;
-                $ad->total_price = $booking->total_price;
-                $ad->delivery_cost = $booking->delivery_cost;
-                $ad->status = $booking->status;
-                return $ad;
-            });
-        $adsDemandees = Ad::whereIn('id', function ($q) use ($livreurId) {
-            $q->select('id_annonce')
-            ->from('demande_livreur')
-            ->where('id_livreur', $livreurId)
-            ->where('statut', 'en_attente');
-        })
-            ->with(['user', 'category'])
-            ->get();
-        $adsEnCours = Ad::whereIn('id', function ($q) use ($livreurId) {
-            $q->select('id_annonce')
-            ->from('demande_livreur')
-            ->where('id_livreur', $livreurId)
-            ->where('statut', 'acceptee');
-        })
-            ->with(['user', 'category'])
-            ->get();
-        return view('livreur.ads.index', compact('adsDisponibles', 'adsDemandees', 'adsEnCours'));
+
+        $bookings = Booking::with([
+                                'ad.user',
+                                'ad.category'
+                            ])
+                            ->where('status', 'paid')
+                            ->where('booking_status', 'confirmed')
+                            ->where('delivery_requested', true)
+                            ->whereDoesntHave('delivery')
+                            ->whereDoesntHave('deliveryRequests', function ($q) use ($livreurId) {
+                                $q->where('delivery_person_id', $livreurId);
+                            })
+                            ->latest()
+                            ->get();
+
+        $productSales = ProductSale::with([
+                                        'product',
+                                        'buyer',
+                                        'seller'
+                                    ])
+                                    ->where('status', 'paid')
+                                    ->where('order_status', 'confirmed')
+                                    ->where('delivery_requested', true)
+                                    ->whereDoesntHave('delivery')
+                                    ->whereDoesntHave('deliveryRequests', function ($q) use ($livreurId) {
+                                        $q->where('delivery_person_id', $livreurId);
+                                    })
+                                    ->latest()
+                                    ->get();
+
+        $missions = collect()->merge($bookings)->merge($productSales) ->sortByDesc('created_at')->values();
+
+        return view('livreur.missions.available', compact('missions'));
     }
-    public function sendRequest(Request $request, Ad $ad)
+
+    public function demandes()
     {
-        $livreur = auth()->user();
+        $missions = DeliveryRequest::with([
+                                                'booking.ad',
+                                                'productSale.product'
+                                            ])
+                                            ->where('delivery_person_id', auth()->id())
+                                            ->where('status', 'pending')
+                                            ->latest()
+                                            ->get();
 
-        DemandeLivreur::updateOrCreate(
-            ['id_livreur' => $livreur->id, 'id_annonce' => $ad->id],
-            ['statut' => 'en_attente', 'date_demande' => now()]
-        );
+        return view('livreur.missions.requests', compact('missions'));
+    }
 
+    public function livraisons()
+    {
+        $missions = Delivery::with([
+                                    'booking.ad',
+                                    'productSale.product'
+                                ])
+                                ->where('delivery_person_id', auth()->id())
+                                ->whereNotIn('status', [
+                                    'delivered',
+                                    'cancelled'
+                                ])
+                                ->latest()
+                                ->get();
+        return view('livreur.missions.inProgress', compact('missions'));
+    }
+    
+    public function sendRequest(Request $request, $ad, $type)
+    {
+        DeliveryRequest::create([
+                                'delivery_person_id' => auth()->id(),
+                                'booking_id' => $type == 'ad' ? $ad : null,
+                                'product_sale_id' => $type == 'product' ? $ad : null,
+                                'status' => 'pending',
+                            ]);
         return back()->with('success', 'Demande envoyée avec succès');
     }
+    
+    public function pickupDelivery(Delivery $delivery)
+    {
+        if ($delivery->delivery_person_id !== auth()->id()) {
+            return back()->with('error', 'Action non autorisée.');
+        }
+
+        $delivery->update([
+            'status' => 'picked_up',
+            'picked_up_at' => now(),
+        ]);
+
+        return back()->with('success', 'Colis récupéré.');
+    }
+
+    public function startDelivery(Delivery $delivery)
+    {
+        if ($delivery->delivery_person_id !== auth()->id()) {
+            return back()->with('error', 'Action non autorisée.');
+        }
+
+        $delivery->update([
+            'status' => 'in_transit',
+        ]);
+
+        return back()->with('success', 'Livraison en cours.');
+    }
+
+    public function finaliserMission(Delivery $delivery)
+    {
+        if ($delivery->delivery_person_id !== auth()->id()) {
+            return back()->with('error', 'Action non autorisée.');
+        }
+
+        $delivery->update([
+            'status' => 'delivered',
+            'delivered_at' => now(),
+        ]);
+
+        if ($delivery->productSale) {
+            $delivery->productSale->update([
+                'order_status' => 'delivered',
+            ]);
+        }
+
+        if ($delivery->booking) {
+            $delivery->booking->update([
+                'booking_status' => 'completed',
+            ]);
+        }
+
+        return back()->with('success', 'Livraison terminée avec succès.');
+    }
+
     public function historiqueTermine()
     {
         $livreurId = Auth::id();
 
-        $livraisonsTerminees = LivraisonColis::where('livreur_id', $livreurId)
-            ->where('statut', 'livré')
-            ->with('expediteur')
-            ->orderBy('date_creation', 'desc')
-            ->get();
+        $livraisonsTerminees = Delivery::with([
+                                                'booking.ad.user',
+                                                'productSale.product.user'
+                                            ])
+                                            ->where('delivery_person_id', $livreurId)
+                                            ->where('status', 'delivered')
+                                            ->latest()
+                                            ->get();
 
         $totalLivres = $livraisonsTerminees->count();
-        $revenusCumules = $livraisonsTerminees->sum('prix_total_affiche');
 
-        return view('livreur.ads.termine', compact('livraisonsTerminees', 'totalLivres', 'revenusCumules'));
+        $revenusCumules = $livraisonsTerminees->sum('total_price');
+
+        return view('livreur.ads.termine', compact('livraisonsTerminees', 'totalLivres', 'revenusCumules')
+        );
+    }
+
+    public function rateDelivery(Request $request, ProductSale $order)
+    {
+        DeliveryReview::updateOrCreate(
+            [
+                'delivery_id' => $order->delivery->id,
+                'user_id' => auth()->id(),
+            ],
+            [
+                'rating' => $request->rating,
+                'comment' => $request->comment,
+            ]
+        );
+
+        return response()->json([
+            'success' => true
+        ]);
     }
 }

@@ -178,7 +178,7 @@ form.addEventListener("submit", async (e) => {
         body: JSON.stringify({
             payment_method: paymentMethod.id,
             phone: document.getElementById("phone_full").value,
-            address: document.getElementById("address").value,
+            address: document.getElementById("adresseClient").value,
             product_id: "{{ $product->id }}",
             quantity: "{{ $quantity }}",
 

@@ -19,7 +19,7 @@ return new class extends Migration
             $table->date('end_date');
             $table->decimal('total_price', 10, 2)->default(0);
             $table->decimal('delivery_cost', 10,2)->nullable();
-            $table->enum('status', ['pending', 'confirmed', 'cancelled', 'completed'])->default('pending');
+            $table->string('status')->default('pending');
             $table->timestamps();
         });
     }

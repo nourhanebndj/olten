@@ -12,6 +12,7 @@ use Stripe\PaymentIntent;
 use Stripe\Refund;
 use Illuminate\Support\Facades\Mail;
 use App\Mail\OrderCancelledMail;
+use App\Mail\OrderAcceptedMail;
 
 class SellerOrderController extends Controller
 {
@@ -96,5 +97,36 @@ class SellerOrderController extends Controller
         $order->save();
 
         return back()->with('success', 'Commande annulée et remboursée avec succès');
+    }
+
+    public function confirmOrder($id)
+    {
+        $order = ProductSale::where('user_id', auth()->id())
+                            ->findOrFail($id);
+
+        if (in_array($order->order_status, ['delivered', 'cancelled', 'shipped'])) {
+            return back()->with('error', 'Impossible de confirmer cette commande');
+        }
+
+        $order->update([
+            'order_status' => 'confirmed',
+        ]);
+
+        Mail::to($order->buyer->email)->send(
+            new OrderAcceptedMail($order)
+        );
+
+        return back()->with('success', 'Commande acceptée avec succès.');
+    }
+
+    public function show(ProductSale $order)
+    {
+        $order->load([
+            'product.images',
+            'seller',
+            'delivery.deliveryPerson'
+        ]);
+
+        return view('pages.seller.orders.show', compact('order'));
     }
 }

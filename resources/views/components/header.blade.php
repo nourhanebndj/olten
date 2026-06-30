@@ -69,9 +69,19 @@
                             Tableau de bord
                         </a>
                     </li>
-                    <li>
-                        <i class="fa-solid fa-calendar-check"></i>
-                        Mes réservations
+                    @if(auth()->user()->hasRole('locateur'))
+                    <li class="{{ Route::is('bookings.receivedBookings') ? 'active' : '' }}">
+                        <a href="{{ url('/mes-reservations-recues') }}">
+                            <i class="fa-solid fa-calendar-check"></i>
+                            <span>Mes réservations reçues</span>
+                        </a>
+                    </li>
+                    @endif
+                    <li class="{{ Route::is('bookings.myBookings') ? 'active' : '' }}">
+                        <a href="{{ url('/mes-reservations') }}">
+                            <i class="fa-solid fa-calendar-check"></i>
+                            <span>Mes réservations</span>
+                        </a>
                     </li>
                     <li>
                         <a href="{{ route('ads.index') }}">

@@ -13,6 +13,7 @@ class ProductSale extends Model
         'quantity',
         'total_price',
         'status',
+        'order_status',
         'address',
         'phone',
         'payment_intent_id',
@@ -35,5 +36,15 @@ class ProductSale extends Model
     public function seller()
     {
         return $this->belongsTo(User::class, 'user_id');
+    }
+
+    public function delivery()
+    {
+        return $this->hasOne(Delivery::class, 'product_sale_id');
+    }
+
+    public function deliveryRequests()
+    {
+        return $this->hasMany(DeliveryRequest::class, 'product_sale_id');
     }
 }

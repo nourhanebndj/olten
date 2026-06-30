@@ -33,22 +33,19 @@
                             <span>Mes ventes</span>
                         </a>
                     </li>
-                    <li class="dropdown">
-                        <a href="#" class="dropbtn">
-                            <i class="fa-solid fa-table-columns"></i>
-                            <span>Commandes</span>
-                            <i class="fa-solid fa-chevron-down"></i>
+                    <li class="{{ request()->is('vendeur/commandes-clients*') ? 'active' : '' }}">
+                        <a href="{{ route('seller.clientOrders') }}">
+                            <i class="fas fa-archive"></i>
+                            <span>Commandes clients</span>
                         </a>
-                        <ul class="dropdown-content">
-                            <li class="{{ request()->is('vendeur/mes-commandes*') ? 'active' : '' }}">
-                                <a href="{{ route('seller.orders') }}">Mes commandes</a>
-                            </li>
-                            <li class="{{ request()->is('vendeur/commandes-clients*') ? 'active' : '' }}">
-                                <a href="{{ route('seller.clientOrders') }}">Commandes clients</a>
-                            </li>
-                        </ul>
                     </li>
                 @endif
+                <li class="{{ request()->is('/mes-commandes*') ? 'active' : '' }}">
+                    <a href="{{ route('orders') }}">
+                        <i class="fas fa-box-open"></i>
+                        <span>Mes commandes</span>
+                    </a>
+                </li>
                 @if(auth()->user()->hasRole('locateur'))
                 <li class="{{ Route::is('bookings.receivedBookings') ? 'active' : '' }}">
                     <a href="{{ url('/mes-reservations-recues') }}">
@@ -106,13 +103,14 @@
                         <span>Favoris</span>
                     </a>
                 </li>
+                @if(!auth()->user()->hasRole('livreur'))
                 <li class="{{ request()->routeIs('livreur.ads.index') ? 'active' : '' }}">
                     <a href="{{ auth()->user()->is_approved ? route('livreur.ads.index') : '#' }}" class="flex items-center gap-3 {{ !auth()->user()->is_approved ? 'opacity-50 pointer-events-none cursor-not-allowed' : '' }}">
                         <i class="fa-solid fa-paper-plane"></i>
                         <span>Demande de livraison</span>
                     </a>
                 </li>
-
+                @endif
             </ul>
             @auth
                 @php
@@ -151,8 +149,8 @@
                 @if ($user->hasRole('livreur'))
                     <p class="menu-section">Livreur</p>
                     <ul>
-                        <li class="{{ request()->routeIs('delivery.ads') ? 'active' : '' }}">
-                            <a href="{{ route('delivery.ads') }}" class="flex items-center gap-3">
+                        <li class="{{ request()->routeIs('livreur.missions') || request()->routeIs('livreur.demandes') || request()->routeIs('livreur.livraisons')  ? 'active' : '' }}">
+                            <a href="{{ route('livreur.missions') }}" class="flex items-center gap-3">
                                 <i class="fa-solid fa-truck"></i>
                                 <span>Annonces à livrer</span>
                             </a>

@@ -58,9 +58,9 @@ $baseTotal = $ad->price_per_day * $days;
             <input type="hidden" id="sellerLng" value="{{ $ad->longitude }}">
 
             <input type="hidden" id="deliveryRequested" value="0">
-            <input type="hidden" id="deliveryCostInput" value="0">
-            <input type="hidden" id="deliveryDistInput" value="0">
-            <input type="hidden" id="deliveryAddrInput" value="">
+            <input type="hidden" id="deliveryCostInput" name="delivery_cost" value="0">
+            <input type="hidden" id="deliveryDistInput" name="delivery_distance_km" value="0">
+            <input type="hidden" id="deliveryAddrInput" name="delivery_address" value="">
 
             <div class="form-container">
                 <div class="form-section-header">
@@ -87,7 +87,7 @@ $baseTotal = $ad->price_per_day * $days;
 
                     <div id="distanceResult" style="display:none;" class="distance-result">
                         <span id="deliveryBaseLabel"></span>
-s                    </div>
+                    </div>
                 </div>
             </div>
 
@@ -112,7 +112,7 @@ s                    </div>
 
             <div class="form-group">
                 <label>Prix total</label>
-                <input type="text" id="finalPriceInput" value="{{ number_format($baseTotal, 2) }} €" readonly>
+                <input type="text" id="finalPriceInput" value="{{ number_format($baseTotal, 2) }} €" readonly name="finalPrice">
             </div>
 
         </div>
@@ -179,7 +179,12 @@ form.addEventListener("submit", async (e) => {
             phone: document.getElementById("phone_full").value,
             start_date: "{{ session('start_date') }}",
             end_date: "{{ session('end_date') }}",
-            ad_id: "{{ $ad->id }}"
+            ad_id: "{{ $ad->id }}",
+            finalPrice: document.getElementById("finalPriceInput").value,
+            delivery_requested: deliveryRequested.value,
+            delivery_cost: deliveryCostInput.value,
+            delivery_distance: deliveryDistInput.value,
+            delivery_address: deliveryAddrInput.value
         })
     })
     .then(res => res.json())

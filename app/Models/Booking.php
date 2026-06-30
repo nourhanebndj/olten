@@ -19,7 +19,13 @@ class Booking extends Model
         'end_date',
         'total_price',
         'delivery_cost',
+        'delivery_requested',
+        'delivery_distance_km',
+        'delivery_address',
         'status',
+        'booking_status',
+        'address',
+        'payment_intent_id'
     ];
 
     protected $casts = [
@@ -37,6 +43,21 @@ class Booking extends Model
     public function ad()
     {
         return $this->belongsTo(Ad::class);
+    }
+
+    // public function livraison()
+    // {
+    //     return $this->hasOne(LivraisonColis::class, 'booking_id');
+    // }
+    
+    public function delivery()
+    {
+        return $this->hasOne(Delivery::class, 'booking_id');
+    }
+
+    public function deliveryRequests()
+    {
+        return $this->hasMany(DeliveryRequest::class, 'booking_id');
     }
 
     public function calculateTotalPrice()

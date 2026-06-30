@@ -15,7 +15,7 @@
         <h2 class="section-title">Historique des commandes</h2>
 
         <div class="search-filters">
-            <form method="GET" action="{{ route('seller.orders') }}">
+            <form method="GET" action="{{ route('orders') }}">
                 <input type="text" name="search" class="search-input" placeholder="Rechercher une commande" value="{{ request('search') }}">
 
                 <select name="status" class="search-input">
@@ -47,7 +47,16 @@
                 </div>
 
                 <div class="annonce-details">
-                    <h3 class="annonce-title">{{ $order->product->name }}</h3>
+                    <div class="d-flex justify-content-between">
+                        <h3 class="annonce-title">{{ $order->product->name }}</h3>
+                        <div class="annonce-actions">
+                            <a href="{{ route('orders.show', $order->id) }}"
+                            class="btn-action btn-primary">
+                                <i class="fas fa-truck"></i>
+                                Suivre ma commande
+                            </a>
+                        </div>
+                    </div>
 
                     <div class="annonce-tags">
                         <span class="tag tag-orange">
@@ -62,7 +71,7 @@
                         </span>
 
                         <span class="stat-item">
-                            <i class="fas fa-money-bill"></i> Total : {{ $order->total_price }} DA
+                            <i class="fas fa-money-bill"></i> Total : {{ $order->total_price }} €
                         </span>
 
                         <span class="stat-item">
@@ -70,14 +79,23 @@
                             {{ $order->created_at->format('d/m/Y H:i') }}
                         </span>
 
+                        @php
+                            $orderStatusFr = [
+                                'pending'   => 'En attente',
+                                'confirmed' => 'Confirmée',
+                                'shipped'   => 'Expédiée',
+                                'delivered' => 'Livrée',
+                                'cancelled' => 'Annulée',
+                            ];
+
+                        @endphp
                         <span class="stat-item">
                             <i class="fas fa-check-circle"></i> Statut : 
-                            <strong>{{ ucfirst($order->order_status) }}</strong>
+                            <strong>
+                                {{ $orderStatusFr[$order->order_status] ?? $order->order_status }}
+                            </strong>
                         </span>
                     </div>
-                </div>
-
-                <div class="annonce-actions">
                 </div>
             </div>
         @empty

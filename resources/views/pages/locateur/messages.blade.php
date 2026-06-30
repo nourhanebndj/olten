@@ -14,7 +14,6 @@
     <div class="messages-container">
         <h2 class="section-title">Boîte de réception</h2>
         <div class="messages-list" id="messagesList">
-            <!-- Messages générés par JavaScript -->
         </div>
     </div>
 

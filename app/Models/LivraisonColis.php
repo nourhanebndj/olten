@@ -11,7 +11,7 @@ class LivraisonColis extends Model
     public $timestamps = false;
     protected $fillable = [
         'expediteur_id','livreur_id','objet_description','adresse_depart','adresse_arrivee',
-        'distance_km','prix_base','commission_plateforme','prix_total_affiche','statut','reglementation_transport','date_creation'
+        'distance_km','prix_base','commission_plateforme','prix_total_affiche','statut','reglementation_transport','date_creation', 'demande_id'
     ];
 
     public function livreur() {
@@ -22,4 +22,8 @@ class LivraisonColis extends Model
         return $this->belongsTo(User::class, 'expediteur_id');
     }
 
+    public function demande()
+    {
+        return $this->belongsTo(DemandeLivreur::class, 'demande_id');
+    }
 }

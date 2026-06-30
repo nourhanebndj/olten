@@ -11,8 +11,10 @@ use Illuminate\Support\Facades\Cache;
 use App\Models\Category;
 use App\Models\Product;
 use App\Models\ProductImage;
+use App\Models\ProductSale;
 use Stripe\Stripe;
 use Stripe\PaymentIntent;
+use DB;
 
 class ProductController extends Controller
 {
@@ -225,16 +227,14 @@ class ProductController extends Controller
     public function pay(Request $request)
     {
         $request->validate([
-            'product_id'          => 'required|exists:products,id',
-            'quantity'            => 'required|integer|min:1',
-
-            'payment_method'      => 'required|string',
-            'address'             => 'required|string',
-            'phone'               => 'required|string',
-
-            'delivery_requested'  => 'nullable|boolean',
-            'delivery_distance'   => 'nullable|numeric|min:0',
-            'delivery_address'    => 'nullable|string',
+            'product_id'         => 'required|exists:products,id',
+            'quantity'           => 'required|integer|min:1',
+            'payment_method'     => 'required|string',
+            'address'            => 'required|string',
+            'phone'              => 'required|string',
+            'delivery_requested' => 'nullable|boolean',
+            'delivery_distance'  => 'nullable|numeric|min:0',
+            'delivery_address'   => 'nullable|string',
         ]);
 
         $user = Auth::user();
@@ -246,8 +246,8 @@ class ProductController extends Controller
             return DB::transaction(function () use ($request, $user) {
 
                 $product = Product::where('id', $request->product_id)
-                                    ->lockForUpdate()
-                                    ->firstOrFail();
+                    ->lockForUpdate()
+                    ->firstOrFail();
 
                 $quantity = (int) $request->quantity;
 
@@ -264,22 +264,23 @@ class ProductController extends Controller
 
                 if ($request->boolean('delivery_requested')) {
                     $distance = (float) $request->delivery_distance;
-
                     $deliveryCost = ceil($distance) * 1;
                 }
 
-                $grandTotal    = $productTotal + $deliveryCost;
-                $amountInCents = (int) round($grandTotal * 100);
+                $grandTotal = $productTotal + $deliveryCost;
 
                 $intent = PaymentIntent::create([
-                                                    'amount'   => $amountInCents,
-                                                    'currency' => 'eur',
-                                                    'payment_method' => $request->payment_method,
-                                                    'confirm'  => true,
-                                                    'automatic_payment_methods' => [
-                                                        'enabled' => true,
-                                                    ],
-                                                ]);
+                    'amount' => (int) round($grandTotal * 100),
+                    'currency' => 'eur',
+                    'automatic_payment_methods' => [
+                        'enabled' => true,
+                    ],
+                ]);
+
+                $intent = $intent->confirm([
+                    'payment_method' => $request->payment_method,
+                    'return_url' => route('products.confirm'),
+                ]);
 
                 if ($intent->status !== 'succeeded') {
                     return response()->json([
@@ -291,28 +292,29 @@ class ProductController extends Controller
                 $product->decrement('stock', $quantity);
 
                 ProductSale::create([
-                    'product_id'          => $product->id,
-                    'buyer_id'            => $user->id,
-                    'seller_id'           => $product->user_id,
-                    'quantity'            => $quantity,
-                    'total_price'         => $grandTotal,
-                    'status'              => 'paid',
-                    'payment_intent_id'   => $intent->id,
-                    'address'             => $request->address,
-                    'phone'               => $request->phone,
-                    'delivery_requested'  => $request->boolean('delivery_requested'),
-                    'delivery_cost'       => $deliveryCost,
-                    'delivery_distance_km'=> (float) $request->delivery_distance,
-                    'delivery_address'    => $request->delivery_address,
+                    'product_id'           => $product->id,
+                    'buyer_id'             => $user->id,
+                    'user_id'            => $product->user_id,
+                    'quantity'             => $quantity,
+                    'total_price'          => $grandTotal,
+                    'status'               => 'paid',
+                    'payment_intent_id'    => $intent->id,
+                    'address'              => $product->address,
+                    'phone'                => $request->phone,
+                    'delivery_requested'   => $request->boolean('delivery_requested'),
+                    'delivery_cost'        => $deliveryCost,
+                    'delivery_distance_km' => (float) $request->delivery_distance,
+                    'delivery_address'     => $request->delivery_address,
                 ]);
 
                 return response()->json([
                     'success'  => true,
-                    'redirect' => route('products.success'),
+                    'redirect' => route('products.confirm'),
                 ]);
             });
 
         } catch (\Exception $e) {
+
             return response()->json([
                 'success' => false,
                 'message' => 'Erreur de paiement : ' . $e->getMessage(),
@@ -322,7 +324,7 @@ class ProductController extends Controller
 
     public function sales()
     {
-        $sales = ProductSale::where('seller_id', auth()->id())
+        $sales = ProductSale::where('user_id', auth()->id())
                             ->with('product', 'buyer')
                             ->latest()
                             ->get();
