@@ -49,13 +49,15 @@
                 <div class="annonce-details">
                     <div class="d-flex justify-content-between">
                         <h3 class="annonce-title">{{ $order->product->name }}</h3>
-                        <div class="annonce-actions">
-                            <a href="{{ route('orders.show', $order->id) }}"
-                            class="btn-action btn-primary">
-                                <i class="fas fa-truck"></i>
-                                Suivre la commande
-                            </a>
-                        </div>
+                        @if($order->delivery_requested)
+                            <div class="annonce-actions">
+                                <a href="{{ route('orders.show', $order->id) }}"
+                                class="btn-action btn-primary">
+                                    <i class="fas fa-truck"></i>
+                                    Suivre la commande
+                                </a>
+                            </div>
+                        @endif
                     </div>
 
                     <div class="annonce-tags">

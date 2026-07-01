@@ -148,6 +148,12 @@
                             Voir l'annonce
                         </a>
 
+                        @if($booking->delivery_requested)
+                            <a href="{{ route('bookings.show', $booking->id) }}" class="btn-action btn-primary">
+                                <i class="fas fa-truck"></i>
+                                Suivre la réservation
+                            </a>
+                        @endif
                     </div>
                 </div>
 

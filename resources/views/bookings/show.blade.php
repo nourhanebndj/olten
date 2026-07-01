@@ -4,12 +4,12 @@
 @section('content')
 
 <div class="breadcrumb">
-    <a href="{{ route('bookings.myBookings') }}">Mes réservations</a>
+    <a href="{{ url()->previous() }}">les réservations</a>
     <span>></span>
     <span>Détail réservation</span>
 </div>
 
-<h1 class="page-title">Suivi de ma réservation</h1>
+<h1 class="page-title">Suivi de la réservation</h1>
 
 <div class="annonces-container">
 

@@ -5,12 +5,12 @@
 <div id="ajax-success-message" class="alert alert-success" style="display:none;">
 </div>
 <div class="breadcrumb">
-    <a href="{{ route('orders') }}">Mes commandes</a>
+    <a href="{{ url()->previous() }}">Les commandes</a>
     <span>></span>
-    <span>Détail commande</span>
+    <span>Détail de la commande</span>
 </div>
 
-<h1 class="page-title">Suivi de ma commande</h1>
+<h1 class="page-title">Suivi de la commande</h1>
 
 <div class="annonces-container">
 

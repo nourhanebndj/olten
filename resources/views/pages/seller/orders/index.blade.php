@@ -49,12 +49,14 @@
                 <div class="annonce-details">
                     <div class="d-flex justify-content-between">
                         <h3 class="annonce-title">{{ $order->product->name }}</h3>
-                        <div class="annonce-actions">
-                            <a href="{{ route('orders.show', $order->id) }}" class="btn-action btn-primary">
-                                <i class="fas fa-truck"></i>
-                                Suivre ma commande
-                            </a>
-                        </div>
+                        @if($order->delivery_requested)
+                            <div class="annonce-actions">
+                                <a href="{{ route('orders.show', $order->id) }}" class="btn-action btn-primary">
+                                    <i class="fas fa-truck"></i>
+                                    Suivre ma commande
+                                </a>
+                            </div>
+                        @endif
                     </div>
 
                     <div class="annonce-tags">
@@ -65,8 +67,8 @@
 
                     <div class="annonce-stats">
                         <span class="stat-item">
-                            <i class="fas fa-user"></i> Acheteur : 
-                            {{ $order->buyer->fullname ?? $order->buyer->email }}
+                            <i class="fas fa-user"></i> Venduer : 
+                            {{ $order->seller->fullname ?? $order->seller->email }}
                         </span>
 
                         <span class="stat-item">
