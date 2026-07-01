@@ -69,7 +69,23 @@ class AdController extends Controller
 
             $ad->increment('views');
         }
-        return view('pages.annonces_pages.annonces_details', compact('ad'));
+
+        $reservedDates = [];
+
+        foreach ($ad->bookings()
+                    ->whereIn('booking_status', ['pending', 'confirmed'])
+                    ->get() as $booking) {
+
+                $period = \Carbon\CarbonPeriod::create(
+                    $booking->start_date,
+                    $booking->end_date
+                );
+
+                foreach ($period as $date) {
+                    $reservedDates[] = $date->format('Y-m-d');
+                }
+        }
+        return view('pages.annonces_pages.annonces_details', compact('ad','reservedDates'));
     }
 
     public function create()

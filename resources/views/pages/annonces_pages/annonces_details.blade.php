@@ -119,11 +119,23 @@
                     <form class="w-100" action="{{ route('bookings.store', $ad) }}" method="POST">
                         @csrf
                         <div class="date-selector">
-                            <label>Dates de réservation</label>
-                                <div class="d-flex gap-3">
-                                    <input type="date" name="start_date"  min="{{ now()->format('Y-m-d') }}" max="{{ \Carbon\Carbon::parse($ad->available_until)->format('Y-m-d') }}">
-                                    <input type="date" name="end_date"  min="{{ now()->format('Y-m-d') }}" max="{{ \Carbon\Carbon::parse($ad->available_until)->format('Y-m-d') }}">
-                                </div>
+
+                            <label class="date-label">
+                                <i class="fa-solid fa-calendar-days"></i>
+                                Dates de réservation
+                            </label>
+
+                            <input
+                                type="text"
+                                id="reservation_dates"
+                                class="reservation-datepicker"
+                                placeholder="Sélectionner vos dates"
+                                readonly
+                            >
+
+                            <input type="hidden" name="start_date" id="start_date">
+                            <input type="hidden" name="end_date" id="end_date">
+
                         </div>
                         <button class="reserve-button">Réserver Maintenant</button>
                     </form>
@@ -203,6 +215,31 @@
         .then(data => alert(data.message || 'Annonce signalée !'))
         .catch(err => console.error(err));
     }
+
+    document.addEventListener('DOMContentLoaded', function () {
+        flatpickr("#reservation_dates", {
+            mode: "range",
+            locale: "fr",
+            minDate: "today",
+            maxDate: "{{ \Carbon\Carbon::parse($ad->available_until)->format('Y-m-d') }}",
+
+            disable: @json($reservedDates),
+
+            dateFormat: "Y-m-d",
+
+            onChange: function(selectedDates) {
+
+                if (selectedDates.length === 2) {
+
+                    document.getElementById('start_date').value =
+                        flatpickr.formatDate(selectedDates[0], "Y-m-d");
+
+                    document.getElementById('end_date').value =
+                        flatpickr.formatDate(selectedDates[1], "Y-m-d");
+                }
+            }
+        });
+    });
 
 </script>
 

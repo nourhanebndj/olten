@@ -33,6 +33,7 @@ class HomeController extends Controller
 
         $ads = $query->latest()->get();
         $products = Product::active()->inStock()->latest()->get();
+
         return view('index', compact('categories', 'ads', 'products'));
     }
 }
