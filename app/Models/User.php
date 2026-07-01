@@ -96,16 +96,24 @@ class User extends Authenticatable implements LaratrustUser
     {
         return $this->favorites()->where('ad_id', $ad->id)->exists();
     }
+    
     public function demandesLivreur()
     {
         return $this->hasMany(DemandeLivreur::class, 'id_livreur');
     }
+
     public function vehicle()
     {
         return $this->hasOne(Vehicle::class);
     }
+
     public function products()
     {
         return $this->hasMany(Product::class);
+    }
+
+    public function deliveries()
+    {
+        return $this->hasMany(Delivery::class, 'delivery_person_id');
     }
 }

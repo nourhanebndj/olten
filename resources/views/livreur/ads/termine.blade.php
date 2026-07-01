@@ -151,10 +151,51 @@
                         <div class="w-8 h-8 rounded-full bg-slate-50 flex items-center justify-center">
                             <i data-lucide="arrow-up-right" class="w-3 h-3 text-slate-300 group-hover:text-slate-900 transition-colors"></i>
                         </div>
+                        
+                    </div>
+                @if($livraison->reviews->count())
+
+                    <div class="delivery-reviews-card">
+
+                        <div class="reviews-header">
+                            <i class="fas fa-star"></i>
+                            <h4>Avis reçus ({{ $livraison->reviews->count() }})</h4>
+                        </div>
+
+                        @foreach($livraison->reviews as $review)
+
+                            <div class="review-item">
+
+                                <div class="review-top">
+
+                                    <div class="review-stars">
+
+                                        @for($i = 1; $i <= 5; $i++)
+                                            <i class="fa-star {{ $i <= $review->rating ? 'fas active-star' : 'far empty-star' }}"></i>
+                                        @endfor
+
+                                    </div>
+
+                                </div>
+
+                                @if($review->comment)
+                                    <div class="review-comment">
+                                        "{{ $review->comment }}"
+                                    </div>
+                                @endif
+
+                                <div class="review-date">
+                                    {{ $review->updated_at->format('d/m/Y H:i') }}
+                                </div>
+
+                            </div>
+
+                        @endforeach
+
                     </div>
 
+                @endif
                 </div>
-
             @empty
 
                 <div class="col-span-full">

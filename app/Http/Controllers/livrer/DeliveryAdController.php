@@ -154,7 +154,8 @@ class DeliveryAdController extends Controller
 
         $livraisonsTerminees = Delivery::with([
                                                 'booking.ad.user',
-                                                'productSale.product.user'
+                                                'productSale.product.user',
+                                                'reviews'
                                             ])
                                             ->where('delivery_person_id', $livreurId)
                                             ->where('status', 'delivered')
