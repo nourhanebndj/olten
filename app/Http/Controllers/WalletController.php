@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Booking;
+use App\Models\Delivery;
+use App\Models\ProductSale;
 
 class WalletController extends Controller
 {
@@ -17,16 +19,14 @@ class WalletController extends Controller
                             ->where('status', 'paid')
                             ->sum('total_price');
 
-        $productEarnings = $user->products()
-                                ->with(['sales' => function ($q) {
-                                    $q->where('status', 'paid');
-                                }])
-                                ->get()
-                                ->sum(function ($product) {
-                                    return $product->sales->sum('total_price');
-                                });
+        $productEarnings = ProductSale::where('user_id', $user->id)
+                                      ->where('status', 'paid')
+                                      ->sum('total_price');
 
-        $totalEarnings = $adEarnings + $productEarnings;
-        return view('pages.wallet', compact('user', 'adEarnings', 'productEarnings', 'totalEarnings'));
+        $deliveryEarnings = Delivery::where('delivery_person_id', $user->id)
+                                    ->where('status', 'delivered')
+                                    ->sum('total_price');
+
+        return view('pages.wallet', compact('user', 'adEarnings', 'productEarnings', 'deliveryEarnings'));
     }
 }

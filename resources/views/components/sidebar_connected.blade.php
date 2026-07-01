@@ -89,14 +89,14 @@
                         <i class="fa-solid fa-list"></i>
                         <span>Mes annonces</span>
                     </a>
-                </li>
-                @endif
+                </li>                
                 <li class="{{ request()->is('statistiques') ? 'active' : '' }}">
                     <a href="{{ route('statistiques') }}">
                         <i class="fa-solid fa-chart-line"></i>
                         <span>Statistiques</span>
                     </a>
                 </li>
+                @endif
                 <li class="{{ request()->is('favoris') ? 'active' : '' }}">
                     <a href="{{ route('favoris') }}">
                         <i class="fa-solid fa-heart"></i>

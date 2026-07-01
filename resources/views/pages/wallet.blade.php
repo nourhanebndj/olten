@@ -13,16 +13,6 @@
 
 <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
 
-    <div class="bg-yellow-50 p-4 rounded-xl shadow-sm border">
-        <div class="flex items-center gap-3">
-            <i class="fa fa-money text-yellow-600 text-2xl"></i>
-            <div>
-                <p class="text-sm text-gray-500">Total des gains</p>
-                <p class="text-xl font-bold">{{ number_format($totalEarnings, 2) }} €</p>
-            </div>
-        </div>
-    </div>
-
     <!-- LOCATEUR -->
     @if($user->hasRole('locateur'))
         <div class="bg-blue-50 p-4 rounded-xl shadow-sm border">
@@ -44,6 +34,21 @@
                 <div>
                     <p class="text-sm text-gray-500">Gains ventes</p>
                     <p class="text-xl font-bold">{{ number_format($productEarnings, 2) }} €</p>
+                </div>
+            </div>
+        </div>
+    @endif
+
+    <!-- LIVREUR -->
+    @if($user->hasRole('livreur'))
+        <div class="bg-orange-50 p-4 rounded-xl shadow-sm border">
+            <div class="flex items-center gap-3">
+                <i class="fa fa-truck text-orange-600 text-2xl"></i>
+                <div>
+                    <p class="text-sm text-gray-500">Gains livraisons</p>
+                    <p class="text-xl font-bold">
+                        {{ number_format($deliveryEarnings, 2) }} €
+                    </p>
                 </div>
             </div>
         </div>

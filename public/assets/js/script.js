@@ -524,7 +524,6 @@ document.addEventListener('click', async function(e) {
         console.error('Erreur favoris:', err);
     }
 });
-action-btn
 document.addEventListener('click', async function(e) {
     const btn = e.target.closest('.action-btn');
     if (!btn) return;

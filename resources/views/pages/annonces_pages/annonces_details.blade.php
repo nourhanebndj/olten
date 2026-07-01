@@ -140,7 +140,6 @@
                         <button class="action-btn btn-favorite {{ auth()->check() && auth()->user()->hasFavorited($ad) ? 'active' : '' }}" data-ad-id="{{ $ad->id }}" data-favorited="{{ auth()->check() && auth()->user()->hasFavorited($ad) ? 'true' : 'false' }}">
                             <i class="far fa-heart"></i> J'aime
                         </button>
-
                     </div>
                     <button class="signal-btn" onclick="signalAd({{ $ad->id }})">
                         <i class="fas fa-flag"></i>
