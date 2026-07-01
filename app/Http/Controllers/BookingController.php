@@ -176,4 +176,16 @@ class BookingController extends Controller
         ]);
     }
 
+    public function show(Booking $booking)
+    {
+        $booking->load([
+            'ad.images',
+            'ad.category',
+            'ad.user',
+            'delivery.deliveryPerson',
+            'delivery.reviews'
+        ]);
+
+        return view('bookings.show', compact('booking'));
+    }
 }

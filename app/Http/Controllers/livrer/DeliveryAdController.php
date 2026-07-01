@@ -169,11 +169,11 @@ class DeliveryAdController extends Controller
         );
     }
 
-    public function rateDelivery(Request $request, ProductSale $order)
+    public function rateDelivery(Request $request, Delivery $delivery)
     {
         DeliveryReview::updateOrCreate(
             [
-                'delivery_id' => $order->delivery->id,
+                'delivery_id' => $delivery->id,
                 'user_id' => auth()->id(),
             ],
             [

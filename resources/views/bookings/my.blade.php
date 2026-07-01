@@ -38,25 +38,25 @@
                             {{ $ad->category->nom ?? 'Catégorie non définie' }}
                         </span>
 
-                        @if ($booking->status === 'pending')
+                        @if ($booking->booking_status === 'pending')
                             <span class="tag tag-status tag-pending">
                                 <i class="fa-solid fa-hourglass-half"></i>
                                 En attente
                             </span>
 
-                        @elseif ($booking->status === 'confirmed')
+                        @elseif ($booking->booking_status === 'confirmed')
                             <span class="tag tag-status tag-approved">
                                 <i class="fa-solid fa-circle-check"></i>
                                 Confirmée
                             </span>
 
-                        @elseif ($booking->status === 'cancelled')
+                        @elseif ($booking->booking_status === 'cancelled')
                             <span class="tag tag-status tag-rejected">
                                 <i class="fa-solid fa-circle-xmark"></i>
                                 Annulée
                             </span>
 
-                        @elseif ($booking->status === 'completed')
+                        @elseif ($booking->booking_status === 'completed')
                             <span class="tag tag-status tag-expired">
                                 <i class="fa-solid fa-flag-checkered"></i>
                                 Terminée
@@ -102,11 +102,16 @@
                 </div>
 
                 <div class="annonce-actions">
-                    <a href="{{ route('ads.show', $ad) }}"
-                        class="btn-action btn-view">
+                    <a href="{{ route('ads.show', $ad) }}" class="btn-action btn-view">
                         <i class="fa-solid fa-eye"></i>
                         Voir l'annonce
                     </a>
+                    @if($booking->delivery_requested)
+                        <a href="{{ route('bookings.show', $booking->id) }}" class="btn-action btn-primary">
+                            <i class="fas fa-truck"></i>
+                            Suivre ma réservation
+                        </a>
+                    @endif
                 </div>
 
             </div>

@@ -68,17 +68,17 @@
                                 {{ $ad->category->nom ?? 'Catégorie non définie' }}
                             </span>
 
-                            @if ($booking->status === 'pending')
+                            @if ($booking->booking_status === 'pending')
                                 <span class="tag tag-status tag-pending">
                                     <i class="fa-solid fa-hourglass-half"></i>
                                     En attente
                                 </span>
-                            @elseif ($booking->status === 'confirmed')
+                            @elseif ($booking->booking_status === 'confirmed')
                                 <span class="tag tag-status tag-approved">
                                     <i class="fa-solid fa-circle-check"></i>
                                     Acceptée
                                 </span>
-                            @elseif ($booking->status === 'cancelled')
+                            @elseif ($booking->booking_status === 'cancelled')
                                 <span class="tag tag-status tag-rejected">
                                     <i class="fa-solid fa-circle-xmark"></i>
                                     Refusée
@@ -119,13 +119,10 @@
 
                     <div class="annonce-actions">
 
-                        @if ($booking->status === 'pending')
-                            <form action="{{ route('bookings.accept', $booking) }}"
-                                method="POST"
-                                style="display:inline-block;">
+                        @if ($booking->stabooking_statustus === 'pending')
+                            <form action="{{ route('bookings.accept', $booking) }}" method="POST" style="display:inline-block;">
                                 @csrf
                                 @method('PATCH')
-
                                 <button type="submit" class="btn-action btn-edit">
                                     <i class="fa-solid fa-check"></i>
                                     Accepter

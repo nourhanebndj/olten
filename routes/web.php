@@ -261,7 +261,8 @@ Route::middleware(['auth'])
     ->group(function () {
         Route::get('mes-commandes', [SellerOrderController::class, 'orders'])->name('orders');
         Route::get('/mes-commandes/{order}', [SellerOrderController::class, 'show'])->name('orders.show');
-        Route::post('/orders/{order}/rate', [DeliveryAdController::class, 'rateDelivery'])->name('delivery.rate');
+        Route::post('/{delivery}/rate', [DeliveryAdController::class, 'rateDelivery'])->name('delivery.rate');
+        Route::get('/mes-reservations/{booking}', [BookingController::class, 'show'])->name('bookings.show');
     });
 Route::prefix('produits')
     ->name('products.')

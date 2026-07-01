@@ -50,8 +50,7 @@
                     <div class="d-flex justify-content-between">
                         <h3 class="annonce-title">{{ $order->product->name }}</h3>
                         <div class="annonce-actions">
-                            <a href="{{ route('orders.show', $order->id) }}"
-                            class="btn-action btn-primary">
+                            <a href="{{ route('orders.show', $order->id) }}" class="btn-action btn-primary">
                                 <i class="fas fa-truck"></i>
                                 Suivre ma commande
                             </a>

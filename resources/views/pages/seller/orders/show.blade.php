@@ -208,7 +208,7 @@
                     @endphp
                     <h4>Noter la livraison</h4>
 
-                    <div class="stars-rating" data-order="{{ $order->id }}">
+                    <div class="stars-rating" data-delivery="{{ $order->delivery->id }}">
 
                         @for($i = 1; $i <= 5; $i++)
                             <i class="fa-star rating-star {{ $i <= $currentRating ? 'fas active' : 'far' }}" data-value="{{ $i }}"></i>
@@ -219,7 +219,7 @@
                         <input type="hidden" id="rating-input" value="{{ $currentRating }}">
                         <textarea id="delivery-comment" class="form-control" rows="4" placeholder="Votre commentaire...">{{ $currentComment }}</textarea>
                         <div class="d-flex justify-content-end">
-                            <button type="button" id="save-comment" class="btn-action btn-primary mt-3" data-order="{{ $order->id }}">
+                            <button type="button" id="save-comment" class="btn-action btn-primary mt-3" data-delivery="{{ $order->delivery->id }}">
                                 Envoyer
                             </button>
                         </div>
@@ -232,89 +232,5 @@
     @endif
 
 </div>
-<script>
-    document.addEventListener('DOMContentLoaded', () => {
-
-        const stars = document.querySelectorAll('.rating-star');
-
-        stars.forEach(star => {
-
-            star.addEventListener('click', function() {
-
-                const rating = this.dataset.value;
-                document.getElementById('rating-input').value = rating;
-                const container = this.closest('.stars-rating');
-                const orderId = container.dataset.order;
-
-                stars.forEach(s => {
-
-                    if (parseInt(s.dataset.value) <= rating) {
-                        s.classList.remove('far');
-                        s.classList.add('fas', 'active');
-                    } else {
-                        s.classList.remove('fas', 'active');
-                        s.classList.add('far');
-                    }
-
-                });
-
-                fetch(`/orders/${orderId}/rate`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                        'Accept': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        rating: rating,
-                        comment: document.getElementById('delivery-comment').value
-                    })
-                });
-
-            });
-
-        });
-
-    });
-
-    document.getElementById('save-comment')?.addEventListener('click', function () {
-
-        const orderId = this.dataset.order;
-
-        fetch(`/orders/${orderId}/rate`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                'Accept': 'application/json'
-            },
-            body: JSON.stringify({
-                rating: document.getElementById('rating-input').value,
-                comment: document.getElementById('delivery-comment').value
-            })
-        })
-        .then(response => response.json())
-        .then(data => {
-
-            if (data.success) {
-
-                const successBox = document.getElementById('ajax-success-message');
-
-                successBox.textContent = 'Votre avis a été enregistré avec succès.';
-                successBox.style.display = 'block';
-
-                window.scrollTo({
-                    top: 0,
-                    behavior: 'smooth'
-                });
-
-                setTimeout(() => {
-                    successBox.style.display = 'none';
-                }, 5000);
-            }
-
-        });
-
-    });
-</script>
+<script src="{{ asset('assets/js/delivery.js') }}"></script>
 @endsection
