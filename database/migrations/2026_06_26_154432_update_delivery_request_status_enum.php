@@ -1,50 +1,33 @@
 <?php
 
 use Illuminate\Database\Migrations\Migration;
-use Illuminate\Support\Facades\DB;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
     public function up(): void
     {
-        DB::statement("
-            ALTER TABLE delivery_requests
-            DROP CONSTRAINT delivery_requests_status_check
-        ");
-
-        DB::statement("
-            ALTER TABLE delivery_requests
-            ADD CONSTRAINT delivery_requests_status_check
-            CHECK (
-                status IN (
-                    'pending',
-                    'accepted',
-                    'rejected',
-                    'cancelled',
-                    'completed'
-                )
-            )
-        ");
+        Schema::table('delivery_requests', function (Blueprint $table) {
+            $table->enum('status', [
+                'pending',
+                'accepted',
+                'rejected',
+                'cancelled',
+                'completed'
+            ])->default('pending')->change();
+        });
     }
 
     public function down(): void
     {
-        DB::statement("
-            ALTER TABLE delivery_requests
-            DROP CONSTRAINT delivery_requests_status_check
-        ");
-
-        DB::statement("
-            ALTER TABLE delivery_requests
-            ADD CONSTRAINT delivery_requests_status_check
-            CHECK (
-                status IN (
-                    'pending',
-                    'accepted',
-                    'rejected',
-                    'cancelled'
-                )
-            )
-        ");
+        Schema::table('delivery_requests', function (Blueprint $table) {
+            $table->enum('status', [
+                'pending',
+                'accepted',
+                'rejected',
+                'cancelled'
+            ])->default('pending')->change();
+        });
     }
 };

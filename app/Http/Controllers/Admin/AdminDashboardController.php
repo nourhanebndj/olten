@@ -13,34 +13,38 @@ use App\Models\LivraisonRepas;
 use App\Models\LivraisonVtc;
 use App\Models\ProductSale;
 use App\Models\Role;
+use App\Models\Delivery;
 
 class AdminDashboardController extends Controller
 {
     public function index()
     {
-        // Stats globales
-        $totalUsers      = User::count();
-        $totalServices   = Service::count();
-        $totalMessages   = ContactMessage::count();
-        $totalCovoit     = Covoiturage::count();
-        $covoitPending   = Covoiturage::where('statut', 'pending')->count();
-        $totalLivColis   = LivraisonColis::count();
-        $totalLivRepas   = LivraisonRepas::count();
-        $totalLivVtc     = LivraisonVtc::count();
-        $totalLivraisons = $totalLivColis + $totalLivRepas + $totalLivVtc;
-        $totalVentes     = ProductSale::count();
+        $totalUsers    = User::count();
+        $totalServices = Service::count();
+        $totalMessages = ContactMessage::count();
 
-        // Répartition des rôles
+        $totalCovoit   = Covoiturage::count();
+        $covoitPending = Covoiturage::where('statut', 'pending')->count();
+
+        $totalLivColis = Delivery::whereNotNull('product_sale_id')->count();
+        $totalLivRepas = Delivery::whereNotNull('booking_id')->count();
+
+        $totalLivVtc = LivraisonVtc::count();
+
+        $totalLivraisons = $totalLivColis + $totalLivRepas + $totalLivVtc;
+
+        $totalVentes = ProductSale::count();
+
         $roles = Role::withCount('users')
                     ->get()
                     ->pluck('users_count', 'name')
                     ->toArray();
-        // Inscriptions des 6 derniers mois — tous les mois affichés même à 0
-        $rawInscriptions = User::selectRaw("TO_CHAR(created_at, 'YYYY-MM') as mois, COUNT(*) as total")
-            ->where('created_at', '>=', now()->subMonths(5)->startOfMonth())
-            ->groupBy('mois')
-            ->pluck('total', 'mois')
-            ->toArray();
+
+        $rawInscriptions = User::selectRaw("DATE_FORMAT(created_at, '%Y-%m') as mois, COUNT(*) as total")
+                                ->where('created_at', '>=', now()->subMonths(5)->startOfMonth())
+                                ->groupBy('mois')
+                                ->pluck('total', 'mois')
+                                ->toArray();
 
         $inscriptions = [];
         for ($i = 5; $i >= 0; $i--) {
@@ -48,44 +52,58 @@ class AdminDashboardController extends Controller
             $inscriptions[$key] = $rawInscriptions[$key] ?? 0;
         }
 
-        // Dernières activités : 8 entrées mixtes récentes
         $recentCovoit = Covoiturage::with('conducteur')
-            ->latest('date_depart')
-            ->limit(4)
-            ->get()
-            ->map(fn ($c) => [
-                'type'    => 'covoiturage',
-                'icon'    => 'car-front',
-                'label'   => 'Covoiturage',
-                'detail'  => ($c->ville_depart ?? '?') . ' → ' . ($c->ville_arrivee ?? '?'),
-                'user'    => optional($c->conducteur)->name ?? 'N/A',
-                'statut'  => $c->statut,
-                'date'    => $c->date_depart,
-                'link'    => route('admin.rides.index'),
-            ]);
+                                    ->latest('date_depart')
+                                    ->limit(4)
+                                    ->get()
+                                    ->map(fn ($c) => [
+                                        'type'   => 'covoiturage',
+                                        'icon'   => 'car-front',
+                                        'label'  => 'Covoiturage',
+                                        'detail' => $c->depart . ' → ' . $c->destination,
+                                        'user'   => optional($c->conducteur)->name ?? 'N/A',
+                                        'statut' => $c->statut,
+                                        'date'   => $c->date_depart,
+                                        'link'   => route('admin.rides.index'),
+                                    ]);
 
         $recentVentes = ProductSale::with('buyer')
-            ->latest('created_at')
-            ->limit(4)
-            ->get()
-            ->map(fn ($s) => [
-                'type'    => 'vente',
-                'icon'    => 'bag-check',
-                'label'   => 'Vente',
-                'detail'  => 'Commande #' . $s->id,
-                'user'    => optional($s->buyer)->name ?? 'N/A',
-                'statut'  => $s->order_status ?? $s->status ?? 'pending',
-                'date'    => $s->created_at,
-                'link'    => '#',
-            ]);
+                                    ->latest()
+                                    ->limit(4)
+                                    ->get()
+                                    ->map(fn ($s) => [
+                                        'type'   => 'vente',
+                                        'icon'   => 'bag-check',
+                                        'label'  => 'Vente',
+                                        'detail' => 'Commande #' . $s->id,
+                                        'user'   => optional($s->buyer)->name ?? 'N/A',
+                                        'statut' => $s->status ?? 'pending',
+                                        'date'   => $s->created_at,
+                                        'link'   => '#',
+                                    ]);
+
+        $recentDelivery = Delivery::with(['deliveryPerson'])
+                                ->latest()
+                                ->limit(4)
+                                ->get()
+                                ->map(fn ($d) => [
+                                    'type'   => 'delivery',
+                                    'icon'   => 'box-seam',
+                                    'label'  => 'Livraison',
+                                    'detail' => $d->pickup_address . ' → ' . $d->delivery_address,
+                                    'user'   => optional($d->deliveryPerson)->name ?? 'N/A',
+                                    'statut' => $d->status,
+                                    'date'   => $d->created_at,
+                                    'link'   => '#',
+                                ]);
 
         $recentActivity = collect($recentCovoit)
-            ->merge($recentVentes)
-            ->sortByDesc('date')
-            ->take(8)
-            ->values();
+                            ->merge($recentVentes)
+                            ->merge($recentDelivery)
+                            ->sortByDesc('date')
+                            ->take(8)
+                            ->values();
 
-        // Nouveaux utilisateurs récents
         $recentUsers = User::latest()->limit(5)->get();
 
         return view('admin.dashboard', compact(

@@ -60,10 +60,10 @@ class User extends Authenticatable implements LaratrustUser
     {
         return $this->hasMany(LivraisonRepas::class, 'livreur_id');
     }
-    public function livraisonsColis()
-    {
-        return $this->hasMany(LivraisonColis::class, 'livreur_id');
-    }
+    // public function livraisonsColis()
+    // {
+    //     return $this->hasMany(LivraisonColis::class, 'livreur_id');
+    // }
     public function livraisonsVtc()
     {
         return $this->hasMany(LivraisonVtc::class, 'chauffeur_id');

@@ -9,7 +9,7 @@ return new class extends Migration
 public function up(): void
 {
     Schema::table('users', function (Blueprint $table) {
-        $table->boolean('is_vtc_driver')->default(false)->after('verifie');
+        $table->boolean('is_vtc_driver')->default(false);
     });
 }
 

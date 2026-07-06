@@ -116,6 +116,10 @@ class AdController extends Controller
     {
         $messages = [
             'title.required' => 'Le titre est obligatoire.',
+            'title.max' => 'Le titre ne peut pas dépasser :max caractères.',
+            'summary.string' => "L'aperçu doit être un texte.",
+            'summary.max' => "L'aperçu ne peut pas dépasser :max caractères.",
+            'title.required' => 'Le titre est obligatoire.',
             'title.max'      => 'Le titre ne peut pas dépasser :max caractères.',
             'category_id.required' => 'La catégorie est obligatoire.',
             'category_id.exists'   => 'La catégorie sélectionnée est invalide.',
