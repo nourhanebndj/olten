@@ -9,6 +9,33 @@ use Illuminate\Http\Request;
 
 class HomeController extends Controller
 {
+    public function home(Request $request) {
+        $categories = Category::latest()->get();
+        $query = Ad::query()->where('is_approved', true);
+        if ($request->filled('search')) {
+            $query->where(function ($q) use ($request) {
+                $q->where('title', 'like', '%' . $request->search . '%')
+                ->orWhere('description', 'like', '%' . $request->search . '%')
+                ->orWhereHas('category', function ($q2) use ($request) {
+                    $q2->where('nom', 'like', '%' . $request->search . '%');
+                });
+            });
+        }
+
+        if ($request->filled('location')) {
+            $query->where('address', 'like', '%' . $request->location . '%');
+        }
+
+        if ($request->filled('category')) {
+            $query->where('category_id', $request->category);
+        }
+
+        $ads = $query->latest()->get();
+        $products = Product::active()->inStock()->latest()->get();
+
+        return view('home', compact('categories', 'ads', 'products'));
+    }
+
     public function index(Request $request)
     {
         $categories = Category::latest()->get();
@@ -34,6 +61,6 @@ class HomeController extends Controller
         $ads = $query->latest()->get();
         $products = Product::active()->inStock()->latest()->get();
 
-        return view('index', compact('categories', 'ads', 'products'));
+        return view('homeLocation', compact('categories', 'ads', 'products'));
     }
 }

@@ -768,6 +768,12 @@ body {
   margin-top: 0px;
 }
 
+.section-subtitle-sub {
+  font-size: 14px;
+  color: var(--color-black);
+  margin-top: 0px;
+}
+
 .categories-carousel {
   position: relative;
   padding: 0 50px;

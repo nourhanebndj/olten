@@ -48,7 +48,8 @@ Route::prefix('admin')
             ->name('settings.index');
 
     });
-Route::get('/', [HomeController::class, 'index'])->name('home');
+Route::get('/location', [HomeController::class, 'index'])->name('home');
+Route::get('/', [HomeController::class, 'home'])->name('home');
 Route::get('/creer-site', function () {
     return view('pages.creer_site');
 })->name('creer.site');
