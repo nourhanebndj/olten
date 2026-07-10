@@ -36,6 +36,22 @@ class HomeController extends Controller
         return view('home', compact('categories', 'ads', 'products'));
     }
 
+    public function show($slug)
+    {
+        $category = Category::where('slug', $slug)->firstOrFail();
+
+        $ads = Ad::where('category_id', $category->id)
+                 ->where('is_approved', true)
+                 ->latest()
+                 ->paginate(12);
+
+        $products = Product::where('category_id', $category->id)
+                           ->latest()
+                           ->paginate(12);
+
+        return view('categories.show', compact('category', 'ads', 'products'));
+    }
+
     public function index(Request $request)
     {
         $categories = Category::latest()->get();

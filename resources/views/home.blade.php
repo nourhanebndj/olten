@@ -44,21 +44,15 @@
 
         <div class="carousel-container">
             <div class="carousel-track">
-
                 @forelse($categories as $category)
                     <div class="category-card">
-                        <img 
-                            src="{{ asset('storage/' . $category->image) }}"
-                            alt="{{ $category->nom }}"
-                            class="category-image"
-                        >
-
-                        <div class="category-content">
-                            <h3 class="category-title">{{ $category->nom }}</h3>
-                            <a href="{{ $category->slug }}" class="category-btn">
+                        <div class="category-overlay">
+                            <a href="{{ route('categories.show', $category->slug) }}">
                                 Parcourir
                             </a>
                         </div>
+                        <i class="{{ $category->icon }} category-icon"></i>
+                        <h3>{{ $category->nom }}</h3>
                     </div>
                 @empty
                     <p class="text-center">

@@ -40,17 +40,18 @@ class CategoryController extends Controller
         $request->validate([
             'nom' => 'required|string|max:255',
             'description' => 'nullable|string',
-            'image' => 'nullable',
+            'icon' => 'nullable',
+            'slug' => 'required|string|unique:categories,slug',
         ]);
 
-        $data = $request->only('nom', 'description', 'service_id');
+        $data = $request->only('nom', 'description', 'service_id', 'icon', 'slug');
 
-        if ($request->hasFile('image')) {
-            if(isset($category) && $category->image){
-                Storage::disk('public')->delete($category->image);
-            }
-            $data['image'] = $request->file('image')->store('categories', 'public');
-        }
+        // if ($request->hasFile('image')) {
+        //     if(isset($category) && $category->image){
+        //         Storage::disk('public')->delete($category->image);
+        //     }
+        //     $data['image'] = $request->file('image')->store('categories', 'public');
+        // }
 
         Category::create($data); // pour store
 
@@ -71,26 +72,25 @@ class CategoryController extends Controller
         $request->validate([
             'nom' => 'required|string|max:255',
             'description' => 'nullable|string',
-            'image' => 'nullable',
+            'icon' => 'nullable',
+            'slug' => 'required|string|unique:categories,slug,' . $category->id,
         ]);
 
-        $data = $request->only('nom', 'description', 'service_id');
-
+        $data = $request->only('nom', 'description', 'service_id', 'icon', 'slug');
         // Si l'utilisateur upload une nouvelle image
-        if ($request->hasFile('image')) {
+        // if ($request->hasFile('image')) {
             // Supprimer l'ancienne image si elle existe
-            if ($category->image && Storage::disk('public')->exists($category->image)) {
-                Storage::disk('public')->delete($category->image);
-            }
+            // if ($category->image && Storage::disk('public')->exists($category->image)) {
+            //     Storage::disk('public')->delete($category->image);
+            // }
 
             // Sauvegarder la nouvelle image
-            $data['image'] = $request->file('image')->store('categories', 'public');
-        }
+        //     $data['image'] = $request->file('image')->store('categories', 'public');
+        // }
 
         $category->update($data);
 
-        return redirect()->route('admin.categories.index')
-                        ->with('success', 'Catégorie mise à jour avec succès.');
+        return redirect()->route('admin.categories.index')->with('success', 'Catégorie mise à jour avec succès.');
     }
 
     // Supprime une catégorie

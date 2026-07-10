@@ -48,8 +48,8 @@ Route::prefix('admin')
             ->name('settings.index');
 
     });
-Route::get('/location', [HomeController::class, 'index'])->name('home');
 Route::get('/', [HomeController::class, 'home'])->name('home');
+Route::get('/{slug}', [HomeController::class, 'show'])->name('categories.show');
 Route::get('/creer-site', function () {
     return view('pages.creer_site');
 })->name('creer.site');
@@ -196,7 +196,7 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'role:admin']) ->gro
     Route::put('/categories/{category}', [CategoryController::class, 'update'])->name('categories.update');
     Route::delete('/categories/{category}', [CategoryController::class, 'destroy'])->name('categories.destroy');
     // Dashboard
-    Route::get('/', [AdminDashboardController::class, 'index'])->name('dashboard');
+    Route::get('/dashboard', [AdminDashboardController::class, 'index'])->name('dashboard');
     // Sous-catégories
     Route::resource('subcategories', SubCategoryController::class);
 
