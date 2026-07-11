@@ -182,15 +182,13 @@
         </div>
         <ul class="menu-list">
             <li><a href="{{ url('/') }}">Accueil</a></li>
-            <li><a href="">Location véhicule</a></li>
-            <li><a href="">Location immobilier</a></li>
-            <li><a href="">Location mode & famille</a></li>
-            <li><a href="">Location sport & loisir</a></li>
-            <li><a href="">Location maison & bricolage</a></li>
-            <li><a href="">Location événementiel</a></li>
-            <li><a href="">Location nautisme</a></li>
-            <li><a href="">Location électronique</a></li>
-            <li><a href="">Location médical</a></li>
+            @foreach($footerCategories as $category)
+            <li>
+                <a href="{{ route('categories.show', $category->slug) }}">
+                    {{ $category->nom }}
+                </a>
+            </li>
+            @endforeach
             <li><a href="{{ url('/contact') }}">Contact</a></li>
         </ul>
 
