@@ -15,7 +15,7 @@ class EnsureUserIsApproved
             return redirect()->route('account.verify');
         }
 
-        if ($user && !$user->approved) {
+        if ($user && !$user->is_approved) {
             return redirect()->route('account.pending');
         }
         return $next($request);
