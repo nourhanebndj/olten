@@ -9,8 +9,10 @@ use App\Notifications\ResetPassword as ResetPasswordNotification;
 use Laratrust\Contracts\LaratrustUser;
 use Laratrust\Traits\HasRolesAndPermissions;
 use App\Models\Role;
+use Illuminate\Contracts\Auth\MustVerifyEmail;
+use App\Notifications\VerifyEmailCustom;
 
-class User extends Authenticatable implements LaratrustUser
+class User extends Authenticatable implements LaratrustUser, MustVerifyEmail
 {
     use HasFactory;
     use Notifiable;
@@ -115,5 +117,10 @@ class User extends Authenticatable implements LaratrustUser
     public function deliveries()
     {
         return $this->hasMany(Delivery::class, 'delivery_person_id');
+    }
+
+    public function sendEmailVerificationNotification()
+    {
+        $this->notify(new VerifyEmailCustom());
     }
 }

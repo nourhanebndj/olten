@@ -33,8 +33,7 @@ class AdminAuthController extends Controller
         // Connecter l'utilisateur manuellement
         Auth::login($user);
         // Rediriger vers le dashboard admin
-        return redirect('/admin');
-        // return redirect()->route('admin.dashboard');
+        return redirect()->route('admin.dashboard');
     }
     public function logout(Request $request)
     {

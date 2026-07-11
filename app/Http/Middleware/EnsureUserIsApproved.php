@@ -11,10 +11,13 @@ class EnsureUserIsApproved
     {
         $user = auth()->user();
 
-        if ($user && !$user->is_approved) {
-            return redirect()->route('account.pending');
+        if ($user && !$user->hasVerifiedEmail()) {
+            return redirect()->route('account.verify');
         }
 
+        if ($user && !$user->approved) {
+            return redirect()->route('account.pending');
+        }
         return $next($request);
     }
 }

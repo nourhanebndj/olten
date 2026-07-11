@@ -14,7 +14,14 @@
         </div>
 
         <h1 class="text-2xl font-bold mb-2">
-            Compte en attente d’approbation
+            @php
+                if (auth()->user()->hasVerifiedEmail()) {
+                    $message = "Votre adresse e-mail a été vérifiée avec succès. Votre compte est maintenant en attente d'approbation par l'administrateur.";
+                } else {
+                    $message = "Votre compte est en attente de vérification de votre adresse e-mail.";
+                }
+            @endphp
+            {{ $message }}
         </h1>
 
         <p class="text-gray-600 mb-6">

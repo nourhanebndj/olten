@@ -49,7 +49,6 @@ Route::prefix('admin')
 
     });
 Route::get('/', [HomeController::class, 'home'])->name('home');
-Route::get('/{slug}', [HomeController::class, 'show'])->name('categories.show');
 Route::get('/creer-site', function () {
     return view('pages.creer_site');
 })->name('creer.site');
@@ -64,8 +63,9 @@ Route::view('/categories', 'pages.annonces_pages.categories_annonces')
 ->name('categories');
 
 Route::get('/compte-en-attente', function () { return view('auth.pending-approval');})->name('account.pending');
+Route::get('/verify-email', function () { return view('auth.verify-email');})->name('account.verify');
 
-Route::middleware('auth', 'approved', 'role:locateur')->group(function () {
+Route::middleware('auth', 'verified', 'approved', 'role:locateur')->group(function () {
     Route::get('/annonces/deposer-une-annonce', [AdController::class, 'create'])->name('ads.create');
     Route::post('/ads', [AdController::class, 'store'])->name('ads.store');
     Route::get('/ads/reverse-geocode', [AdController::class, 'reverseGeocode'])->name('ads.reverse-geocode');
@@ -82,7 +82,7 @@ Route::middleware('auth', 'approved', 'role:locateur')->group(function () {
     Route::get('/statistiques', function () {return view('pages.locateur.statistiques');})->name('statistiques');
 });
 
-Route::middleware('auth', 'approved', 'role:livreur')->group(function () {
+Route::middleware('auth', 'verified', 'approved', 'role:livreur')->group(function () {
     Route::get('/espace-livraison/missions', [DeliveryAdController::class, 'missions'])->name('livreur.missions');
     Route::get('/espace-livraison/demandes', [DeliveryAdController::class, 'demandes'])->name('livreur.demandes');
     Route::get('/espace-livraison/livraisons-en-cours', [DeliveryAdController::class, 'livraisons'])->name('livreur.livraisons');
@@ -93,7 +93,7 @@ Route::middleware('auth', 'approved', 'role:livreur')->group(function () {
     Route::post('/delivery/ads/{ad}/{type}/request', [DeliveryAdController::class, 'sendRequest'])->name('delivery.ads.request');
 });
 
-Route::middleware('auth', 'approved')->group(function () {
+Route::middleware('auth', 'verified', 'approved')->group(function () {
     Route::post('/profile/toggle-vtc', [ProfileController::class, 'toggleVtc'])->name('profile.toggleVtc');
     Route::post('/profile/toggleLivreur', [ProfileController::class, 'toggleLivreur'])->name('profile.toggleLivreur');
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
@@ -196,7 +196,7 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'role:admin']) ->gro
     Route::put('/categories/{category}', [CategoryController::class, 'update'])->name('categories.update');
     Route::delete('/categories/{category}', [CategoryController::class, 'destroy'])->name('categories.destroy');
     // Dashboard
-    Route::get('/dashboard', [AdminDashboardController::class, 'index'])->name('dashboard');
+    Route::get('/', [AdminDashboardController::class, 'index'])->name('dashboard');
     // Sous-catégories
     Route::resource('subcategories', SubCategoryController::class);
 
@@ -272,5 +272,5 @@ Route::prefix('produits')
         Route::post('{product}/acheter', [ProductController::class, 'purchase'])->name('purchase')->middleware('auth');
         Route::get('{product}', [ProductController::class, 'show'])->name('show');
     });
-
+Route::get('/{slug}', [HomeController::class, 'show'])->name('categories.show');
 require __DIR__.'/auth.php';
