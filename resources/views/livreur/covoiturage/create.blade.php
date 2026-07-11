@@ -506,8 +506,7 @@
                 <div class="mb-6">
                     <span
                         class="inline-block px-3 py-1 rounded-full bg-orange-100 text-[#ff3c00] text-xs font-bold uppercase tracking-wider mb-2">Route</span>
-                    <h2 class="text-2xl font-black text-slate-800">Choisissez votre <span
-                            class="text-[#ff3c00]">route</span></h2>
+                    <h2 class="text-2xl font-black text-slate-800">Choisissez votre <span class="text-[#ff3c00]">route</span></h2>
                 </div>
                 <div id="routes-list" class="space-y-4 flex-1 overflow-y-auto pr-2"></div>
                 <div class="pt-6 border-t border-slate-100">
@@ -1713,7 +1712,19 @@
                 };
 
                 const dist = (route.distance / 1000).toFixed(1);
-                const dur = Math.round(route.duration / 60);
+                let dur;
+
+                if (route.duration >= 60) {
+                    console.log(route.duration)
+                    const hours = Math.floor(route.duration / 60);
+                    const minutes = Math.round(route.duration % 60);
+
+                    dur = minutes > 0
+                        ? `${hours}h ${minutes}min`
+                        : `${hours}h`;
+                } else {
+                    dur = `${Math.round(route.duration)} min`;
+                }
                 div.innerHTML = `
                     <div class="flex justify-between items-start mb-1">
                         <span class="font-black text-slate-800">Option ${i + 1}</span>
@@ -1721,7 +1732,7 @@
                     </div>
                     <div class="flex gap-3 text-sm font-bold text-slate-500">
                         <span><i class="fa-solid fa-road mr-1"></i> ${dist} km</span>
-                        <span><i class="fa-solid fa-clock mr-1"></i> ${dur} min</span>
+                        <span><i class="fa-solid fa-clock mr-1"></i> ${dur}</span>
                     </div>
                 `;
                 container.appendChild(div);
