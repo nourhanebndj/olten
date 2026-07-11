@@ -636,9 +636,7 @@
                         <div
                             class="flex items-center gap-4 p-5 bg-slate-50 rounded-2xl border border-slate-100 focus-within:border-[#ff3c00] transition-colors">
                             <i class="fa-solid fa-calendar text-[#ff3c00] text-xl"></i>
-                            <input type="date" id="input-date"
-                                class="bg-transparent text-xl font-bold text-slate-900 w-full outline-none"
-                                value="2026-04-01">
+                            <input type="date" id="input-date" class="bg-transparent text-xl font-bold text-slate-900 w-full outline-none" value="{{ date('Y-m-d') }}">
                         </div>
                     </div>
                     <div class="space-y-3">
