@@ -114,7 +114,7 @@ Route::middleware('auth', 'verified', 'approved')->group(function () {
     Route::get('/bookings/confirm', [BookingController::class, 'confirm'])->name('bookings.confirm');
     Route::post('/bookings/pay', [BookingController::class, 'pay'])->name('bookings.pay');
     Route::post('/ads/{ad}/report', [AdReportController::class, 'store'])->middleware('auth')->name('ads.report');
-    Route::get('/portefeuille', [WalletController::class, 'index'])->name('stats.ads');
+    Route::get('/portefeuille', [WalletController::class, 'index'])->name('walt.index');
     Route::prefix('livreur')->group(function () {
         Route::post('/documents/upload', [CarteVtcController::class, 'store'])->name('documents.upload');
         Route::get('/livreur/carte-vtc', [CarteVtcController::class, 'index'])->name('livreur.carte.vtc');
