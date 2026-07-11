@@ -1,6 +1,6 @@
 @extends('layouts.main')
 
-@section('title', 'Accueil - Olten-location.fr')
+@section('title', 'Accueil - Olten.fr')
 
 @section('content')
 
@@ -9,7 +9,7 @@
     <div class="hero-content">
         <h1><span>Olten</span>-<span class="highlight">location.fr</span></h1>
         <p>
-            Avec Olten-location.fr, trouvez ce qu’il vous faut près de chez vous,
+            Avec Olten.fr, trouvez ce qu’il vous faut près de chez vous,
             ou mettez vos propres affaires en location pour arrondir vos fins de mois.
         </p>
         <div class="hero-buttons">
@@ -82,7 +82,7 @@
 @if($approvedAds->isNotEmpty())
     <section class="annonces-section">
         <h2 class="section-title">
-            Les Annonces qui Font Parler d'elles sur <span class="site-name">Olten-location.fr</span>
+            Les Annonces qui Font Parler d'elles sur <span class="site-name">Olten.fr</span>
         </h2>
 
         <div class="annonces-carousel">
@@ -145,7 +145,7 @@
 {{-- Produits récents --}}
 @if($products->isNotEmpty())
 <section class="produits-section">
-    <h2 class="section-title">Produits disponibles sur <span class="site-name">Olten-location.fr</span></h2>
+    <h2 class="section-title">Produits disponibles sur <span class="site-name">Olten.fr</span></h2>
 
     <div class="produits-carousel">
         <button class="carousel-btn prev-btn" aria-label="Précédent">

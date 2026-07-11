@@ -1,6 +1,6 @@
 @extends('layouts.main')
 
-@section('title', 'Détail du produit - Olten-location.fr')
+@section('title', 'Détail du produit - Olten.fr')
 
 @section('content')
 

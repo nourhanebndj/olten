@@ -1,6 +1,6 @@
 @extends('layouts.main')
 
-@section('title', 'Contact - Olten-location.fr')
+@section('title', 'Contact - Olten.fr')
 
 @section('content')
     <div id="success-toast" class="toast-success">

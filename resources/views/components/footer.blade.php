@@ -5,7 +5,7 @@
     <div class="footer-section logo-section">
       <img src="{{ asset('assets/images/logo/olten_location.jpg') }}" alt="Olten Location" class="footer-logo">
       <p>
-        Avec Olten-location.fr, trouvez ce qu’il vous faut près de chez vous, 
+        Avec Olten.fr, trouvez ce qu’il vous faut près de chez vous, 
         ou mettez vos propres affaires en location pour arrondir vos fins de mois.
       </p>
     </div>
@@ -45,7 +45,7 @@
 
   <!-- Bas du footer -->
   <div class="footer-bottom">
-    © 2025 Tous droits réservés. <a href="#">olten-location.fr</a>
+    © 2025 Tous droits réservés. <a href="#">olten.fr</a>
   </div>
 
   <!-- Bouton retour haut -->
