@@ -822,6 +822,23 @@ i.highlight {
     transition: .3s;
 }
 
+.category-icon-small {
+    width: 20px;
+    height: 20px;
+    margin: auto;
+    border-radius: 50%;
+    background: var(--color-grey-light);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    transition: .3s;
+}
+
+.category-icon-small::before {
+    color: #f01a23;
+    font-size: 12px;
+}
+
 .category-icon::before {
     color: #f01a23;
     font-size: 28px;

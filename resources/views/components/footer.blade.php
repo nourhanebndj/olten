@@ -14,15 +14,23 @@
     <div class="footer-section links-section">
       <h3>Nos Pages</h3>
       <ul>
-        <li><a href="/">› Accueil</a></li>
+        <li class="d-flex">
+          <a class="d-flex gap-2" href="/" >
+            <i class="fas fa-home category-icon-small"></i> Accueil
+          </a>
+        </li>
         @foreach($footerCategories as $category)
-          <li>
-              <a href="{{ route('categories.show', $category->slug) }}">
-                › {{ $category->nom }}
+          <li class="d-flex">
+              <a href="{{ route('categories.show', $category->slug) }}" class="d-flex gap-2">
+                <i class="{{ $category->icon }} category-icon-small"></i> {{ $category->nom }}
             </a>
           </li>
         @endforeach
-        <li><a href="/contact">› Contact</a></li>
+        <li class="d-flex">
+          <a class="d-flex gap-2" href="/contact">
+            <i class="fas fa-envelope category-icon-small"></i> Contact
+          </a>
+        </li>
       </ul>
     </div>
 

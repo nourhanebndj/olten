@@ -181,18 +181,24 @@
             </button>
         </div>
         <ul class="menu-list">
-            <li><a href="{{ url('/') }}">Accueil</a></li>
+            <li class="d-flex">
+            <a class="d-flex gap-2" href="/" >
+                <i class="fas fa-home category-icon-small bg-transparent"></i> Accueil
+            </a>
+            </li>
             @foreach($footerCategories as $category)
-            <li>
-                <a href="{{ route('categories.show', $category->slug) }}">
-                    {{ $category->nom }}
+            <li class="d-flex">
+                <a href="{{ route('categories.show', $category->slug) }}" class="d-flex gap-2">
+                    <i class="{{ $category->icon }} category-icon-small bg-transparent"></i> {{ $category->nom }}
                 </a>
             </li>
             @endforeach
-            <li><a href="{{ url('/contact') }}">Contact</a></li>
+            <li class="d-flex">
+            <a class="d-flex gap-2" href="/contact">
+                <i class="fas fa-envelope category-icon-small bg-transparent"></i> Contact
+            </a>
+            </li>
         </ul>
-
-
         <div class="sidebar-footer">
             <h3>Contactez-nous</h3>
             <p>olten-location@outlook.fr</p>
