@@ -52,7 +52,7 @@
                             </a>
                         </div>
                         <i class="{{ $category->icon }} category-icon"></i>
-                        <h3>{{ $category->nom }}</h3>
+                        <h5>{{ $category->nom }}</h5>
                     </div>
                 @empty
                     <p class="text-center">
