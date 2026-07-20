@@ -813,6 +813,19 @@ i.highlight {
     transition: .3s;
 }
 
+.category-image {
+    display: flex;
+    justify-content: center;
+    margin-top: 30px;
+}
+
+.category-image img {
+    max-width: 300px;
+    width: 100%;
+    height: auto;
+    object-fit: contain;
+}
+
 .swiper-wrapper{
     transition-timing-function: linear !important;
 }

@@ -25,8 +25,7 @@
 
         @if($category->image)
             <div class="category-image">
-                <img src="{{ asset('storage/' . $category->image) }}"
-                     alt="{{ $category->nom }}">
+                <img src="{{ asset('storage/' . $category->image) }}" alt="{{ $category->nom }}">
             </div>
         @endif
     </div>
