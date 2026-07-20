@@ -14,7 +14,6 @@
         </p>
         <div class="hero-buttons">
             <a href="{{ route('ads.create') }}" class="btn-orange">Déposer une annonce</a>
-            <a href="{{ route('creer.site') }}" class="btn-black">Créer un site</a>
         </div>
     </div>
 </section>

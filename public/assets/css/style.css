@@ -621,28 +621,31 @@ body {
 
 /*-------Home------------------*/
 .hero-section {
-  background-image: url('../images/Hero_section.png');
-  background-size: cover;
-  background-position: center center;
-  background-repeat: no-repeat;
-  text-align: center;
-  padding: 150px 20px;
-  color: var(--color-black);
-  position: relative;
+    background-image: url('../images/Hero_section.png');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+
+    display: flex;
+    flex-direction: column;
+
+    min-height: 100vh; /* ou 800px par exemple */
+    padding: 80px 20px 40px;
 }
 
-.hero-section::after {
+/* .hero-section::after {
   content: "";
   position: absolute;
   inset: 0;
   background: rgba(255, 255, 255, 0.7);
-}
+} */
 
 .hero-content {
   position: relative;
   z-index: 2;
   max-width: 900px;
   margin: 0 auto;
+  text-align: center;
 }
 
 .hero-content h1 {
@@ -738,13 +741,16 @@ i.highlight {
 }
 
 .categories-section {
-  padding: 0px 20px;
-  max-width: 1400px;
-  margin: 0 auto;
+    width: 100%;
+    padding: 0 20px;
+    box-sizing: border-box;
+    margin-top: auto;
+    width: 100%;
 }
 
 .section-header {
   margin-bottom: 50px;
+  text-align: center;
 }
 
 .section-title {
@@ -795,7 +801,8 @@ i.highlight {
 
 .category-card {
     position: relative;
-    width: 220px;
+    flex: 0 0 177px;
+    width: 199px;
     height: 180px;
     background: white;
     border-radius: 24px;
@@ -804,6 +811,19 @@ i.highlight {
     text-align: center;
     box-shadow: 0 5px 20px rgba(0,0,0,.05);
     transition: .3s;
+}
+
+.swiper-wrapper{
+    transition-timing-function: linear !important;
+}
+.categoriesSwiper{
+    overflow:hidden;
+}
+
+.swiper-slide{
+    display:flex;
+    justify-content:center;
+    width:auto;
 }
 
 .category-card:hover {

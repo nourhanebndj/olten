@@ -3,7 +3,6 @@
 @section('title', 'Accueil - Olten.fr')
 
 @section('content')
-
 <!----HERO SECTION------>
 <section class="hero-section">
     <div class="hero-content">
@@ -13,64 +12,30 @@
             ou développez votre activité grâce aux services proposés par
             Olten.fr.
         </p>
+        <div class="w-100 d-flex flex-wrap justify-content-center">
 
+            @forelse($categories as $category)
+                <div class="category-card  m-4">
+                    <div class="category-overlay">
+                        <a href="{{ route('categories.show', $category->slug) }}">
+                            Parcourir
+                        </a>
+                    </div>
+                    <i class="{{ $category->icon }} category-icon"></i>
+                    <h5>{{ $category->nom }}</h5>
+                </div>
+            @empty
+                <p class="text-center">
+                    Aucune catégorie disponible pour le moment.
+                </p>
+            @endforelse
+        </div>
         <p class="hero-subtitle">
             Une seule plateforme pour connecter particuliers et professionnels
             autour de services simples, rapides et accessibles partout en France.
         </p>
-        <div class="hero-buttons">
-            <!-- <a href="{{ route('ads.create') }}" class="btn-orange">Déposer une annonce</a> -->
-            <a href="{{ route('creer.site') }}" class="btn-black">Créer un site</a>
-        </div>
     </div>
 </section>
-
-<!---- CATEGORIES SECTION ------>
-<section class="categories-section">
-    <div class="section-header">
-        <h2 class="section-title">Découvrez nos catégories</h2>
-        <p class="section-subtitle mb-0">
-            Explorez les différents univers d'Olten.fr :
-        </p>
-        <p class="section-subtitle-sub">
-            location, vente, livraison, transport et bien plus encore.
-        </p>
-    </div>
-
-    <div class="categories-carousel">
-        <button class="carousel-nav-btn prev-btn" aria-label="Précédent">
-            <i class="fas fa-chevron-left"></i>
-        </button>
-
-        <div class="carousel-container">
-            <div class="carousel-track">
-                @forelse($categories as $category)
-                    <div class="category-card">
-                        <div class="category-overlay">
-                            <a href="{{ route('categories.show', $category->slug) }}">
-                                Parcourir
-                            </a>
-                        </div>
-                        <i class="{{ $category->icon }} category-icon"></i>
-                        <h5>{{ $category->nom }}</h5>
-                    </div>
-                @empty
-                    <p class="text-center">
-                        Aucune catégorie disponible pour le moment.
-                    </p>
-                @endforelse
-
-            </div>
-        </div>
-
-        <button class="carousel-nav-btn next-btn" aria-label="Suivant">
-            <i class="fas fa-chevron-right"></i>
-        </button>
-    </div>
-
-    <div class="carousel-dots"></div>
-</section>
-
 
 <!----------Plus récent annonce-------------->
 @php
