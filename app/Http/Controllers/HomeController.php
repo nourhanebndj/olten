@@ -10,7 +10,7 @@ use Illuminate\Http\Request;
 class HomeController extends Controller
 {
     public function home(Request $request) {
-        $categories = Category::orderByDesc('id')->get();
+        $categories = Category::orderBy('id', 'asc')->get();
         $query = Ad::query()->where('is_approved', true);
         if ($request->filled('search')) {
             $query->where(function ($q) use ($request) {
