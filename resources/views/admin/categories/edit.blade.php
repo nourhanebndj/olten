@@ -139,7 +139,10 @@
                     @endforeach
                     
                 </div>
-                <!-- <label for="image" class="block text-gray-700 font-medium mb-1">Image (optionnel)</label>
+            </div>
+
+            <div class="mb-4">
+                <label for="image" class="block text-gray-700 font-medium mb-1">Image (optionnel)</label>
 
                 <input type="file" name="image" id="image"
                     class="w-full border @error('image') border-red-500 @else border-gray-300 @enderror
@@ -153,9 +156,8 @@
                     <p class="text-sm text-gray-500 mt-2">Image actuelle :</p>
                     <img src="{{ asset('storage/' . $category->image) }}" class="w-24 h-24 object-cover rounded-lg border mt-1">
                 @endif
-                <input type="text" name="icon" id="icon-picker"> -->
             </div>
-
+            
             {{-- Service --}}
             <div class="mb-4">
                 <label for="service_id" class="block text-gray-700 font-medium mb-2">Service</label>

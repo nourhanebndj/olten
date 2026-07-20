@@ -136,7 +136,10 @@
                     @endforeach
                     
                 </div>
-                <!-- <label for="image" class="block text-gray-700 font-medium mb-1">Image </label>
+            </div>
+
+            <div class="mb-4">
+                <label for="image" class="block text-gray-700 font-medium mb-1">Image </label>
 
                 <input type="file" name="image" id="image"
                     class="w-full border @error('image') border-red-500 @else border-gray-300 @enderror
@@ -144,7 +147,7 @@
 
                 @error('image')
                     <p class="text-red-600 text-sm mt-1">{{ $message }}</p>
-                @enderror -->
+                @enderror
                 @error('icon')
                     <p class="text-red-600 text-sm mt-1">{{ $message }}</p>
                 @enderror

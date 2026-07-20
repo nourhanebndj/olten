@@ -16,10 +16,18 @@
             Découvrez toutes les offres disponibles dans la catégorie
             <strong>{{ $category->nom }}</strong> sur Olten.fr.
         </p>
+
         @if($category->description)
             <p class="category-description">
                 {{ $category->description }}
             </p>
+        @endif
+
+        @if($category->image)
+            <div class="category-image">
+                <img src="{{ asset('storage/' . $category->image) }}"
+                     alt="{{ $category->nom }}">
+            </div>
         @endif
     </div>
 </section>

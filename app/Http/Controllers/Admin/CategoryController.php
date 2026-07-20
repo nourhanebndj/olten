@@ -46,16 +46,14 @@ class CategoryController extends Controller
 
         $data = $request->only('nom', 'description', 'service_id', 'icon', 'slug');
 
-        // if ($request->hasFile('image')) {
-        //     if(isset($category) && $category->image){
-        //         Storage::disk('public')->delete($category->image);
-        //     }
-        //     $data['image'] = $request->file('image')->store('categories', 'public');
-        // }
+        if ($request->hasFile('image')) {
+            if(isset($category) && $category->image){
+                Storage::disk('public')->delete($category->image);
+            }
+            $data['image'] = $request->file('image')->store('categories', 'public');
+        }
 
         Category::create($data); // pour store
-
-
         return redirect()->route('admin.categories.index')->with('success', 'Catégorie ajoutée avec succès.');
     }
 
@@ -77,16 +75,17 @@ class CategoryController extends Controller
         ]);
 
         $data = $request->only('nom', 'description', 'service_id', 'icon', 'slug');
+
         // Si l'utilisateur upload une nouvelle image
-        // if ($request->hasFile('image')) {
+        if ($request->hasFile('image')) {
             // Supprimer l'ancienne image si elle existe
-            // if ($category->image && Storage::disk('public')->exists($category->image)) {
-            //     Storage::disk('public')->delete($category->image);
-            // }
+            if ($category->image && Storage::disk('public')->exists($category->image)) {
+                Storage::disk('public')->delete($category->image);
+            }
 
             // Sauvegarder la nouvelle image
-        //     $data['image'] = $request->file('image')->store('categories', 'public');
-        // }
+            $data['image'] = $request->file('image')->store('categories', 'public');
+        }
 
         $category->update($data);
 

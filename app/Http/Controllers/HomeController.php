@@ -48,7 +48,6 @@ class HomeController extends Controller
         $products = Product::where('category_id', $category->id)
                            ->latest()
                            ->paginate(12);
-
         return view('categories.show', compact('category', 'ads', 'products'));
     }
 
