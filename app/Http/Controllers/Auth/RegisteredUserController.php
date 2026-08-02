@@ -95,9 +95,13 @@ class RegisteredUserController extends Controller
 
         Auth::login($user);
 
+        // return response()->json([
+        //     'status' => 'success',
+        //     'redirect' => route('dashboard'),
+        // ]);
         return response()->json([
             'status' => 'success',
-            'redirect' => route('dashboard'),
+            'redirect' => route('subscriptions.index'),
         ]);
     }
 }

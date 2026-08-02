@@ -24,7 +24,7 @@ class User extends Authenticatable implements LaratrustUser, MustVerifyEmail
         'name','firstname','lastname','email','password','about_me',
         'phone','gender','disable_email_notifications','x_com','facebook',
         'linkedin','instagram','youtube','tiktok','whatsapp',
-        'identity_verification','profile_photo','is_admin','verifie','role','is_vtc_driver', 'is_approved'
+        'identity_verification','profile_photo','is_admin','verifie','role','is_vtc_driver', 'is_approved', 'subscription_id', 'subscription_expired_at'
     ];
 
     protected $hidden = ['password','remember_token'];
@@ -122,5 +122,10 @@ class User extends Authenticatable implements LaratrustUser, MustVerifyEmail
     public function sendEmailVerificationNotification()
     {
         $this->notify(new VerifyEmailCustom());
+    }
+
+    public function subscription()
+    {
+        return $this->belongsTo(Subscription::class);
     }
 }

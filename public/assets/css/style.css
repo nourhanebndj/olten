@@ -3178,3 +3178,7 @@ product-card:hover {
 .flatpickr-day.endRange:after {
     display: none !important;
 }
+
+.font-12 {
+    font-size: 12px;
+}

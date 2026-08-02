@@ -37,6 +37,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Models\User;
 use App\Http\Controllers\Admin\SettingController;
+use App\Http\Controllers\SubscriptionController;
 
 Route::get('rapport-test', [AdminDashboardController::class, 'rapportTest'])->name('rapport_test');
 Route::prefix('admin')
@@ -65,7 +66,15 @@ Route::view('/categories', 'pages.annonces_pages.categories_annonces')
 Route::get('/compte-en-attente', function () { return view('auth.pending-approval');})->name('account.pending');
 Route::get('/verify-email', function () { return view('auth.verify-email');})->name('account.verify');
 
-Route::middleware('auth', 'verified', 'approved', 'role:locateur')->group(function () {
+Route::middleware('auth')->group(function () {
+    Route::get('/abonnements', [SubscriptionController::class, 'index'])->name('subscriptions.index');
+    Route::post('/abonnements/{slug}/choisir', [SubscriptionController::class, 'select'])->name('subscriptions.select');
+    Route::get('/abonnements/{subscription}/paiement', [SubscriptionController::class, 'payment'])->name('subscriptions.payment');
+    Route::get('/abonnements/paiement/success', [SubscriptionController::class, 'success'])->name('subscriptions.success');
+    Route::get('/abonnements/paiement/cancel', [SubscriptionController::class, 'cancel'])->name('subscriptions.cancel');
+});
+
+Route::middleware('auth', 'verified', 'approved', 'subscription', 'role:locateur', 'subscription.level:standard,premium,vip')->group(function () {
     Route::get('/annonces/deposer-une-annonce', [AdController::class, 'create'])->name('ads.create');
     Route::post('/ads', [AdController::class, 'store'])->name('ads.store');
     Route::get('/ads/reverse-geocode', [AdController::class, 'reverseGeocode'])->name('ads.reverse-geocode');
@@ -82,7 +91,7 @@ Route::middleware('auth', 'verified', 'approved', 'role:locateur')->group(functi
     Route::get('/statistiques', function () {return view('pages.locateur.statistiques');})->name('statistiques');
 });
 
-Route::middleware('auth', 'verified', 'approved', 'role:livreur')->group(function () {
+Route::middleware('auth', 'verified', 'approved', 'subscription', 'role:livreur', 'subscription.level:standard,premium,vip')->group(function () {
     Route::get('/espace-livraison/missions', [DeliveryAdController::class, 'missions'])->name('livreur.missions');
     Route::get('/espace-livraison/demandes', [DeliveryAdController::class, 'demandes'])->name('livreur.demandes');
     Route::get('/espace-livraison/livraisons-en-cours', [DeliveryAdController::class, 'livraisons'])->name('livreur.livraisons');
@@ -93,7 +102,7 @@ Route::middleware('auth', 'verified', 'approved', 'role:livreur')->group(functio
     Route::post('/delivery/ads/{ad}/{type}/request', [DeliveryAdController::class, 'sendRequest'])->name('delivery.ads.request');
 });
 
-Route::middleware('auth', 'verified', 'approved')->group(function () {
+Route::middleware('auth', 'verified', 'subscription', 'approved')->group(function () {
     Route::post('/profile/toggle-vtc', [ProfileController::class, 'toggleVtc'])->name('profile.toggleVtc');
     Route::post('/profile/toggleLivreur', [ProfileController::class, 'toggleLivreur'])->name('profile.toggleLivreur');
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
@@ -101,6 +110,9 @@ Route::middleware('auth', 'verified', 'approved')->group(function () {
     Route::get('/profile/modifer', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile/modifer', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile/supprimer', [ProfileController::class, 'destroy'])->name('profile.destroy');
+});
+
+Route::middleware('auth', 'verified', 'subscription', 'approved', 'subscription.level:standard,premium,vip')->group(function () {
     Route::get('/mes-reservations', [BookingController::class, 'myBookings'])->name('bookings.myBookings');
     Route::get('/mes-messages', function () {
         return view('pages.locateur.messages');

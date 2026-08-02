@@ -80,8 +80,10 @@
                                             <span class="mt-auto mb-auto bg-success text-white fs-6 p-1 radius-2">Livraison disponible</span>
                                         @endif                            
                                     </div>
-                                    
-                                    <p class="card-price">Commence à partir de {{ number_format($ad->price_per_day, 2) }} € / jour</p>
+                                    <div class="card-price">
+                                        <span class="text-dark font-12 fw-bold">Publié par:  {{ $ad->user?->name ?? '—' }} </span>
+                                        <p>Commence à partir de {{ number_format($ad->price_per_day, 2) }} € / jour</p> 
+                                    </div>
                                 </div>
                             </a>
                         @endif
