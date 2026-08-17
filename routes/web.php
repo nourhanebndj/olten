@@ -273,6 +273,8 @@ Route::prefix('vendeur')
         Route::post('commandes-clients/{order}/cancel', [SellerOrderController::class, 'cancelOrder'])->name('orders.cancel');
         Route::post('commandes-clients/{order}/confirmer', [SellerOrderController::class, 'confirmOrder'])->name('orders.confirm');
     });
+Route::get('/produits/{product}', [ProductController::class, 'show'])->name('products.show');
+
 Route::prefix('produits')
     ->name('products.')
     ->middleware(['auth', 'role:vendeur', 'approved'])
@@ -283,7 +285,6 @@ Route::prefix('produits')
             return view('products.success');
         })->name('success');
         Route::post('{product}/acheter', [ProductController::class, 'purchase'])->name('purchase')->middleware('auth');
-        Route::get('{product}', [ProductController::class, 'show'])->name('show');
     });
 Route::get('/{slug}', [HomeController::class, 'show'])->name('categories.show');
 require __DIR__.'/auth.php';
