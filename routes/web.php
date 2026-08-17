@@ -39,7 +39,8 @@ use App\Models\User;
 use App\Http\Controllers\Admin\SettingController;
 use App\Http\Controllers\SubscriptionController;
 
-Route::get('rapport-test', [AdminDashboardController::class, 'rapportTest'])->name('rapport_test');
+
+
 Route::prefix('admin')
     ->name('admin.')
     ->middleware(['auth'])

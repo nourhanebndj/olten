@@ -183,19 +183,19 @@
         <ul class="menu-list">
             <li class="d-flex">
             <a class="d-flex gap-2" href="/" >
-                <i class="fas fa-home category-icon-small bg-transparent"></i> Accueil
+                Accueil
             </a>
             </li>
             @foreach($footerCategories as $category)
             <li class="d-flex">
                 <a href="{{ route('categories.show', $category->slug) }}" class="d-flex gap-2">
-                    <i class="{{ $category->icon }} category-icon-small bg-transparent"></i> {{ $category->nom }}
+                    {{ $category->nom }}
                 </a>
             </li>
             @endforeach
             <li class="d-flex">
             <a class="d-flex gap-2" href="/contact">
-                <i class="fas fa-envelope category-icon-small bg-transparent"></i> Contact
+                Contact
             </a>
             </li>
         </ul>
