@@ -14,6 +14,7 @@ use Illuminate\View\View;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\DB;
 use Laratrust\Models\Role;
+use App\Models\Subscription;
 
 class RegisteredUserController extends Controller
 {
@@ -95,13 +96,27 @@ class RegisteredUserController extends Controller
 
         Auth::login($user);
 
-        // return response()->json([
-        //     'status' => 'success',
-        //     'redirect' => route('dashboard'),
-        // ]);
-        return response()->json([
-            'status' => 'success',
-            'redirect' => route('subscriptions.index'),
-        ]);
+        $roles = explode('|', $request->role);
+
+        if (in_array('vendeur', $roles) || in_array('locateur', $roles)) {
+            $subscription = Subscription::where('slug', 'vip')->first();
+
+            if ($subscription) {
+                $user->update([
+                    'subscription_id' => $subscription->id,
+                    'subscription_expired_at' => now()->addMonth(),
+                ]);
+            }
+
+            return response()->json([
+                'status' => 'success',
+                'redirect' => route('dashboard'),
+            ]);
+        } else {
+            return response()->json([
+                'status' => 'success',
+                'redirect' => route('subscriptions.index'),
+            ]);
+        }
     }
 }
