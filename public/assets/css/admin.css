@@ -1,0 +1,334 @@
+  /* Définition des Variables de Couleur pour un thème CLAIR doux */
+  :root {
+      /* Palette Principale (Orange Vif CLAIR) */
+      --color-primary: rgb(233 29 40);
+      /* Orange Vif - Plus clair et ensoleillé */
+      --color-light-surface: #F7F7F7;
+      /* Fond très clair (presque blanc) */
+      --color-card-surface: #FFFFFF;
+      /* Surface des cartes (Blanc pur) */
+      --color-text-dark: #1F1F1F;
+      /* Texte principal foncé */
+      --color-text-secondary: #6B7280;
+      /* Texte secondaire/gris doux */
+  }
+
+  /* Configuration de la police Inter */
+  body {
+      font-family: 'Inter', sans-serif;
+      transition: background-color 0.3s, color 0.3s;
+      /* Thème CLAIR par défaut */
+      background-color: var(--color-light-surface);
+      color: var(--color-text-dark);
+  }
+
+  /* Styles de base pour les cartes et surfaces */
+  .card,
+  #sidebar,
+  header,
+  #settings-sidebar {
+      background-color: var(--color-card-surface);
+      border: 1px solid #E5E7EB;
+      /* Bordure très claire */
+      color: var(--color-text-dark);
+      transition: background-color 0.3s ease, box-shadow 0.3s ease, border-color 0.3s;
+  }
+
+  /* Effet Wow: survol pour les cartes de stats */
+  .stat-card:hover {
+      transform: translateY(-4px) scale(1.01);
+      /* Ombre portée subtile avec l'accent ORANGE CLAIR */
+      box-shadow: 0 15px 20px -5px rgba(255, 165, 0, 0.1), 0 5px 5px -5px rgba(255, 165, 0, 0.05);
+      border-color: var(--color-primary);
+  }
+
+  /* Liens Sidebar CLAIR */
+  .sidebar-link {
+      transition: background-color 0.2s, color 0.2s, border-radius 0.2s;
+      color: var(--color-text-secondary);
+  }
+
+  .sidebar-link:hover {
+      background-color: #F3F4F6;
+      /* Gris très clair au survol */
+      color: var(--color-primary);
+      /* Orange */
+  }
+
+  /* Style du lien actif (Orange, Texte Blanc) */
+  .sidebar-link-active {
+      color: white !important;
+      /* Texte blanc sur orange */
+      background-color: var(--color-primary) !important;
+      box-shadow: 0 4px 10px rgba(255, 165, 0, 0.4);
+  }
+
+  /* Couleur du logo et des accents principaux */
+  .text-primary-accent {
+      color: var(--color-primary);
+  }
+
+  /* Barre de recherche en mode clair */
+  .search-input {
+      background-color: #F3F4F6;
+      border-color: #E5E7EB;
+      color: var(--color-text-dark);
+  }
+
+  /* Changement de couleur de la bague de notification */
+  .ring-notification-bg {
+      background-color: var(--color-primary) !important;
+      /* Orange */
+      /* En mode clair, la bague autour du point doit être plus visible */
+      ring-color: white !important;
+  }
+
+  /* --- Styles pour le mode SOMBRE (pour le toggle) --- */
+  body.dark-mode {
+      background-color: #1a1a1a;
+      color: #e0e0e0;
+  }
+
+  body.dark-mode #sidebar,
+  body.dark-mode header,
+  body.dark-mode .card,
+  body.dark-mode #settings-sidebar {
+      background-color: #262626;
+      border-color: #333;
+      color: #e0e0e0;
+  }
+
+  body.dark-mode .card {
+      border: 1px solid #333;
+  }
+
+  body.dark-mode .sidebar-link {
+      color: #a0a0a0;
+  }
+
+  body.dark-mode .sidebar-link:hover {
+      background-color: #383838;
+      color: var(--color-primary);
+  }
+
+  body.dark-mode .search-input {
+      background-color: #333;
+      border-color: #444;
+      color: #e0e0e0;
+  }
+
+  body.dark-mode .ring-notification-bg {
+      ring-color: #1a1a1a !important;
+  }
+
+  :root {
+      --primary: #1F1F1F;
+      --primary-hover: #c10711;
+
+      --bg-body: #f5f6fa;
+      --bg-card: #ffffff;
+      --text-dark: #333;
+      --text-muted: #777;
+
+      --border: #e6e6e6;
+      --radius: 12px;
+  }
+
+  body {
+      background: var(--bg-body) !important;
+      color: var(--text-dark);
+  }
+
+  .card-white {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: 0 3px 12px rgba(0, 0, 0, 0.07);
+  }
+
+  .btn-red {
+      background: var(--primary);
+      color: #fff;
+      padding: 8px 18px;
+      border-radius: var(--radius);
+      transition: 0.2s;
+      font-weight: 600;
+  }
+
+  .btn-red:hover {
+      background: var(--primary-hover);
+      transform: translateY(-1px);
+  }
+
+  /* TABLE */
+  .table-rounded thead {
+      background: #fafafa;
+      border-bottom: 1px solid var(--border);
+  }
+
+  .table-rounded th {
+      color: #666;
+      font-size: 12px;
+      text-transform: uppercase;
+      font-weight: 700;
+  }
+
+  .table-rounded td {
+      color: #444;
+      font-size: 14px;
+  }
+
+  .table-rounded tbody tr:hover {
+      background: #f3f3f3;
+  }
+
+  /* DROPDOWN */
+  .dropdown-menu-white {
+      background: #fff;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: 0 5px 20px rgba(0, 0, 0, 0.12);
+      opacity: 0;
+      transform: translateY(-8px);
+      pointer-events: none;
+      transition: 0.18s ease-in-out;
+  }
+
+  a {
+      text-decoration: none;
+  }
+
+  .dropdown-menu-white.active {
+      opacity: 1;
+      transform: translateY(0);
+      pointer-events: auto;
+  }
+
+  /* RESPONSIVE TABLE */
+  .table-wrapper {
+      width: 100%;
+      overflow-x: auto;
+      border-radius: var(--radius);
+  }
+
+  .table-wrapper::-webkit-scrollbar {
+      height: 6px;
+  }
+
+  .table-wrapper::-webkit-scrollbar-thumb {
+      background: #ccc;
+      border-radius: 6px;
+  }
+
+  /* Style pour le bouton paramètres */
+  #settings-toggle {
+      display: inline-flex;
+      /* Pour que l'icône et le bouton soient bien alignés */
+      align-items: center;
+      justify-content: center;
+      width: 46px;
+      /* Largeur du bouton */
+      height: 46px;
+      /* Hauteur du bouton */
+      background-color: transparent;
+      /* Fond transparent par défaut */
+      border-radius: 50%;
+      /* Rond */
+      transition: background-color 0.15s ease;
+  }
+
+  #settings-toggle:hover {
+      background-color: #f3f4f6;
+      /* Gris clair au hover */
+  }
+
+  /* Taille de l'icône Bootstrap */
+  #settings-toggle .bi-gear-fill {
+      font-size: 2rem;
+      /* Agrandit l’icône */
+      display: block;
+      /* Pour que le width/height s’appliquent */
+      color: #e91d28;
+      /* Rouge */
+  }
+
+  /* Toast container */
+  .toast-custom {
+      position: fixed;
+      top: 1rem;
+      right: 1rem;
+      background-color: #ffffff;
+      /* fond blanc */
+      color: #000000;
+      /* texte noir */
+      border-left: 5px solid #6ee7b7;
+      /* accent vert léger */
+      padding: 1rem 1.5rem;
+      border-radius: 0.5rem;
+      box-shadow: 0 4px 8px rgba(110, 231, 183, 0.3);
+      /* ombre verte subtile */
+      opacity: 0;
+      transform: translateY(-20px);
+      transition: opacity 0.3s ease, transform 0.3s ease;
+      z-index: 9999;
+      max-width: 300px;
+  }
+
+  /* Affichage actif */
+  .toast-custom.show {
+      opacity: 1;
+      transform: translateY(0);
+  }
+
+
+  @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+
+  body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      background-color: #f4f6f8;
+      /* Gris très clair */
+      color: #1a1c1e;
+  }
+
+  .accent-rouge {
+      color: rgb(233, 29, 40);
+  }
+
+  .bg-accent-rouge {
+      background-color: rgb(233, 29, 40);
+  }
+
+  .border-accent-rouge {
+      border-color: rgb(233, 29, 40);
+  }
+
+  .stat-card {
+      background: white;
+      border: 1px solid #e2e8f0;
+      transition: all 0.25s ease;
+  }
+
+  .stat-card:hover {
+      border-color: rgb(233, 29, 40);
+      box-shadow: 0 12px 20px -10px rgba(233, 29, 40, 0.1);
+  }
+
+  .btn-primary-custom {
+      background-color: rgb(233, 29, 40);
+      color: white;
+      transition: all 0.3s ease;
+  }
+
+  .btn-primary-custom:hover {
+      background-color: rgba(233, 29, 40, 0.9);
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(233, 29, 40, 0.2);
+  }
+  .ts-control{
+    border: 1px solid rgba(255, 122, 129, 0.757) !important;
+    border-radius: 8px  !important;
+    padding: 0.7rem !important;
+  }
+  .ts-dropdown{
+    background-color: white !important;
+  }
